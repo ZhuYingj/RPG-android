@@ -1,6 +1,5 @@
-package com.example.mobile_client.ui.theme
+package com.mobile_client.pages.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme

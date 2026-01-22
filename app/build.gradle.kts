@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.mobile_client"
+    namespace = "com.mobile_client.pages"
     compileSdk {
         version = release(36)
     }

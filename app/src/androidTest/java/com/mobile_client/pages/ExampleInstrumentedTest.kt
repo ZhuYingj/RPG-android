@@ -1,4 +1,4 @@
-package com.example.mobile_client
+package com.mobile_client.pages
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

@@ -1,4 +1,4 @@
-package com.example.mobile_client
+package com.mobile_client.pages
 
 import org.junit.Test
 
