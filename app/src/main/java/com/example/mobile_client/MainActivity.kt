@@ -42,6 +42,6 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 @Composable
 fun GreetingPreview() {
     MobileclientTheme {
-        Greeting("Android")
+        Greeting("Android", modifier = Modifier.fillMaxSize())
     }
 }
