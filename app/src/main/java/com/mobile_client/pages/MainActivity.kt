@@ -32,19 +32,9 @@ class MainActivity : ComponentActivity() {
                         startDestination = Screen.Login.route,
                         modifier = Modifier.fillMaxSize().padding(innerPadding)
                     ) {
-                        composable(Screen.Login.route) {
-                            LoginScreen(
-                                onNavigateToSignUp = { navController.navigate(Screen.SignUp.route) },
-                                onNavigateToHome = {
-                                    navController.navigate(Screen.Home.route) {
-                                        popUpTo(Screen.Login.route) { inclusive = true } //faire en sorte que le user ne peut pas go back a login
-                                    }
-                                }
-                            )
-                        }
-                        composable(Screen.SignUp.route) {
-                            SignUpScreen()
-                        }
+                        composable(Screen.Login.route) { LoginScreen(navController = navController)}
+
+                        composable(Screen.SignUp.route) { SignUpScreen(navController = navController)}
 
                     }
                 }
@@ -57,9 +47,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun GreetingPreview() {
     MobileclientTheme {
-        LoginScreen(onNavigateToSignUp = {}, onNavigateToHome = {})
+        LoginScreen(navController = rememberNavController())
     }
-
 }
 
 @Composable

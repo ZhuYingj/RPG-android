@@ -21,10 +21,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 
 @Composable
-fun LoginScreen(onNavigateToSignUp: () -> Unit, onNavigateToHome: () -> Unit,
-) {
+fun LoginScreen(navController: NavController) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     Column(
@@ -57,11 +57,11 @@ fun LoginScreen(onNavigateToSignUp: () -> Unit, onNavigateToHome: () -> Unit,
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(onClick = { onNavigateToHome() }, modifier = Modifier.height(40.dp).width(180.dp)) {
+        Button(onClick = { navController.navigate(Screen.Home.route) }, modifier = Modifier.height(40.dp).width(180.dp)) {
             Text("Login")
         }
         Spacer(modifier = Modifier.height(16.dp))
-        TextButton(onClick = { onNavigateToSignUp() }, modifier = Modifier.fillMaxWidth()) {
+        TextButton(onClick = { navController.navigate(Screen.SignUp.route) }, modifier = Modifier.fillMaxWidth()) {
             Text("Sign up")
         }
 
