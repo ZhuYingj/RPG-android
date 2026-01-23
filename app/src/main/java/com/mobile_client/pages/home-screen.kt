@@ -67,6 +67,7 @@ fun HomeScreen(navController: NavController){
             modifier = Modifier.padding(bottom=10.dp)) {
             Text("Games", color = Color.Black)
         }
+
     }
 }
 

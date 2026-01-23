@@ -1,0 +1,74 @@
+package com.mobile_client.services
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.mobile_client.utils.ChatMessage
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+
+class ChatViewModel : ViewModel() {
+    private val socketManager = SocketManager()
+    private val _messages = MutableStateFlow<List<String>>(emptyList())
+    private val _connectionStatus = MutableStateFlow("Disconnected")
+    val connectionStatus: StateFlow<String> = _connectionStatus.asStateFlow()
+
+//    private val _unreadCount = MutableStateFlow(0)
+//    val unreadCount: StateFlow<Int> = _unreadCount.asStateFlow()
+
+    init {
+        enableListeners()
+    }
+    private fun enableListeners() {
+        viewModelScope.launch {
+            socketManager.connect(
+                onConnected = {
+                    _connectionStatus.value = "Connected"
+                },
+                onDisconnected = {
+                    _connectionStatus.value = "Disconnected"
+                },
+                onChatMessage = { message ->
+                    handleChatMessage(message)
+                }
+            )
+        }
+    }
+
+    private fun handleChatMessage(message: ChatMessage) {
+        _messages.value += message.message
+//        _unreadCount.value++
+    }
+
+    private fun getCurrentTime(): String {
+        val now = java.util.Calendar.getInstance()
+        val hours = now.get(java.util.Calendar.HOUR_OF_DAY).toString().padStart(2, '0')
+        val minutes = now.get(java.util.Calendar.MINUTE).toString().padStart(2, '0')
+        val seconds = now.get(java.util.Calendar.SECOND).toString().padStart(2, '0')
+        return "$hours:$minutes:$seconds"
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        socketManager.disconnect()
+    }
+
+    fun sendMessage(messageContent: String) {
+        viewModelScope.launch {
+            val newMessage = ChatMessage(
+                username = "test username",
+                message = messageContent,
+                concernedUser = "",
+                timestamp = getCurrentTime(),
+            )
+            socketManager.sendMessage(newMessage)
+        }
+    }
+
+
+}
+
+
+
+
