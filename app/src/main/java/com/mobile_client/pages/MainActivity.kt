@@ -13,11 +13,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.mobile_client.components.ChatBox
 import com.mobile_client.pages.ui.theme.MobileclientTheme
-import com.mobile_client.pages.LoginScreen
+import com.mobile_client.services.ChatViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,7 +35,10 @@ class MainActivity : ComponentActivity() {
                         startDestination = Screen.Login.route,
                         modifier = Modifier.fillMaxSize().padding(innerPadding)
                     ) {
-                        composable(Screen.Login.route) { LoginScreen(navController = navController)}
+                        composable(Screen.Login.route) {
+                            ChatBox(viewModel<ChatViewModel>())
+                            //LoginScreen(navController = navController)
+                            }
 
                         composable(Screen.SignUp.route) { SignUpScreen(navController = navController)}
 

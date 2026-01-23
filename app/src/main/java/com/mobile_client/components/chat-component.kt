@@ -1,21 +1,41 @@
 package com.mobile_client.components
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -25,26 +45,170 @@ import com.mobile_client.utils.ChatMessage
 
 @Composable
 fun ChatBox(chatViewModel: ChatViewModel) {
-    var messages by remember { mutableStateOf(emptyList<String>()) }
+    //var messages by remember { mutableStateOf(emptyList<String>()) }
+    val chatMessages by chatViewModel.messages.collectAsState()
     val connectionStatus by chatViewModel.connectionStatus.collectAsState()
     var newMessage by remember { mutableStateOf("") }
+
     var listState = rememberLazyListState()
-    Card(modifier = Modifier.width(200.dp).height(200.dp),
-        shape = RoundedCornerShape(10.dp),
-        elevation = CardDefaults.cardElevation(10.dp)
+
+    LaunchedEffect(chatMessages.size) {
+//        if (chatMessages.isNotEmpty()) {
+//        }
+        listState.animateScrollToItem(chatMessages.size)
+    }
+
+//    Card(modifier = Modifier.width(200.dp).height(200.dp),
+//        shape = RoundedCornerShape(10.dp),
+//        elevation = CardDefaults.cardElevation(10.dp)
+//    ) {
+//        Column(modifier = Modifier.fillMaxSize()) {
+//            messages.forEach { message ->
+//                Text(text = message)
+//            }
+//
+//        }
+//    }
+    Card(
+        modifier = Modifier
+            .width(320.dp)
+            .height(480.dp),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(8.dp)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            messages.forEach { message ->
-                Text(text = message)
+            // Header
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.primary)
+                    .padding(12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        Icons.Default.Close,
+                        contentDescription = "Close Chat",
+                        tint = Color.White
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Column {
+                        Text(
+                            "Chat",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Color.White
+                        )
+                        Text(
+                            connectionStatus,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.White.copy(alpha = 0.8f)
+                        )
+                    }
+                }
+
+//                IconButton(onClick = onCollapse) {
+//                    Icon(
+//                        Icons.Default.Close,
+//                        contentDescription = "Close Chat",
+//                        tint = Color.White
+//                    )
+//                }
             }
 
+            // Messages
+            LazyColumn(
+                state = listState,
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .padding(8.dp)
+            ) {
+                items(chatMessages) { message ->
+                    MessageBox(message)
+                }
+            }
+
+            // Input
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                OutlinedTextField(
+                    value = newMessage,
+                    onValueChange = { newMessage = it },
+                    modifier = Modifier.weight(1f),
+                    placeholder = { Text("Type a message...") },
+                    maxLines = 3
+                )
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                IconButton(
+                    onClick = {
+                        if (newMessage.isNotBlank()) {
+                            chatViewModel.sendMessage(newMessage)
+                            newMessage = ""
+                        }
+                    },
+                    enabled = newMessage.isNotBlank()
+                ) {
+                    Icon(Icons.Default.Send, contentDescription = "Send")
+                }
+            }
         }
     }
 }
 
 @Composable
 fun MessageBox(chatMessage: ChatMessage) {
+    val isFromCurrentUser = chatMessage.username == "test username"
 
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        horizontalArrangement = if (isFromCurrentUser) Arrangement.End else Arrangement.Start
+    ) {
+        Surface(
+            color = if (isFromCurrentUser)
+                MaterialTheme.colorScheme.primary
+            else
+                MaterialTheme.colorScheme.surfaceVariant,
+            shape = RoundedCornerShape(12.dp),
+            modifier = Modifier.widthIn(max = 260.dp)
+        ) {
+            Column(modifier = Modifier.padding(12.dp)) {
+                if (isFromCurrentUser) {
+                    Text(
+                        text = chatMessage.username,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                }
+                Text(
+                    text = chatMessage.message,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = if (isFromCurrentUser)
+                        MaterialTheme.colorScheme.onPrimary
+                    else
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = chatMessage.timestamp,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = if (isFromCurrentUser)
+                        MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
+                    else
+                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
+        }
+    }
 }
 
 @Preview(showBackground = true, device="spec:width=2000px,height=1200px, orientation=landscape")
