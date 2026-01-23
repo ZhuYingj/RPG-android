@@ -75,6 +75,7 @@ fun HomeScreen(navController: NavController){
 fun HomeScreenPreview() {
     MobileclientTheme {
         //LoginScreen(onNavigateToSignUp = {}, onNavigateToHome = {})
-        HomeScreen(navController = rememberNavController())
+        //HomeScreen(navController = rememberNavController())
+        SignUpScreen(navController = rememberNavController())
     }
 }
