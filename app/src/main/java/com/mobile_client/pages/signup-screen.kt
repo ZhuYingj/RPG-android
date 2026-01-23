@@ -28,12 +28,46 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.compose.ui.unit.sp
 import com.mobile_client.pages.ui.theme.Pink80
+import kotlin.compareTo
+
+
 
 @Composable
 fun SignUpScreen(navController: NavController) {
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+
+    var usernameError by remember { mutableStateOf<String?>(null) }
+    var emailError by remember { mutableStateOf<String?>(null) }
+    var passwordError by remember { mutableStateOf<String?>(null) }
+
+    var hasSubmitted by remember { mutableStateOf(false) }
+
+
+    fun validate(): Boolean {
+        var isValide = true
+
+        usernameError = null
+        if (username.isBlank() && hasSubmitted) {
+            usernameError = "Nom d'utilisateur requis"
+            isValide = false
+        }
+
+        emailError = null
+        if (!email.contains("@")) {
+            emailError = "L'email ne contient pas de @"
+            isValide = false
+        }
+
+        passwordError = null
+        if (!password.contains(Regex("[0-9]")) || password.length < 5) {
+            passwordError = "Minimum de 5 caractères incluant un chiffre"
+            isValide = false
+        }
+        return isValide
+    }
+
     Box(
         contentAlignment = Alignment.Center
     ) {
@@ -68,8 +102,20 @@ fun SignUpScreen(navController: NavController) {
                 )
                 OutlinedTextField(
                     value = username,
-                    onValueChange = { username = it },
-                    modifier = Modifier.padding(bottom = 16.dp).width(450.dp)
+                    onValueChange = {
+                        username = it
+                        usernameError = null
+                        if (username.isBlank() && hasSubmitted) {
+                            usernameError = "Nom d'utilisateur requis"
+                        }
+                    },
+                    isError = usernameError != null,
+                    supportingText = {
+                        usernameError?.let { Text(it, color = Color.Red) }
+                    },
+                    modifier = Modifier
+                        .padding(bottom = 16.dp)
+                        .width(450.dp)
                 )
             }
 
@@ -81,7 +127,17 @@ fun SignUpScreen(navController: NavController) {
                 )
                 OutlinedTextField(
                     value = email,
-                    onValueChange = { email = it },
+                    onValueChange = {
+                        email = it
+                        emailError = null
+                        if (hasSubmitted && !email.contains("@")) {
+                            emailError = "L'email ne contient pas de @"
+                        }
+                    },
+                    isError = emailError != null,
+                    supportingText = {
+                        emailError?.let { Text(it, color = Color.Red) }
+                    },
                     modifier = Modifier.padding(bottom = 16.dp).width(450.dp)
                 )
             }
@@ -94,7 +150,17 @@ fun SignUpScreen(navController: NavController) {
                 )
                 OutlinedTextField(
                     value = password,
-                    onValueChange = { password = it },
+                    onValueChange = {
+                        password = it
+                        passwordError = null
+                        if ((password.length < 5 || !password.contains(Regex("[0-9]"))) && hasSubmitted) {
+                            passwordError = "Minimum de 5 caractères incluant un chiffre"
+                        }
+                    },
+                    isError = passwordError != null,
+                    supportingText = {
+                        passwordError?.let { Text(it, color = Color.Red) }
+                    },
                     modifier = Modifier.padding(bottom = 16.dp).width(450.dp)
                 )
             }
@@ -115,7 +181,14 @@ fun SignUpScreen(navController: NavController) {
                 }
 
                 Button(
-                    onClick = { navController.navigate(Screen.Login.route) }, modifier = modifierButton, shape = RoundedCornerShape(5.dp), colors = ButtonDefaults.buttonColors(
+                    onClick = {
+                        hasSubmitted = true
+                        if (validate()) { // Navigate en commentaire pour tester les messages d'erreurs
+                           // navController.navigate(Screen.Home.route)
+                        }
+                        },
+                    enabled = username.isNotBlank() && email.isNotBlank() && password.isNotBlank(),
+                    modifier = modifierButton, shape = RoundedCornerShape(5.dp), colors = ButtonDefaults.buttonColors(
                         containerColor = Color(color = 0XFF357abd),
                         contentColor = Color.White
                     )
@@ -127,4 +200,6 @@ fun SignUpScreen(navController: NavController) {
         }
     }
 }
+
+
 
