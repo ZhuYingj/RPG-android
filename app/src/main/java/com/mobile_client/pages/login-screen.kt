@@ -37,24 +37,30 @@ fun LoginScreen(navController: NavController) {
     val scope = rememberCoroutineScope()
 
     val httpService = HttpService()
-    val BASE_URL = ENVIRONMENT
 
     fun loginValidate() {
         scope.launch {
+            errorMessage = null
             try {
                 val body = mapOf(
                     "username" to username,
                     "password" to password
                 )
 
-                val response = httpService.post(BASE_URL + "/api/auth/login", body) // Create enum routes later
-                when (response.status) { // In case on a plusieurs autres codes
-                    HttpStatusCode.OK -> { navController.navigate(Screen.Home.route) }
-                    else -> {
+                val response = httpService.post("$ENVIRONMENT/api/auth/login", body)
+                when (response.status) {
+                    HttpStatusCode.OK -> {
+                        navController.navigate(Screen.Home.route)
+                    }
+                    HttpStatusCode.BadRequest -> {
                         errorMessage = "Invalid credentials"
+                    }
+                    else -> {
+                        errorMessage = "Login failed. Please try again."
                     }
                 }
             } catch (e: Exception) {
+                errorMessage = "Network error: ${e.message}"
                 e.printStackTrace()
             }
         }

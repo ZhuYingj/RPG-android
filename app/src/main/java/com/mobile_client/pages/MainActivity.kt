@@ -49,14 +49,14 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
+/*
 @Preview(showBackground = true, device="spec:width=2000px,height=1200px, orientation=landscape")
 @Composable
 fun GreetingPreview() {
     MobileclientTheme {
         LoginScreen(navController = rememberNavController())
     }
-}
+}*/
 
 @Composable
 fun LockScreenOrientation(orientation: Int) {

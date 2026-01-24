@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,7 +28,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.compose.ui.unit.sp
+import com.mobile_client.environment.ENVIRONMENT
 import com.mobile_client.pages.ui.theme.Pink80
+import com.mobile_client.services.HttpService
+import org.json.JSONObject
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.launch
 
 @Composable
 fun SignUpScreen(navController: NavController) {
@@ -41,27 +48,73 @@ fun SignUpScreen(navController: NavController) {
 
     var hasSubmitted by remember { mutableStateOf(false) }
 
-    fun validate(): Boolean {
-        var isValide = true
+    val scope = rememberCoroutineScope()
+
+    val httpService = HttpService()
+
+    fun validateClientSide(): Boolean {
+        var isValid = true
 
         usernameError = null
         if (username.isBlank() && hasSubmitted) {
             usernameError = "Nom d'utilisateur requis"
-            isValide = false
+            isValid = false
         }
 
         emailError = null
         if (!email.contains("@")) {
             emailError = "L'email ne contient pas de @"
-            isValide = false
+            isValid = false
         }
 
         passwordError = null
         if (!password.contains(Regex("[0-9]")) || password.length < 5) {
             passwordError = "Minimum de 5 caractères incluant un chiffre"
-            isValide = false
+            isValid = false
         }
-        return isValide
+        return isValid
+    }
+
+    fun handleSignup() {
+        hasSubmitted = true
+
+        if (!validateClientSide()) {
+            return
+        }
+
+        scope.launch {
+
+            try {
+                val body = mapOf(
+                    "username" to username,
+                    "email" to email,
+                    "password" to password
+                )
+
+                val response = httpService.post("$ENVIRONMENT/api/auth/signup", body)
+
+                when (response.status) {
+                    HttpStatusCode.Created, HttpStatusCode.OK -> {
+                        navController.navigate(Screen.Home.route)
+                    }
+                    HttpStatusCode.BadRequest -> {
+                        val errorBody = response.bodyAsText()
+                        val json = JSONObject(errorBody)
+                        val message = json.getString("message")
+                        val incorrectInput = message.substringBefore(" ").lowercase()
+
+                        if (incorrectInput == "email") emailError = "Email is already taken"
+                        else {usernameError = "Username is already taken"}
+
+                    }
+                    else -> {
+                        usernameError = "Signup failed. Please try again" // To change for clearer error quand on aura le temps
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
     Box(
@@ -180,12 +233,7 @@ fun SignUpScreen(navController: NavController) {
                 }
 
                 Button(
-                    onClick = {
-                        hasSubmitted = true
-                        if (validate()) { // Navigate en commentaire pour tester les messages d'erreurs
-                           // navController.navigate(Screen.Home.route)
-                        }
-                        },
+                    onClick = { handleSignup() },
                     enabled = username.isNotBlank() && email.isNotBlank() && password.isNotBlank(),
                     modifier = modifierButton, shape = RoundedCornerShape(5.dp), colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0XFF357abd),
