@@ -36,12 +36,13 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxSize().padding(innerPadding)
                     ) {
                         composable(Screen.Login.route) {
-                            ChatBox(viewModel<ChatViewModel>())
-                            //LoginScreen(navController = navController)
+                            //ChatBox(viewModel<ChatViewModel>())
+                            LoginScreen(navController = navController)
                             }
 
                         composable(Screen.SignUp.route) { SignUpScreen(navController = navController)}
 
+                        composable(Screen.Home.route) { HomeScreen(navController = navController)}
                     }
                 }
             }

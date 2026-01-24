@@ -1,9 +1,6 @@
 package com.mobile_client.pages
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.hoverable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,7 +28,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.compose.ui.unit.sp
 import com.mobile_client.pages.ui.theme.Pink80
-import kotlin.compareTo
 
 @Composable
 fun SignUpScreen(navController: NavController) {

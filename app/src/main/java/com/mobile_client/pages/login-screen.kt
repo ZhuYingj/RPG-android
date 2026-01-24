@@ -17,16 +17,49 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-
+import com.mobile_client.environment.ENVIRONMENT
+import com.mobile_client.services.HttpService
+import io.ktor.http.*
+import kotlinx.coroutines.launch
+import androidx.compose.ui.graphics.Color
 @Composable
 fun LoginScreen(navController: NavController) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    val scope = rememberCoroutineScope()
+
+    val httpService = HttpService()
+    val BASE_URL = ENVIRONMENT
+
+    fun loginValidate() {
+        scope.launch {
+            try {
+                val body = mapOf(
+                    "username" to username,
+                    "password" to password
+                )
+
+                val response = httpService.post(BASE_URL + "/api/auth/login", body) // Create enum routes later
+                when (response.status) { // In case on a plusieurs autres codes
+                    HttpStatusCode.OK -> { navController.navigate(Screen.Home.route) }
+                    else -> {
+                        errorMessage = "Invalid credentials"
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -55,9 +88,21 @@ fun LoginScreen(navController: NavController) {
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
+        errorMessage?.let { error ->
+            Text(
+                text = error,
+                color = Color.Red,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(bottom = 8.dp, start = 16.dp, end = 16.dp),
+            )
+        }
+
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(onClick = { navController.navigate(Screen.Home.route) }, modifier = Modifier.height(40.dp).width(180.dp)) {
+        Button(onClick = { loginValidate() },
+            enabled = username.isNotBlank() && password.isNotBlank(),
+            modifier = Modifier.height(40.dp).width(180.dp)
+        ) {
             Text("Login")
         }
         Spacer(modifier = Modifier.height(16.dp))
@@ -66,5 +111,4 @@ fun LoginScreen(navController: NavController) {
         }
 
     }
-
 }
