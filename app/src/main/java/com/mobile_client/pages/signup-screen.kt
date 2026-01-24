@@ -1,6 +1,9 @@
 package com.mobile_client.pages
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.hoverable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,8 +33,6 @@ import androidx.compose.ui.unit.sp
 import com.mobile_client.pages.ui.theme.Pink80
 import kotlin.compareTo
 
-
-
 @Composable
 fun SignUpScreen(navController: NavController) {
     var username by remember { mutableStateOf("") }
@@ -43,7 +44,6 @@ fun SignUpScreen(navController: NavController) {
     var passwordError by remember { mutableStateOf<String?>(null) }
 
     var hasSubmitted by remember { mutableStateOf(false) }
-
 
     fun validate(): Boolean {
         var isValide = true
@@ -102,6 +102,7 @@ fun SignUpScreen(navController: NavController) {
                 )
                 OutlinedTextField(
                     value = username,
+                    singleLine = true,
                     onValueChange = {
                         username = it
                         usernameError = null
@@ -127,10 +128,11 @@ fun SignUpScreen(navController: NavController) {
                 )
                 OutlinedTextField(
                     value = email,
+                    singleLine = true,
                     onValueChange = {
                         email = it
                         emailError = null
-                        if (hasSubmitted && !email.contains("@")) {
+                        if (hasSubmitted && email.isBlank()) {
                             emailError = "L'email ne contient pas de @"
                         }
                     },
@@ -150,10 +152,11 @@ fun SignUpScreen(navController: NavController) {
                 )
                 OutlinedTextField(
                     value = password,
+                    singleLine = true,
                     onValueChange = {
                         password = it
                         passwordError = null
-                        if ((password.length < 5 || !password.contains(Regex("[0-9]"))) && hasSubmitted) {
+                        if (password.isBlank() && hasSubmitted) {
                             passwordError = "Minimum de 5 caractères incluant un chiffre"
                         }
                     },
@@ -189,14 +192,15 @@ fun SignUpScreen(navController: NavController) {
                         },
                     enabled = username.isNotBlank() && email.isNotBlank() && password.isNotBlank(),
                     modifier = modifierButton, shape = RoundedCornerShape(5.dp), colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(color = 0XFF357abd),
-                        contentColor = Color.White
+                        containerColor = Color(0XFF357abd),
+                        contentColor = Color.White,
+                        disabledContainerColor = Color.Gray,
+                        disabledContentColor = Color.DarkGray
                     )
                 ) {
                     Text("S'inscrire")
                 }
             }
-
         }
     }
 }
