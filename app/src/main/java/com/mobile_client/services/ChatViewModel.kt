@@ -20,10 +20,12 @@ class ChatViewModel : ViewModel() {
 
     init {
         enableListeners()
+        println("hello")
     }
     private fun enableListeners() {
         viewModelScope.launch {
             socketManager.connect(
+
                 onConnected = {
                     _connectionStatus.value = "Connected"
                 },

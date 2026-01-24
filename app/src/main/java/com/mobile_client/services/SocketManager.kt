@@ -19,11 +19,12 @@ class SocketManager {
     ) {
         try {
             val options = IO.Options().apply {
+                transports = arrayOf("websocket")
                 reconnection = true
                 reconnectionDelay = 1000
                 reconnectionAttempts = 5
             }
-
+            //"http://10.0.2.2:3000"
             socket = IO.socket(SERVER_URL, options)
 
             socket?.on(Socket.EVENT_CONNECT) {
