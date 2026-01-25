@@ -53,9 +53,9 @@ fun ChatBox(chatViewModel: ChatViewModel, modifier: Modifier = Modifier) {
     var listState = rememberLazyListState()
 
     LaunchedEffect(chatMessages.size) {
-//        if (chatMessages.isNotEmpty()) {
-//        }
-        listState.animateScrollToItem(chatMessages.size)
+        if (chatMessages.isNotEmpty()) {
+            listState.animateScrollToItem(chatMessages.size - 1)
+        }
     }
 
 //    Card(modifier = Modifier.width(200.dp).height(200.dp),
@@ -124,6 +124,7 @@ fun ChatBox(chatViewModel: ChatViewModel, modifier: Modifier = Modifier) {
                     .fillMaxWidth()
                     .padding(8.dp)
             ) {
+                println(chatMessages)
                 items(chatMessages) { message ->
                     MessageBox(message)
                 }
@@ -164,7 +165,7 @@ fun ChatBox(chatViewModel: ChatViewModel, modifier: Modifier = Modifier) {
 
 @Composable
 fun MessageBox(chatMessage: ChatMessage) {
-    val isFromCurrentUser = chatMessage.username == "test username"
+    val isFromCurrentUser = chatMessage.username == "test2 username"
 
     Row(
         modifier = Modifier
