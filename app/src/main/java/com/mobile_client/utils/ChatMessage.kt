@@ -7,6 +7,7 @@ data class ChatMessage(
 )
 
 object MessageEvents {
-    const val CHAT_MESSAGE = "chatMessage"
-    const val JOURNAL_MESSAGE = "journalMessage"
+    const val CHAT_MESSAGE = "chat-message"
+    const val JOURNAL_MESSAGE = "journal-message"
+    const val Global_CHAT_MESSAGE = "global-chat-message"
 }

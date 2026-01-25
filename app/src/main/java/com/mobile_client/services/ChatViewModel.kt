@@ -25,7 +25,6 @@ class ChatViewModel : ViewModel() {
     private fun enableListeners() {
         viewModelScope.launch {
             socketManager.connect(
-
                 onConnected = {
                     _connectionStatus.value = "Connected"
                 },
@@ -63,7 +62,7 @@ class ChatViewModel : ViewModel() {
             val newMessage = ChatMessage(
                 username = "test username",
                 message = messageContent,
-                concernedUser = "",
+                concernedUser = "none for now",
                 timestamp = getCurrentTime(),
             )
             socketManager.sendMessage(newMessage)

@@ -44,7 +44,7 @@ import com.mobile_client.services.ChatViewModel
 import com.mobile_client.utils.ChatMessage
 
 @Composable
-fun ChatBox(chatViewModel: ChatViewModel) {
+fun ChatBox(chatViewModel: ChatViewModel, modifier: Modifier = Modifier) {
     //var messages by remember { mutableStateOf(emptyList<String>()) }
     val chatMessages by chatViewModel.messages.collectAsState()
     val connectionStatus by chatViewModel.connectionStatus.collectAsState()

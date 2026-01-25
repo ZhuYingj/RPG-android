@@ -10,7 +10,7 @@ import java.net.URISyntaxException
 
 class SocketManager {
     private var socket: Socket? = null
-    private val SERVER_URL = ENVIRONMENT
+    private val serverUrl = ENVIRONMENT
 
     fun connect(
         onConnected: () -> Unit,
@@ -25,7 +25,7 @@ class SocketManager {
                 reconnectionAttempts = 5
             }
             //"http://10.0.2.2:3000"
-            socket = IO.socket(SERVER_URL, options)
+            socket = IO.socket(serverUrl, options)
 
             socket?.on(Socket.EVENT_CONNECT) {
                 onConnected()
@@ -38,6 +38,19 @@ class SocketManager {
             // Listen for chat messages
             socket?.on(MessageEvents.CHAT_MESSAGE) { args ->
                 if (args.isNotEmpty()) {
+                    val data = args[0] as JSONObject
+                    val message = ChatMessage(
+                        username = data.getString("username"),
+                        message = data.getString("message"),
+                        concernedUser = data.optString("concernedUser", ""),
+                        timestamp = data.getString("time"),
+                    )
+                    onChatMessage(message)
+                }
+            }
+
+            socket?.on(MessageEvents.Global_CHAT_MESSAGE) { args ->
+                if(args.isNotEmpty()) {
                     val data = args[0] as JSONObject
                     val message = ChatMessage(
                         username = data.getString("username"),
@@ -70,14 +83,19 @@ class SocketManager {
         }
     }
 
-    fun sendMessage(message: ChatMessage) {
+    fun sendMessage(message: ChatMessage, lobby: String="") {
         val messageData = JSONObject().apply {
             put("username", message.username)
             put("message", message.message)
             put("concernedUser", message.concernedUser)
             put("time", message.timestamp)
         }
-        socket?.emit(MessageEvents.CHAT_MESSAGE, messageData)
+        println(messageData)
+
+        if(lobby == "")
+            socket?.emit(MessageEvents.Global_CHAT_MESSAGE, messageData)
+        else
+            socket?.emit(MessageEvents.CHAT_MESSAGE, messageData)
     }
 
 

@@ -17,10 +17,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mobile_client.pages.ui.theme.Pink80
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.mobile_client.components.ChatBox
 import com.mobile_client.pages.ui.theme.MobileclientTheme
+import com.mobile_client.services.ChatViewModel
 
 @Composable
 fun HomeScreen(navController: NavController){
@@ -67,8 +71,8 @@ fun HomeScreen(navController: NavController){
             modifier = Modifier.padding(bottom=10.dp)) {
             Text("Games", color = Color.Black)
         }
-
     }
+    ChatBox(chatViewModel = viewModel<ChatViewModel>())
 }
 
 @Preview(showBackground = true, device="spec:width=2000px,height=1200px, orientation=landscape")
@@ -76,7 +80,7 @@ fun HomeScreen(navController: NavController){
 fun HomeScreenPreview() {
     MobileclientTheme {
         //LoginScreen(onNavigateToSignUp = {}, onNavigateToHome = {})
-        //HomeScreen(navController = rememberNavController())
-        SignUpScreen(navController = rememberNavController())
+        HomeScreen(navController = rememberNavController())
+        //SignUpScreen(navController = rememberNavController())
     }
 }

@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -36,8 +37,12 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxSize().padding(innerPadding)
                     ) {
                         composable(Screen.Login.route) {
-                            //ChatBox(viewModel<ChatViewModel>())
+//                            if(navController.currentDestination?.route != Screen.Login.route && navController.currentDestination?.route != Screen.SignUp.route)
+//                                ChatBox(viewModel<ChatViewModel>(), modifier = Modifier.zIndex(1f))
+
                             LoginScreen(navController = navController)
+                            //tanrin
+                            //12345
                             }
 
                         composable(Screen.SignUp.route) { SignUpScreen(navController = navController)}
