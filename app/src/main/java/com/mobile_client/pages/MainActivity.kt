@@ -39,7 +39,7 @@ class MainActivity : ComponentActivity() {
                         composable(Screen.Login.route) {
 //                            if(navController.currentDestination?.route != Screen.Login.route && navController.currentDestination?.route != Screen.SignUp.route)
 //                                ChatBox(viewModel<ChatViewModel>(), modifier = Modifier.zIndex(1f))
-
+                            //HomeScreen(navController= navController)
                             LoginScreen(navController = navController)
                             //tanrin
                             //12345

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -58,21 +59,8 @@ fun ChatBox(chatViewModel: ChatViewModel, modifier: Modifier = Modifier) {
         }
     }
 
-//    Card(modifier = Modifier.width(200.dp).height(200.dp),
-//        shape = RoundedCornerShape(10.dp),
-//        elevation = CardDefaults.cardElevation(10.dp)
-//    ) {
-//        Column(modifier = Modifier.fillMaxSize()) {
-//            messages.forEach { message ->
-//                Text(text = message)
-//            }
-//
-//        }
-//    }
     Card(
-        modifier = Modifier
-            .width(320.dp)
-            .height(480.dp),
+        modifier = modifier,
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(8.dp)
     ) {
@@ -165,7 +153,7 @@ fun ChatBox(chatViewModel: ChatViewModel, modifier: Modifier = Modifier) {
 
 @Composable
 fun MessageBox(chatMessage: ChatMessage) {
-    val isFromCurrentUser = chatMessage.username == "test2 username"
+    val isFromCurrentUser = chatMessage.username == "test username"
 
     Row(
         modifier = Modifier
