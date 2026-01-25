@@ -50,10 +50,12 @@ class SocketManager {
             }
 
             socket?.on(MessageEvents.Global_CHAT_MESSAGE) { args ->
+
                 if(args.isNotEmpty()) {
                     val data = args[0] as JSONObject
                     val message = ChatMessage(
-                        username = data.getString("username"),
+                       // username = data.getString("username"), we dont have enum for now, lets have an empty username for now
+                        username = data.optString("username", ""),
                         message = data.getString("message"),
                         concernedUser = data.optString("concernedUser", ""),
                         timestamp = data.getString("time"),
