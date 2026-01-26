@@ -62,7 +62,7 @@ class ChatViewModel : ViewModel() {
             val newMessage = ChatMessage(
                 username = "test username",
                 message = messageContent,
-                concernedUser = "none for now",
+                concernedUser = "",
                 timestamp = getCurrentTime(),
             )
             socketManager.sendMessage(newMessage)

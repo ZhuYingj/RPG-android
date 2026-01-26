@@ -49,13 +49,14 @@ class SocketManager {
                 }
             }
 
-            socket?.on(MessageEvents.Global_CHAT_MESSAGE) { args ->
+            socket?.on(MessageEvents.GLOBAL_CHAT_MESSAGE) { args ->
 
                 if(args.isNotEmpty()) {
                     val data = args[0] as JSONObject
+                    println(data)
                     val message = ChatMessage(
                        // username = data.getString("username"), we dont have enum for now, lets have an empty username for now
-                        username = data.optString("username", ""),
+                        username = data.getString("username"),
                         message = data.getString("message"),
                         concernedUser = data.optString("concernedUser", ""),
                         timestamp = data.getString("time"),
@@ -95,7 +96,7 @@ class SocketManager {
         println(messageData)
 
         if(lobby == "")
-            socket?.emit(MessageEvents.Global_CHAT_MESSAGE, messageData)
+            socket?.emit(MessageEvents.GLOBAL_CHAT_MESSAGE, messageData)
         else
             socket?.emit(MessageEvents.CHAT_MESSAGE, messageData)
     }

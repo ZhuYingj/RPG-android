@@ -170,14 +170,13 @@ fun MessageBox(chatMessage: ChatMessage) {
             modifier = Modifier.widthIn(max = 260.dp)
         ) {
             Column(modifier = Modifier.padding(12.dp)) {
-                if (isFromCurrentUser) {
-                    Text(
-                        text = chatMessage.username,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                }
+                Text(
+                    text = chatMessage.username,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+
                 Text(
                     text = chatMessage.message,
                     style = MaterialTheme.typography.bodyMedium,
