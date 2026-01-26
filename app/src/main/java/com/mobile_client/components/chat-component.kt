@@ -41,6 +41,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mobile_client.pages.ui.theme.MobileclientTheme
+import com.mobile_client.services.AccountRepository
 import com.mobile_client.services.ChatViewModel
 import com.mobile_client.utils.ChatMessage
 
@@ -153,7 +154,7 @@ fun ChatBox(chatViewModel: ChatViewModel, modifier: Modifier = Modifier) {
 
 @Composable
 fun MessageBox(chatMessage: ChatMessage) {
-    val isFromCurrentUser = chatMessage.username == "test username"
+    val isFromCurrentUser = chatMessage.username == AccountRepository.getUsername()
 
     Row(
         modifier = Modifier

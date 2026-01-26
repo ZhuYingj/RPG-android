@@ -28,6 +28,10 @@ import com.mobile_client.services.HttpService
 import io.ktor.http.*
 import kotlinx.coroutines.launch
 import androidx.compose.ui.graphics.Color
+import com.mobile_client.services.AccountRepository
+import com.mobile_client.utils.LoginResponse
+import io.ktor.client.call.body
+
 @Composable
 fun LoginScreen(navController: NavController) {
     var username by remember { mutableStateOf("") }
@@ -50,6 +54,8 @@ fun LoginScreen(navController: NavController) {
                 val response = httpService.post("$ENVIRONMENT/api/auth/login", body)
                 when (response.status) {
                     HttpStatusCode.OK -> {
+                        val loginData: LoginResponse = response.body()
+                        AccountRepository.setAccount(loginData.account, loginData.token)
                         navController.navigate(Screen.Home.route)
                     }
                     HttpStatusCode.BadRequest -> {

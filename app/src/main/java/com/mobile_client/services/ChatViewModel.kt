@@ -20,7 +20,6 @@ class ChatViewModel : ViewModel() {
 
     init {
         enableListeners()
-        println("hello")
     }
     private fun enableListeners() {
         viewModelScope.launch {
@@ -60,7 +59,7 @@ class ChatViewModel : ViewModel() {
     fun sendMessage(messageContent: String) {
         viewModelScope.launch {
             val newMessage = ChatMessage(
-                username = "test username",
+                username = AccountRepository.getUsername(),
                 message = messageContent,
                 concernedUser = "",
                 timestamp = getCurrentTime(),

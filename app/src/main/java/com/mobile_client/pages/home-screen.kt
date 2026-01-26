@@ -19,6 +19,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -30,11 +31,36 @@ import com.mobile_client.pages.ui.theme.Pink80
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.mobile_client.components.ChatBox
+import com.mobile_client.environment.ENVIRONMENT
 import com.mobile_client.pages.ui.theme.MobileclientTheme
+import com.mobile_client.services.AccountRepository
 import com.mobile_client.services.ChatViewModel
+import com.mobile_client.services.HttpService
+import com.mobile_client.utils.LoginResponse
+import io.ktor.client.call.body
+import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(navController: NavController){
+    val scope = rememberCoroutineScope()
+    val httpService = HttpService()
+    fun logout() {
+        scope.launch {
+            try {
+                val body = mapOf(
+                    "token" to AccountRepository.getToken()
+                )
+                val response = httpService.post("$ENVIRONMENT/api/auth/logout", body)
+                if (response.status == HttpStatusCode.OK) {
+                    AccountRepository.clear()
+                    navController.navigate(Screen.Login.route)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
             Row(modifier = Modifier
@@ -43,7 +69,7 @@ fun HomeScreen(navController: NavController){
                 .background(color = Pink80),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically) {
-                Button(onClick = { navController.navigate(Screen.Login.route) }, modifier = Modifier) {
+                Button(onClick = { logout() }, modifier = Modifier) {
                     Text("Logout")
                 }
                 Text(

@@ -23,6 +23,8 @@ class SocketManager {
                 reconnection = true
                 reconnectionDelay = 1000
                 reconnectionAttempts = 5
+                auth = mapOf("username" to AccountRepository.getUsername())
+
             }
             //"http://10.0.2.2:3000"
             socket = IO.socket(serverUrl, options)
@@ -53,10 +55,8 @@ class SocketManager {
 
                 if(args.isNotEmpty()) {
                     val data = args[0] as JSONObject
-                    println(data)
                     val message = ChatMessage(
-                       // username = data.getString("username"), we dont have enum for now, lets have an empty username for now
-                        username = data.getString("username"),
+                        username = data.getString("username"), //we dont have enum for now, lets have an empty username for now
                         message = data.getString("message"),
                         concernedUser = data.optString("concernedUser", ""),
                         timestamp = data.getString("time"),
