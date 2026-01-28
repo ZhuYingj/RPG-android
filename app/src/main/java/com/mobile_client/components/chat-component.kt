@@ -1,7 +1,9 @@
 package com.mobile_client.components
 
+import ShakeListener
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,13 +13,19 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.materialIcon
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -45,13 +53,15 @@ import com.mobile_client.services.ChatViewModel
 import com.mobile_client.utils.ChatMessage
 
 @Composable
-fun ChatBox(chatViewModel: ChatViewModel, modifier: Modifier = Modifier, onSend: (String) -> Unit) {
+fun ChatBox(chatViewModel: ChatViewModel, modifier: Modifier = Modifier) {
     //var messages by remember { mutableStateOf(emptyList<String>()) }
     val chatMessages by chatViewModel.messages.collectAsState()
     val connectionStatus by chatViewModel.connectionStatus.collectAsState()
     var newMessage by remember { mutableStateOf("") }
-
+    var mostRecentMessage by remember { mutableStateOf<String?>(null) }
     var listState = rememberLazyListState()
+    var isCollapsed by remember { mutableStateOf(false) }
+    var emojiSelected by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(chatMessages.size) {
         if (chatMessages.isNotEmpty()) {
@@ -59,8 +69,22 @@ fun ChatBox(chatViewModel: ChatViewModel, modifier: Modifier = Modifier, onSend:
         }
     }
 
+    ShakeListener(
+        onVerticalShake = {
+            emojiSelected?.let { emoji ->
+                chatViewModel.sendMessage(emoji)
+                mostRecentMessage = emoji
+            }
+        },
+        onHorizontalShake = {
+            mostRecentMessage?.let { lastMsg ->
+                chatViewModel.sendMessage(lastMsg)
+            }
+        }
+    )
+
     Card(
-        modifier = modifier,
+        modifier = modifier.then(if(isCollapsed) Modifier.height(60.dp) else Modifier.height(400.dp)),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(8.dp)
     ) {
@@ -75,11 +99,13 @@ fun ChatBox(chatViewModel: ChatViewModel, modifier: Modifier = Modifier, onSend:
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        Icons.Default.Close,
-                        contentDescription = "Close Chat",
-                        tint = Color.White
-                    )
+                    IconButton(onClick = {isCollapsed = !isCollapsed}){
+
+                        Icon(
+                            imageVector = if (isCollapsed) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                            contentDescription = if (isCollapsed) "Expand Chat" else "Collapse Chat",
+                            tint = Color.White)
+                    }
                     Spacer(modifier = Modifier.width(8.dp))
                     Column {
                         Text(
@@ -93,59 +119,58 @@ fun ChatBox(chatViewModel: ChatViewModel, modifier: Modifier = Modifier, onSend:
                             color = Color.White.copy(alpha = 0.8f)
                         )
                     }
-                }
-
-//                IconButton(onClick = onCollapse) {
-//                    Icon(
-//                        Icons.Default.Close,
-//                        contentDescription = "Close Chat",
-//                        tint = Color.White
-//                    )
-//                }
-            }
-
-            // Messages
-            LazyColumn(
-                state = listState,
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-                    .padding(8.dp)
-            ) {
-                println(chatMessages)
-                items(chatMessages) { message ->
-                    MessageBox(message)
+                    ReactionPicker(
+                        onReactionSelected = { emojiSelected = it },
+                        modifier = Modifier.wrapContentWidth()
+                    )
                 }
             }
 
-            // Input
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                OutlinedTextField(
-                    value = newMessage,
-                    onValueChange = { newMessage = it },
-                    modifier = Modifier.weight(1f),
-                    placeholder = { Text("Type a message...") },
-                    maxLines = 3
-                )
+            if(!isCollapsed) {
 
-                Spacer(modifier = Modifier.width(8.dp))
-
-                IconButton(
-                    onClick = {
-                        if (newMessage.isNotBlank()) {
-                            chatViewModel.sendMessage(newMessage)
-                            onSend(newMessage)
-                            newMessage = ""
-                        }
-                    },
-                    enabled = newMessage.isNotBlank()
+                // Messages
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .padding(8.dp)
                 ) {
-                    Icon(Icons.Default.Send, contentDescription = "Send")
+                    println(chatMessages)
+                    items(chatMessages) { message ->
+                        MessageBox(message)
+                    }
+                }
+
+                // Input
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    OutlinedTextField(
+                        value = newMessage,
+                        onValueChange = { newMessage = it },
+                        modifier = Modifier.weight(1f),
+                        placeholder = { Text("Entrez un message...") },
+                        maxLines = 3
+                    )
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    IconButton(
+                        onClick = {
+                            if (newMessage.isNotBlank()) {
+                                chatViewModel.sendMessage(newMessage)
+                                mostRecentMessage = newMessage
+                                newMessage = ""
+                            }
+                        },
+                        enabled = newMessage.isNotBlank()
+                    ) {
+                        Icon(Icons.AutoMirrored.Default.Send, contentDescription = "Send")
+                    }
                 }
             }
         }
@@ -200,10 +225,11 @@ fun MessageBox(chatMessage: ChatMessage) {
     }
 }
 
+
 @Preview(showBackground = true, device="spec:width=2000px,height=1200px, orientation=landscape")
 @Composable
 fun ChatBoxPreview() {
     MobileclientTheme {
-        ChatBox(chatViewModel = viewModel<ChatViewModel>(), onSend = {})
+        ChatBox(chatViewModel = viewModel<ChatViewModel>())
     }
 }

@@ -47,8 +47,6 @@ fun HomeScreen(navController: NavController){
     val chatViewModel: ChatViewModel = viewModel()
     val scope = rememberCoroutineScope()
     val httpService = HttpService()
-    var emojiSelected by remember { mutableStateOf<String?>(null) }
-    var mostRecentMessage by remember { mutableStateOf<String?>(null) }
     fun logout() {
         scope.launch {
             try {
@@ -114,28 +112,7 @@ fun HomeScreen(navController: NavController){
                 .align(Alignment.BottomEnd)
                 .widthIn(max = 400.dp)
                 .padding(16.dp)
-                .zIndex(1f),
-            onSend = {mostRecentMessage = it})
-
-        ReactionPicker(
-            onReactionSelected = {emojiSelected = it},
-            modifier = Modifier
-
-        )
-
-        ShakeListener(
-            onVerticalShake = {
-                emojiSelected?.let { emoji ->
-                    chatViewModel.sendMessage(emoji)
-                    mostRecentMessage = emoji
-                }
-            },
-            onHorizontalShake = {
-                mostRecentMessage?.let { lastMsg ->
-                    chatViewModel.sendMessage(lastMsg)
-                }
-            }
-        )
+                .zIndex(1f))
     }
 }
 
