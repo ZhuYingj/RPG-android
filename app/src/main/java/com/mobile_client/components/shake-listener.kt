@@ -18,8 +18,7 @@ fun ShakeListener(
     val sensorManager = remember { context.getSystemService(Context.SENSOR_SERVICE) as SensorManager }
 
     val shakeThreshold  = 10f
-    val cooldownMillis = 500L
-    val lastShakeTime = 0L
+    val cooldownMillis = 800L
 
     val listener = remember {
         object : SensorEventListener {
@@ -28,6 +27,8 @@ fun ShakeListener(
 
             var lastY = 0f
             var filteredY = 0f
+
+            var lastShakeTime = 0L
             override fun onSensorChanged(event: SensorEvent) {
                 val x = event.values[0]
                 val y = event.values[1]
@@ -37,14 +38,18 @@ fun ShakeListener(
                 val deltaX = x - lastX
                 filteredX = filteredX * 0.9f + deltaX
                 lastX = x
-                if (abs(filteredX) > shakeThreshold && now - lastShakeTime > cooldownMillis)
+                if (abs(filteredX) > shakeThreshold && now - lastShakeTime > cooldownMillis) {
                     onVerticalShake()
+                    lastShakeTime = now
+                }
 
                 val deltaY = y - lastY
                 filteredY = filteredY * 0.9f + deltaY
                 lastY = y
-                if (abs(filteredY) > shakeThreshold && now - lastShakeTime > cooldownMillis)
+                if (abs(filteredY) > shakeThreshold && now - lastShakeTime > cooldownMillis) {
                     onHorizontalShake()
+                    lastShakeTime = now
+                }
             }
 
             override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
