@@ -69,20 +69,6 @@ fun ChatBox(chatViewModel: ChatViewModel, modifier: Modifier = Modifier) {
         }
     }
 
-    ShakeListener(
-        onVerticalShake = {
-            emojiSelected?.let { emoji ->
-                chatViewModel.sendMessage(emoji)
-                mostRecentMessage = emoji
-            }
-        },
-        onHorizontalShake = {
-            mostRecentMessage?.let { lastMsg ->
-                chatViewModel.sendMessage(lastMsg)
-            }
-        }
-    )
-
     Card(
         modifier = modifier.then(if(isCollapsed) Modifier.height(60.dp) else Modifier.height(400.dp)),
         shape = RoundedCornerShape(16.dp),
@@ -123,6 +109,20 @@ fun ChatBox(chatViewModel: ChatViewModel, modifier: Modifier = Modifier) {
                         onReactionSelected = { emojiSelected = it },
                         modifier = Modifier.wrapContentWidth()
                     )
+
+                    ShakeListener(
+                        onVerticalShake = {
+                            emojiSelected?.let { emoji ->
+                                chatViewModel.sendMessage(emoji)
+                                mostRecentMessage = emoji
+                            }
+                        },
+                        onHorizontalShake = {
+                            mostRecentMessage?.let { lastMsg ->
+                                chatViewModel.sendMessage(lastMsg)
+                            }
+                        }
+                    )
                 }
             }
 
@@ -162,8 +162,8 @@ fun ChatBox(chatViewModel: ChatViewModel, modifier: Modifier = Modifier) {
                     IconButton(
                         onClick = {
                             if (newMessage.isNotBlank()) {
-                                chatViewModel.sendMessage(newMessage)
                                 mostRecentMessage = newMessage
+                                chatViewModel.sendMessage(newMessage)
                                 newMessage = ""
                             }
                         },
