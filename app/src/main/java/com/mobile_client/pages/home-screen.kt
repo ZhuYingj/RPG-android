@@ -1,25 +1,26 @@
 package com.mobile_client.pages
 
+import ShakeListener
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,20 +32,23 @@ import com.mobile_client.pages.ui.theme.Pink80
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.mobile_client.components.ChatBox
+import com.mobile_client.components.ReactionPicker
 import com.mobile_client.environment.ENVIRONMENT
 import com.mobile_client.pages.ui.theme.MobileclientTheme
 import com.mobile_client.services.AccountRepository
 import com.mobile_client.services.ChatViewModel
 import com.mobile_client.services.HttpService
-import com.mobile_client.utils.LoginResponse
-import io.ktor.client.call.body
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(navController: NavController){
+
+    val chatViewModel: ChatViewModel = viewModel()
     val scope = rememberCoroutineScope()
     val httpService = HttpService()
+    var emojiSelected by remember { mutableStateOf<String?>(null) }
+    var mostRecentMessage by remember { mutableStateOf<String?>(null) }
     fun logout() {
         scope.launch {
             try {
@@ -61,6 +65,7 @@ fun HomeScreen(navController: NavController){
             }
         }
     }
+
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
             Row(modifier = Modifier
@@ -80,7 +85,6 @@ fun HomeScreen(navController: NavController){
                 }
             }
 
-
             Column(
                 modifier = Modifier
                     .fillMaxSize(),
@@ -92,12 +96,6 @@ fun HomeScreen(navController: NavController){
                     style = MaterialTheme.typography.headlineLarge,
                     modifier = Modifier.padding(bottom = 32.dp)
                 )
-
-        //        Text(
-        //            text = "You've successfully logged in",
-        //            style = MaterialTheme.typography.bodyLarge,
-        //            modifier = Modifier.padding(bottom = 24.dp)
-        //        )
                 Button(onClick = {navController.navigate(Screen.JoinGame.route)},
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
                     modifier = Modifier.padding(bottom=10.dp)) {
@@ -110,17 +108,36 @@ fun HomeScreen(navController: NavController){
                 }
             }
         }
-        ChatBox(chatViewModel = viewModel<ChatViewModel>(),
+        ChatBox(chatViewModel = chatViewModel,
             modifier = Modifier
                 .heightIn(max=400.dp)
                 .align(Alignment.BottomEnd)
                 .widthIn(max = 400.dp)
                 .padding(16.dp)
-                .zIndex(1f))
-        }
+                .zIndex(1f),
+            onSend = {mostRecentMessage = it})
 
+        ReactionPicker(
+            onReactionSelected = {emojiSelected = it},
+            modifier = Modifier
+
+        )
+
+        ShakeListener(
+            onVerticalShake = {
+                emojiSelected?.let { emoji ->
+                    chatViewModel.sendMessage(emoji)
+                    mostRecentMessage = emoji
+                }
+            },
+            onHorizontalShake = {
+                mostRecentMessage?.let { lastMsg ->
+                    chatViewModel.sendMessage(lastMsg)
+                }
+            }
+        )
+    }
 }
-
 
 @Preview(showBackground = true, device="spec:width=2000px,height=1200px, orientation=landscape")
 @Composable

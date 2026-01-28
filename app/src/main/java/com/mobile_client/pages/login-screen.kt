@@ -88,7 +88,8 @@ fun LoginScreen(navController: NavController) {
             value = username,
             onValueChange = { username = it },
             label = { Text("Username") },
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier.padding(bottom = 16.dp),
+            singleLine = true
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -97,7 +98,8 @@ fun LoginScreen(navController: NavController) {
             value = password,
             onValueChange = { password = it },
             label = { Text("Password") },
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier.padding(bottom = 16.dp),
+            singleLine = true
         )
 
         errorMessage?.let { error ->

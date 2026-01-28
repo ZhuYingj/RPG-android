@@ -95,7 +95,7 @@ fun SignUpScreen(navController: NavController) {
 
                 when (response.status) {
                     HttpStatusCode.Created, HttpStatusCode.OK -> {
-                        navController.navigate(Screen.Home.route)
+                        navController.navigate(Screen.Login.route)
                     }
                     HttpStatusCode.BadRequest -> {
                         val errorBody = response.bodyAsText()

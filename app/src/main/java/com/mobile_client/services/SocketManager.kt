@@ -23,10 +23,10 @@ class SocketManager {
                 reconnection = true
                 reconnectionDelay = 1000
                 reconnectionAttempts = 5
-                auth = mapOf("username" to AccountRepository.getUsername())
+                auth = mapOf("token" to AccountRepository.getToken())
 
             }
-            //"http://10.0.2.2:3000"
+
             socket = IO.socket(serverUrl, options)
 
             socket?.on(Socket.EVENT_CONNECT) {
@@ -100,7 +100,6 @@ class SocketManager {
         else
             socket?.emit(MessageEvents.CHAT_MESSAGE, messageData)
     }
-
 
     fun disconnect() {
         socket?.disconnect()

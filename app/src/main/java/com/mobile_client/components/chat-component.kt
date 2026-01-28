@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -46,7 +45,7 @@ import com.mobile_client.services.ChatViewModel
 import com.mobile_client.utils.ChatMessage
 
 @Composable
-fun ChatBox(chatViewModel: ChatViewModel, modifier: Modifier = Modifier) {
+fun ChatBox(chatViewModel: ChatViewModel, modifier: Modifier = Modifier, onSend: (String) -> Unit) {
     //var messages by remember { mutableStateOf(emptyList<String>()) }
     val chatMessages by chatViewModel.messages.collectAsState()
     val connectionStatus by chatViewModel.connectionStatus.collectAsState()
@@ -140,6 +139,7 @@ fun ChatBox(chatViewModel: ChatViewModel, modifier: Modifier = Modifier) {
                     onClick = {
                         if (newMessage.isNotBlank()) {
                             chatViewModel.sendMessage(newMessage)
+                            onSend(newMessage)
                             newMessage = ""
                         }
                     },
@@ -204,6 +204,6 @@ fun MessageBox(chatMessage: ChatMessage) {
 @Composable
 fun ChatBoxPreview() {
     MobileclientTheme {
-        ChatBox(chatViewModel = viewModel<ChatViewModel>())
+        ChatBox(chatViewModel = viewModel<ChatViewModel>(), onSend = {})
     }
 }
