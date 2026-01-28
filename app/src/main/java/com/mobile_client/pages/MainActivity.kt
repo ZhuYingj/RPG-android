@@ -9,18 +9,16 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.zIndex
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.mobile_client.components.ChatBox
 import com.mobile_client.pages.ui.theme.MobileclientTheme
-import com.mobile_client.services.ChatViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,7 +28,8 @@ class MainActivity : ComponentActivity() {
             MobileclientTheme {
                 LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE)
                 val navController = rememberNavController()
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                val snackbarHostState = remember { SnackbarHostState() }
+                Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = { SnackbarHost(snackbarHostState) }) { innerPadding ->
                     NavHost(
                         navController = navController,
                         startDestination = Screen.Login.route,
@@ -40,7 +39,7 @@ class MainActivity : ComponentActivity() {
 //                            if(navController.currentDestination?.route != Screen.Login.route && navController.currentDestination?.route != Screen.SignUp.route)
 //                                ChatBox(viewModel<ChatViewModel>(), modifier = Modifier.zIndex(1f))
                             //HomeScreen(navController= navController)
-                            LoginScreen(navController = navController)
+                            LoginScreen(navController = navController, snackbarHostState)
                             //tanrin
                             //12345
                             }

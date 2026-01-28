@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -33,13 +35,12 @@ import com.mobile_client.utils.LoginResponse
 import io.ktor.client.call.body
 
 @Composable
-fun LoginScreen(navController: NavController) {
+fun LoginScreen(navController: NavController, snackbarHostState: SnackbarHostState) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     val scope = rememberCoroutineScope()
-
     val httpService = HttpService()
 
     fun loginValidate() {
@@ -56,6 +57,7 @@ fun LoginScreen(navController: NavController) {
                     HttpStatusCode.OK -> {
                         val loginData: LoginResponse = response.body()
                         AccountRepository.setAccount(loginData.account, loginData.token)
+                        snackbarHostState.showSnackbar("Connexion réussie", duration = SnackbarDuration.Short)
                         navController.navigate(Screen.Home.route)
                     }
                     HttpStatusCode.BadRequest -> {
