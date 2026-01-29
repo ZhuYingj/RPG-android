@@ -35,7 +35,7 @@ import com.mobile_client.utils.LoginResponse
 import io.ktor.client.call.body
 
 @Composable
-fun LoginScreen(navController: NavController, snackbarHostState: SnackbarHostState) {
+fun LoginScreen(navController: NavController) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
@@ -57,7 +57,6 @@ fun LoginScreen(navController: NavController, snackbarHostState: SnackbarHostSta
                     HttpStatusCode.OK -> {
                         val loginData: LoginResponse = response.body()
                         AccountRepository.setAccount(loginData.account, loginData.token)
-                        snackbarHostState.showSnackbar("Connexion réussie", duration = SnackbarDuration.Short)
                         navController.navigate(Screen.Home.route)
                     }
                     HttpStatusCode.BadRequest -> {

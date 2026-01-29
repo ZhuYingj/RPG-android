@@ -36,6 +36,7 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.launch
 
+
 @Composable
 fun SignUpScreen(navController: NavController) {
     var username by remember { mutableStateOf("") }
@@ -52,6 +53,8 @@ fun SignUpScreen(navController: NavController) {
 
     val httpService = HttpService()
 
+    val emailRegex = "^[^\\s@]+@[^\\s@]+\\.[a-zA-Z]{2,}$".toRegex()
+
     fun validateClientSide(): Boolean {
         var isValid = true
 
@@ -62,8 +65,9 @@ fun SignUpScreen(navController: NavController) {
         }
 
         emailError = null
-        if (!email.contains("@")) {
-            emailError = "L'email ne contient pas de @"
+
+        if (!emailRegex.matches(email)) {
+            emailError = "Format d'email invalide"
             isValid = false
         }
 
@@ -181,8 +185,8 @@ fun SignUpScreen(navController: NavController) {
                     onValueChange = {
                         email = it
                         emailError = null
-                        if (hasSubmitted && email.isBlank()) {
-                            emailError = "L'email ne contient pas de @"
+                        if (hasSubmitted && email.isBlank() && !emailRegex.matches(email)) {
+                            emailError = "Format d'email invalide"
                         }
                     },
                     isError = emailError != null,
