@@ -21,14 +21,12 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun ReactionPicker(
-    onReactionSelected: (String) -> Unit, modifier : Modifier = Modifier
+    onReactionSelected: (String) -> Unit, modifier : Modifier = Modifier, emojiSelected: String? = null
 ) {
     var isOpen by remember { mutableStateOf(false) }
 
     Box {
-        ReactionButton {
-            isOpen = !isOpen
-        }
+        ReactionButton(emojiSelected = emojiSelected, onClick = { isOpen = !isOpen })
 
         if (isOpen) {
             EmojiMenu(
@@ -42,9 +40,9 @@ fun ReactionPicker(
 }
 
 @Composable
-fun ReactionButton(onClick: () -> Unit) {
+fun ReactionButton(onClick: () -> Unit, emojiSelected: String? = null) {
     IconButton(onClick = onClick) {
-        Text("😮")
+        Text(emojiSelected ?: "😮")
     }
 }
 

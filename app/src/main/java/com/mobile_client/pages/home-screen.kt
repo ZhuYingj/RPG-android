@@ -56,7 +56,10 @@ fun HomeScreen(navController: NavController){
                 val response = httpService.post("$ENVIRONMENT/api/auth/logout", body)
                 if (response.status == HttpStatusCode.OK) {
                     AccountRepository.clear()
-                    navController.navigate(Screen.Login.route)
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.Home.route) { inclusive = true } // Clear all previous screens, remove destination and avoid duplicate login screen
+                        launchSingleTop = true
+                    }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()

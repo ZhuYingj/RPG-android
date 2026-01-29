@@ -42,6 +42,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -84,30 +85,34 @@ fun ChatBox(chatViewModel: ChatViewModel, modifier: Modifier = Modifier) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = {isCollapsed = !isCollapsed}){
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+                    Row() {
+                        IconButton(onClick = {isCollapsed = !isCollapsed}){
 
-                        Icon(
-                            imageVector = if (isCollapsed) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                            contentDescription = if (isCollapsed) "Expand Chat" else "Collapse Chat",
-                            tint = Color.White)
+                            Icon(
+                                imageVector = if (isCollapsed) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                                contentDescription = if (isCollapsed) "Expand Chat" else "Collapse Chat",
+                                tint = Color.White)
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Column {
+                            Text(
+                                "Chat",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = Color.White
+                            )
+                            Text(
+                                connectionStatus,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.White.copy(alpha = 0.8f)
+                            )
+                        }
                     }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Column {
-                        Text(
-                            "Chat",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = Color.White
-                        )
-                        Text(
-                            connectionStatus,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color.White.copy(alpha = 0.8f)
-                        )
-                    }
+//                    Spacer(modifier = Modifier.width(120.dp))
+
                     ReactionPicker(
                         onReactionSelected = { emojiSelected = it },
-                        modifier = Modifier.wrapContentWidth()
+                        modifier = Modifier , emojiSelected = emojiSelected
                     )
 
                     ShakeListener(
