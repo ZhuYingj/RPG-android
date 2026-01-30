@@ -26,17 +26,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.mobile_client.environment.ENVIRONMENT
 import com.mobile_client.pages.ui.theme.Pink80
 import com.mobile_client.services.HttpService
 import io.ktor.client.statement.HttpResponse
-import org.json.JSONObject
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 
 
 @Composable
@@ -52,6 +52,10 @@ fun SignUpScreen(navController: NavController) {
     var hasSubmitted by remember { mutableStateOf(false) }
 
     val scope: CoroutineScope = rememberCoroutineScope()
+    val maxUsernameLength = 20
+    val maxPasswordLength = 20
+    val maxEmailLength = 40
+
 
 
     val emailRegex: Regex = "^[^\\s@]+@[^\\s@]+\\.[a-zA-Z]{2,}$".toRegex()
@@ -62,6 +66,10 @@ fun SignUpScreen(navController: NavController) {
         usernameError = null
         if (username.isBlank() && hasSubmitted) {
             usernameError = "Nom d'utilisateur requis"
+            isValid = false
+        }
+        if (username.contains(" ")) {
+            usernameError = "Nom d'utilisateur ne doit pas contenir d'espaces"
             isValid = false
         }
 
@@ -158,7 +166,8 @@ fun SignUpScreen(navController: NavController) {
                     value = username,
                     singleLine = true,
                     onValueChange = {
-                        username = it
+                        if(it.length <= maxUsernameLength)
+                            username = it
                         usernameError = null
                         if (username.isBlank() && hasSubmitted) {
                             usernameError = "Nom d'utilisateur requis"
@@ -184,7 +193,8 @@ fun SignUpScreen(navController: NavController) {
                     value = email,
                     singleLine = true,
                     onValueChange = {
-                        email = it
+                        if(it.length <= maxEmailLength)
+                            email = it
                         emailError = null
                         if (hasSubmitted && email.isBlank() && !emailRegex.matches(email)) {
                             emailError = "Format d'email invalide"
@@ -208,7 +218,8 @@ fun SignUpScreen(navController: NavController) {
                     value = password,
                     singleLine = true,
                     onValueChange = {
-                        password = it
+                        if(it.length <= maxPasswordLength)
+                            password = it
                         passwordError = null
                         if (password.isBlank() && hasSubmitted) {
                             passwordError = "Minimum de 5 caractères incluant un chiffre"
