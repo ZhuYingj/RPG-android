@@ -78,7 +78,9 @@ fun HomeScreen(navController: NavController){
                 Text(
                     text = "Home",
                     style = MaterialTheme.typography.headlineLarge)
-                Button(onClick= { navController.navigate(Screen.Account.route) }, modifier = Modifier) {
+                Button(onClick= {
+//                    navController.navigate(Screen.Account.route)
+                                }, modifier = Modifier) {
                     Text("Account")
                 }
             }
