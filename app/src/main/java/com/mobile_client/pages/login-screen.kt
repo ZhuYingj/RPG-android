@@ -26,13 +26,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mobile_client.environment.ENVIRONMENT
-import com.mobile_client.services.HttpService
 import io.ktor.http.*
 import kotlinx.coroutines.launch
 import androidx.compose.ui.graphics.Color
 import com.mobile_client.services.AccountRepository
+import com.mobile_client.services.HttpService
 import com.mobile_client.utils.LoginResponse
 import io.ktor.client.call.body
+import kotlinx.coroutines.CoroutineScope
 
 @Composable
 fun LoginScreen(navController: NavController, snackbarHostState: SnackbarHostState) {
@@ -40,14 +41,14 @@ fun LoginScreen(navController: NavController, snackbarHostState: SnackbarHostSta
     var password by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    val scope = rememberCoroutineScope()
+    val scope: CoroutineScope = rememberCoroutineScope()
     val httpService = HttpService()
 
     fun loginValidate() {
         scope.launch {
             errorMessage = null
             try {
-                val body = mapOf(
+                val body: Map<String, String> = mapOf(
                     "username" to username,
                     "password" to password
                 )
@@ -57,7 +58,7 @@ fun LoginScreen(navController: NavController, snackbarHostState: SnackbarHostSta
                     HttpStatusCode.OK -> {
                         val loginData: LoginResponse = response.body()
                         AccountRepository.setAccount(loginData.account, loginData.token)
-                        snackbarHostState.showSnackbar("Connexion réussie", duration = SnackbarDuration.Short)
+                        scope.launch{ snackbarHostState.showSnackbar("Connexion réussie", duration = SnackbarDuration.Short) }
                         navController.navigate(Screen.Home.route)
                     }
                     HttpStatusCode.BadRequest -> {
