@@ -16,11 +16,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,7 +28,6 @@ import com.mobile_client.pages.ui.theme.Pink80
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.mobile_client.components.ChatBox
-import com.mobile_client.components.ReactionPicker
 import com.mobile_client.environment.ENVIRONMENT
 import com.mobile_client.pages.ui.theme.MobileclientTheme
 import com.mobile_client.services.AccountRepository

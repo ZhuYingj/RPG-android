@@ -28,8 +28,7 @@ class MainActivity : ComponentActivity() {
             MobileclientTheme {
                 LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE)
                 val navController = rememberNavController()
-                val snackbarHostState = remember { SnackbarHostState() }
-                Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = { SnackbarHost(snackbarHostState) }) { innerPadding ->
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     NavHost(
                         navController = navController,
                         startDestination = Screen.Login.route,
@@ -39,7 +38,7 @@ class MainActivity : ComponentActivity() {
 //                            if(navController.currentDestination?.route != Screen.Login.route && navController.currentDestination?.route != Screen.SignUp.route)
 //                                ChatBox(viewModel<ChatViewModel>(), modifier = Modifier.zIndex(1f))
                             //HomeScreen(navController= navController)
-                            LoginScreen(navController = navController, snackbarHostState)
+                            LoginScreen(navController = navController)
                             //tanrin
                             //12345
                             }
