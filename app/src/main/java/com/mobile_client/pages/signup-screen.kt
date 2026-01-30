@@ -34,6 +34,7 @@ import com.mobile_client.services.HttpService
 import org.json.JSONObject
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 
@@ -49,11 +50,11 @@ fun SignUpScreen(navController: NavController) {
 
     var hasSubmitted by remember { mutableStateOf(false) }
 
-    val scope = rememberCoroutineScope()
+    val scope: CoroutineScope = rememberCoroutineScope()
 
     val httpService = HttpService()
 
-    val emailRegex = "^[^\\s@]+@[^\\s@]+\\.[a-zA-Z]{2,}$".toRegex()
+    val emailRegex: Regex = "^[^\\s@]+@[^\\s@]+\\.[a-zA-Z]{2,}$".toRegex()
 
     fun validateClientSide(): Boolean {
         var isValid = true

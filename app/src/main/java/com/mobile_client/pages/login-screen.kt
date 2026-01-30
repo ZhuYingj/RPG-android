@@ -36,7 +36,7 @@ import io.ktor.client.call.body
 import kotlinx.coroutines.CoroutineScope
 
 @Composable
-fun LoginScreen(navController: NavController) {
+fun LoginScreen(navController: NavController, snackbarHostState: SnackbarHostState) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
