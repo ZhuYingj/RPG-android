@@ -6,9 +6,9 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 
 @Composable
-fun JoinGameScreen(navController: NavController) {
+fun GamesScreen(navController: NavController) {
     Text(
-        text = "Join a Game",
+        text = "Créer un jeu",
         style = MaterialTheme.typography.headlineMedium
     )
 }

@@ -50,11 +50,10 @@ object ChatViewModel : ViewModel() {
         return "$hours:$minutes:$seconds"
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        SocketManager.disconnect()
+    fun clear() {
+        _messages.value = emptyList()
+        _connectionStatus.value = "Disconnected"
     }
-
     fun sendMessage(messageContent: String) {
         viewModelScope.launch {
             val newMessage = ChatMessage(

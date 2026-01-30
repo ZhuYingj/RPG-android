@@ -47,6 +47,8 @@ class MainActivity : ComponentActivity() {
                         composable(Screen.SignUp.route) { SignUpScreen(navController = navController)}
 
                         composable(Screen.Home.route) { HomeScreen(navController = navController)}
+                        composable(Screen.Games.route) { GamesScreen(navController = navController)}
+                        composable(Screen.JoinGame.route) { JoinGameScreen(navController = navController)}
                     }
                 }
             }

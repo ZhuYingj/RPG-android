@@ -1,5 +1,6 @@
 package com.mobile_client.pages
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,6 +31,7 @@ import com.mobile_client.pages.ui.theme.MobileclientTheme
 import com.mobile_client.pages.ui.theme.Pink80
 import com.mobile_client.services.AccountRepository
 import com.mobile_client.services.HttpService
+import com.mobile_client.services.SocketManager
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.launch
@@ -39,6 +41,8 @@ fun HomeScreen(navController: NavController){
 
     val scope = rememberCoroutineScope()
     //val httpService = HttpService()
+    BackHandler() { }
+
     fun logout() {
         scope.launch {
             try {
@@ -52,6 +56,7 @@ fun HomeScreen(navController: NavController){
                         popUpTo(Screen.Home.route) { inclusive = true } // Clear all previous screens, remove destination and avoid duplicate login screen
                         launchSingleTop = true
                     }
+                    SocketManager.disconnect()
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
