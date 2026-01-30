@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class ChatViewModel : ViewModel() {
-    private val socketManager = SocketManager()
     private val _messages = MutableStateFlow<List<ChatMessage>>(emptyList())
     val messages : StateFlow<List<ChatMessage>> = _messages.asStateFlow()
     private val _connectionStatus = MutableStateFlow("Disconnected")
@@ -23,7 +22,7 @@ class ChatViewModel : ViewModel() {
     }
     private fun enableListeners() {
         viewModelScope.launch {
-            socketManager.connect(
+            SocketManager.connect(
                 onConnected = {
                     _connectionStatus.value = "Connected"
                 },
@@ -53,7 +52,7 @@ class ChatViewModel : ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
-        socketManager.disconnect()
+        SocketManager.disconnect()
     }
 
     fun sendMessage(messageContent: String) {
@@ -64,7 +63,7 @@ class ChatViewModel : ViewModel() {
                 concernedUser = "",
                 timestamp = getCurrentTime(),
             )
-            socketManager.sendMessage(newMessage)
+            SocketManager.sendMessage(newMessage)
         }
     }
 

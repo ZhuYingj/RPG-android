@@ -33,6 +33,7 @@ import com.mobile_client.services.AccountRepository
 import com.mobile_client.services.HttpService
 import com.mobile_client.utils.LoginResponse
 import io.ktor.client.call.body
+import io.ktor.client.statement.HttpResponse
 import kotlinx.coroutines.CoroutineScope
 
 @Composable
@@ -42,7 +43,6 @@ fun LoginScreen(navController: NavController, snackbarHostState: SnackbarHostSta
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     val scope: CoroutineScope = rememberCoroutineScope()
-    val httpService = HttpService()
 
     fun loginValidate() {
         scope.launch {
@@ -53,7 +53,7 @@ fun LoginScreen(navController: NavController, snackbarHostState: SnackbarHostSta
                     "password" to password
                 )
 
-                val response = httpService.post("$ENVIRONMENT/api/auth/login", body)
+                val response: HttpResponse = HttpService.post("$ENVIRONMENT/api/auth/login", body)
                 when (response.status) {
                     HttpStatusCode.OK -> {
                         val loginData: LoginResponse = response.body()

@@ -33,6 +33,7 @@ import com.mobile_client.pages.ui.theme.MobileclientTheme
 import com.mobile_client.services.AccountRepository
 import com.mobile_client.services.ChatViewModel
 import com.mobile_client.services.HttpService
+import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.launch
 
@@ -41,14 +42,14 @@ fun HomeScreen(navController: NavController){
 
     val chatViewModel: ChatViewModel = viewModel()
     val scope = rememberCoroutineScope()
-    val httpService = HttpService()
+    //val httpService = HttpService()
     fun logout() {
         scope.launch {
             try {
                 val body = mapOf(
                     "token" to AccountRepository.getToken()
                 )
-                val response = httpService.post("$ENVIRONMENT/api/auth/logout", body)
+                val response: HttpResponse = HttpService.post("$ENVIRONMENT/api/auth/logout", body)
                 if (response.status == HttpStatusCode.OK) {
                     AccountRepository.clear()
                     navController.navigate(Screen.Login.route) {

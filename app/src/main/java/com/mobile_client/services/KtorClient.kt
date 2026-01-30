@@ -9,8 +9,8 @@ import io.ktor.client.statement.*
 import io.ktor.serialization.gson.*
 import io.ktor.http.*
 
-class HttpService {
-    private val client = HttpClient(Android) {
+object HttpService {
+    private val client: HttpClient = HttpClient(Android) {
         install(ContentNegotiation) {
             gson()
         }

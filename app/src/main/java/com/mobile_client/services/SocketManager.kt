@@ -8,7 +8,7 @@ import io.socket.client.Socket
 import org.json.JSONObject
 import java.net.URISyntaxException
 
-class SocketManager {
+object SocketManager {
     private var socket: Socket? = null
     private val serverUrl = ENVIRONMENT
 

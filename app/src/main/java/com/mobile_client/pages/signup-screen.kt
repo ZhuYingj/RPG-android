@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import com.mobile_client.environment.ENVIRONMENT
 import com.mobile_client.pages.ui.theme.Pink80
 import com.mobile_client.services.HttpService
+import io.ktor.client.statement.HttpResponse
 import org.json.JSONObject
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
@@ -52,7 +53,6 @@ fun SignUpScreen(navController: NavController) {
 
     val scope: CoroutineScope = rememberCoroutineScope()
 
-    val httpService = HttpService()
 
     val emailRegex: Regex = "^[^\\s@]+@[^\\s@]+\\.[a-zA-Z]{2,}$".toRegex()
 
@@ -96,7 +96,7 @@ fun SignUpScreen(navController: NavController) {
                     "password" to password
                 )
 
-                val response = httpService.post("$ENVIRONMENT/api/auth/signup", body)
+                val response: HttpResponse = HttpService.post("$ENVIRONMENT/api/auth/signup", body)
 
                 when (response.status) {
                     HttpStatusCode.Created, HttpStatusCode.OK -> {
