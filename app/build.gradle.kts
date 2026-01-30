@@ -50,6 +50,8 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.transport.runtime)
     implementation(libs.firebase.dataconnect)
+    implementation(libs.androidx.compose.ui.text)
+    implementation(libs.androidx.material3)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -58,7 +60,7 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     implementation(libs.socket.io.client)
-
+    implementation("androidx.compose.material:material-icons-extended:1.6.0")
     implementation("io.ktor:ktor-client-core:2.3.7")
     implementation("io.ktor:ktor-client-android:2.3.7")
     implementation("io.ktor:ktor-client-content-negotiation:2.3.7")

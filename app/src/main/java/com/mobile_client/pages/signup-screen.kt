@@ -10,6 +10,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -25,6 +29,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -37,6 +44,8 @@ import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.json.JSONObject
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 
 
 @Composable
@@ -55,7 +64,7 @@ fun SignUpScreen(navController: NavController) {
     val maxUsernameLength = 20
     val maxPasswordLength = 20
     val maxEmailLength = 40
-
+    var passwordVisible by remember { mutableStateOf(false) }
 
 
     val emailRegex: Regex = "^[^\\s@]+@[^\\s@]+\\.[a-zA-Z]{2,}$".toRegex()
@@ -229,7 +238,17 @@ fun SignUpScreen(navController: NavController) {
                     supportingText = {
                         passwordError?.let { Text(it, color = Color.Red) }
                     },
-                    modifier = Modifier.padding(bottom = 16.dp).width(450.dp)
+                    modifier = Modifier.padding(bottom = 16.dp).width(450.dp),
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    trailingIcon = {
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                            Icon(
+                                imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                                contentDescription = if (passwordVisible) "Masquer le mot de passe" else "Afficher le mot de passe"
+                            )
+                        }
+                    }
                 )
             }
 
