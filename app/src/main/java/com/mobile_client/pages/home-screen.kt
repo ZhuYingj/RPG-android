@@ -30,6 +30,7 @@ import com.mobile_client.environment.ENVIRONMENT
 import com.mobile_client.pages.ui.theme.MobileclientTheme
 import com.mobile_client.pages.ui.theme.Pink80
 import com.mobile_client.services.AccountRepository
+import com.mobile_client.services.ChatViewModel
 import com.mobile_client.services.HttpService
 import com.mobile_client.services.SocketManager
 import io.ktor.client.statement.HttpResponse
@@ -57,6 +58,7 @@ fun HomeScreen(navController: NavController){
                         launchSingleTop = true
                     }
                     SocketManager.disconnect()
+                    ChatViewModel.clear()
                 }
             } catch (e: Exception) {
                 e.printStackTrace()

@@ -31,7 +31,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -59,13 +58,13 @@ fun ChatBox(modifier: Modifier = Modifier) {
     var mostRecentMessage by remember { mutableStateOf<String?>(null) }
     var listState = rememberLazyListState()
     var isCollapsed by remember { mutableStateOf(false) }
-    var emojiSelected by remember { mutableStateOf<String?>(null) }
-
-    DisposableEffect(Unit) {
-        onDispose {
-            ChatViewModel.clear()
-        }
-    }
+    var emojiSelected by remember { mutableStateOf("❤️") }
+    val maxChar = 200
+//    DisposableEffect(Unit) {
+//        onDispose {
+//            ChatViewModel.clear()
+//        }
+//    }
 
     LaunchedEffect(chatMessages.size) {
         if (chatMessages.isNotEmpty()) {
@@ -88,48 +87,26 @@ fun ChatBox(modifier: Modifier = Modifier) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-                    Row() {
-                        IconButton(onClick = {isCollapsed = !isCollapsed}){
-                            Icon(
-                                imageVector = if (isCollapsed) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                                contentDescription = if (isCollapsed) "Expand Chat" else "Collapse Chat",
-                                tint = Color.White)
-                        }
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Column {
-                            Text(
-                                "Clavardage",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = Color.White
-                            )
-                            Text(
-                                connectionStatus,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Color.White.copy(alpha = 0.8f)
-                            )
-                        }
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Start, modifier = Modifier.fillMaxWidth()) {
+                    IconButton(onClick = {isCollapsed = !isCollapsed}){
+                        Icon(
+                            imageVector = if (isCollapsed) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                            contentDescription = if (isCollapsed) "Expand Chat" else "Collapse Chat",
+                            tint = Color.White)
                     }
-//                    Spacer(modifier = Modifier.width(120.dp))
-
-                    ReactionPicker(
-                        onReactionSelected = { emojiSelected = it },
-                        modifier = Modifier , emojiSelected = emojiSelected
-                    )
-
-                    ShakeListener(
-                        onVerticalShake = {
-                            emojiSelected?.let { emoji ->
-                                ChatViewModel.sendMessage(emoji)
-                                mostRecentMessage = emoji
-                            }
-                        },
-                        onHorizontalShake = {
-                            mostRecentMessage?.let { lastMsg ->
-                                ChatViewModel.sendMessage(lastMsg)
-                            }
-                        }
-                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Column {
+                        Text(
+                            "Clavardage",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Color.White
+                        )
+                        Text(
+                            connectionStatus,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.White.copy(alpha = 0.8f)
+                        )
+                    }
                 }
             }
 
@@ -154,11 +131,29 @@ fun ChatBox(modifier: Modifier = Modifier) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically //horizontalArrangement = Arrangement.SpaceBetween
                 ) {
+                    ReactionPicker(
+                        onReactionSelected = { emojiSelected = it },
+                        modifier = Modifier.fillMaxWidth() , emojiSelected = emojiSelected
+                    )
+
+                    ShakeListener(
+                        onVerticalShake = {
+                            emojiSelected?.let { emoji ->
+                                ChatViewModel.sendMessage(emoji)
+                                mostRecentMessage = emoji
+                            }
+                        },
+                        onHorizontalShake = {
+                            mostRecentMessage?.let { lastMsg ->
+                                ChatViewModel.sendMessage(lastMsg)
+                            }
+                        }
+                    )
                     OutlinedTextField(
                         value = newMessage,
-                        onValueChange = { newMessage = it },
+                        onValueChange = { if(it.length <= maxChar) newMessage = it },
                         modifier = Modifier.weight(1f),
                         placeholder = { Text("Entrez un message...") },
                         maxLines = 3,
@@ -218,7 +213,10 @@ fun MessageBox(chatMessage: ChatMessage) {
                 Text(
                     text = chatMessage.username,
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = if (isFromCurrentUser)
+                        Color.Green
+                    else
+                        Color.Red
                 )
                 Spacer(modifier = Modifier.height(4.dp))
 
