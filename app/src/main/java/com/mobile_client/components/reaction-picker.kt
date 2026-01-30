@@ -15,9 +15,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Popup
 
 @Composable
 fun ReactionPicker(
@@ -29,12 +31,17 @@ fun ReactionPicker(
         ReactionButton(emojiSelected = emojiSelected, onClick = { isOpen = !isOpen })
 
         if (isOpen) {
-            EmojiMenu(
-                onEmojiClick = { emoji ->
-                    onReactionSelected(emoji)
-                    isOpen = false
-                }
-            )
+            Popup(
+                alignment = Alignment.TopEnd,
+                onDismissRequest = { isOpen = false }
+            ) {
+                EmojiMenu(
+                    onEmojiClick = { emoji ->
+                        onReactionSelected(emoji)
+                        isOpen = false
+                    }
+                )
+            }
         }
     }
 }
@@ -53,7 +60,6 @@ fun EmojiMenu(
     Card(
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(8.dp),
-        modifier = Modifier.padding(top = 48.dp)
     ) {
         Row(
             modifier = Modifier.padding(12.dp),
