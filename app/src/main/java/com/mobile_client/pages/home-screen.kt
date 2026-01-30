@@ -73,13 +73,13 @@ fun HomeScreen(navController: NavController){
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically) {
                 Button(onClick = { logout() }, modifier = Modifier) {
-                    Text("Logout")
+                    Text("Se déconnecter")
                 }
                 Text(
-                    text = "Home",
+                    text = "Accueil",
                     style = MaterialTheme.typography.headlineLarge)
                 Button(onClick= { navController.navigate(Screen.Account.route) }, modifier = Modifier) {
-                    Text("Account")
+                    Text("Compte")
                 }
             }
 
@@ -97,12 +97,12 @@ fun HomeScreen(navController: NavController){
                 Button(onClick = {navController.navigate(Screen.JoinGame.route)},
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
                     modifier = Modifier.padding(bottom=10.dp)) {
-                    Text("Join Game", color = Color.Black)
+                    Text("Joindre une partie", color = Color.Black)
                 }
                 Button(onClick = {navController.navigate(Screen.Games.route)},
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
                     modifier = Modifier.padding(bottom=10.dp)) {
-                    Text("Games", color = Color.Black)
+                    Text("Créer une partie", color = Color.Black)
                 }
             }
         }

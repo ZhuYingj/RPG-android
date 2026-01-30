@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -23,18 +24,22 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mobile_client.environment.ENVIRONMENT
-import io.ktor.http.*
-import kotlinx.coroutines.launch
-import androidx.compose.ui.graphics.Color
 import com.mobile_client.services.AccountRepository
+import com.mobile_client.services.ChatViewModel
 import com.mobile_client.services.HttpService
 import com.mobile_client.utils.LoginResponse
 import io.ktor.client.call.body
 import io.ktor.client.statement.HttpResponse
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+
 
 @Composable
 fun LoginScreen(navController: NavController, snackbarHostState: SnackbarHostState) {
@@ -59,6 +64,7 @@ fun LoginScreen(navController: NavController, snackbarHostState: SnackbarHostSta
                         val loginData: LoginResponse = response.body()
                         AccountRepository.setAccount(loginData.account, loginData.token)
                         scope.launch{ snackbarHostState.showSnackbar("Connexion réussie", duration = SnackbarDuration.Short) }
+                        ChatViewModel.enableListeners()
                         navController.navigate(Screen.Home.route)
                     }
                     HttpStatusCode.BadRequest -> {
@@ -81,7 +87,7 @@ fun LoginScreen(navController: NavController, snackbarHostState: SnackbarHostSta
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Login",
+            text = "Connexion",
             style = MaterialTheme.typography.headlineLarge,
             modifier = Modifier.padding(bottom = 16.dp)
         )
@@ -90,7 +96,7 @@ fun LoginScreen(navController: NavController, snackbarHostState: SnackbarHostSta
         OutlinedTextField(
             value = username,
             onValueChange = { username = it },
-            label = { Text("Username") },
+            label = { Text("Nom d'utilisateur") },
             modifier = Modifier.padding(bottom = 16.dp),
             singleLine = true
         )
@@ -100,9 +106,11 @@ fun LoginScreen(navController: NavController, snackbarHostState: SnackbarHostSta
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
-            label = { Text("Password") },
+            label = { Text("Mot de passe") },
             modifier = Modifier.padding(bottom = 16.dp),
-            singleLine = true
+            singleLine = true,
+            visualTransformation = PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
         )
 
         errorMessage?.let { error ->
@@ -120,11 +128,11 @@ fun LoginScreen(navController: NavController, snackbarHostState: SnackbarHostSta
             enabled = username.isNotBlank() && password.isNotBlank(),
             modifier = Modifier.height(40.dp).width(180.dp)
         ) {
-            Text("Login")
+            Text("Connexion")
         }
         Spacer(modifier = Modifier.height(16.dp))
         TextButton(onClick = { navController.navigate(Screen.SignUp.route) }, modifier = Modifier.fillMaxWidth()) {
-            Text("Sign up")
+            Text("Créer un compte")
         }
 
     }

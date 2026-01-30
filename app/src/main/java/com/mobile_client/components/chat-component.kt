@@ -16,6 +16,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -39,12 +41,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mobile_client.pages.ui.theme.MobileclientTheme
 import com.mobile_client.services.AccountRepository
 import com.mobile_client.services.ChatViewModel
 import com.mobile_client.utils.ChatMessage
+
 
 @Composable
 fun ChatBox(modifier: Modifier = Modifier) {
@@ -70,7 +74,7 @@ fun ChatBox(modifier: Modifier = Modifier) {
     }
 
     Card(
-        modifier = modifier.then(if(isCollapsed) Modifier.height(60.dp) else Modifier.height(400.dp)),
+        modifier = modifier.then(if(isCollapsed) Modifier.height(50.dp) else Modifier.height(400.dp)),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(8.dp)
     ) {
@@ -87,7 +91,6 @@ fun ChatBox(modifier: Modifier = Modifier) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
                     Row() {
                         IconButton(onClick = {isCollapsed = !isCollapsed}){
-
                             Icon(
                                 imageVector = if (isCollapsed) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                                 contentDescription = if (isCollapsed) "Expand Chat" else "Collapse Chat",
@@ -96,7 +99,7 @@ fun ChatBox(modifier: Modifier = Modifier) {
                         Spacer(modifier = Modifier.width(8.dp))
                         Column {
                             Text(
-                                "Chat",
+                                "Clavardage",
                                 style = MaterialTheme.typography.titleMedium,
                                 color = Color.White
                             )
@@ -158,7 +161,19 @@ fun ChatBox(modifier: Modifier = Modifier) {
                         onValueChange = { newMessage = it },
                         modifier = Modifier.weight(1f),
                         placeholder = { Text("Entrez un message...") },
-                        maxLines = 3
+                        maxLines = 3,
+                        keyboardOptions = KeyboardOptions(
+                            imeAction = ImeAction.Send   // ou Done
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onSend = {
+                                if (newMessage.isNotBlank()) {
+                                    mostRecentMessage = newMessage
+                                    ChatViewModel.sendMessage(newMessage)
+                                    newMessage = ""
+                                }
+                            }
+                        )
                     )
 
                     Spacer(modifier = Modifier.width(8.dp))

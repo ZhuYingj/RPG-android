@@ -20,9 +20,9 @@ object SocketManager {
         try {
             val options = IO.Options().apply {
                 transports = arrayOf("websocket")
-                reconnection = true
-                reconnectionDelay = 1000
-                reconnectionAttempts = 5
+//                reconnection = true
+//                reconnectionDelay = 1000
+//                reconnectionAttempts = 5
                 auth = mapOf("token" to AccountRepository.getToken())
 
             }
