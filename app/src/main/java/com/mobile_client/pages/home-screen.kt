@@ -1,6 +1,5 @@
 package com.mobile_client.pages
 
-import ShakeListener
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,15 +22,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.mobile_client.pages.ui.theme.Pink80
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.mobile_client.components.ChatBox
 import com.mobile_client.environment.ENVIRONMENT
 import com.mobile_client.pages.ui.theme.MobileclientTheme
+import com.mobile_client.pages.ui.theme.Pink80
 import com.mobile_client.services.AccountRepository
-import com.mobile_client.services.ChatViewModel
 import com.mobile_client.services.HttpService
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpStatusCode
@@ -40,7 +37,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(navController: NavController){
 
-    val chatViewModel: ChatViewModel = viewModel()
     val scope = rememberCoroutineScope()
     //val httpService = HttpService()
     fun logout() {
@@ -105,7 +101,7 @@ fun HomeScreen(navController: NavController){
                 }
             }
         }
-        ChatBox(chatViewModel = chatViewModel,
+        ChatBox(
             modifier = Modifier
                 .heightIn(max=400.dp)
                 .align(Alignment.BottomEnd)
