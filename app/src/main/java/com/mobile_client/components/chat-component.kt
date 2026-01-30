@@ -205,7 +205,7 @@ fun MessageBox(chatMessage: ChatMessage) {
             color = if (isFromCurrentUser)
                 MaterialTheme.colorScheme.primary
             else
-                MaterialTheme.colorScheme.surfaceVariant,
+                Color.White,
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier.widthIn(max = 260.dp)
         ) {
@@ -216,7 +216,7 @@ fun MessageBox(chatMessage: ChatMessage) {
                     color = if (isFromCurrentUser)
                         Color.Green
                     else
-                        Color.Red
+                        Color.Black
                 )
                 Spacer(modifier = Modifier.height(4.dp))
 
