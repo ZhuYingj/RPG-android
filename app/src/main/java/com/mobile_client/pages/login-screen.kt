@@ -46,7 +46,7 @@ fun LoginScreen(navController: NavController, snackbarHostState: SnackbarHostSta
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
-
+    val maxUsernameLength = 20
     val scope: CoroutineScope = rememberCoroutineScope()
 
     fun loginValidate() {
@@ -95,7 +95,9 @@ fun LoginScreen(navController: NavController, snackbarHostState: SnackbarHostSta
 
         OutlinedTextField(
             value = username,
-            onValueChange = { username = it },
+            onValueChange = {
+                if(it.length <= maxUsernameLength)
+                    username = it},
             label = { Text("Nom d'utilisateur") },
             modifier = Modifier.padding(bottom = 16.dp),
             singleLine = true
@@ -105,7 +107,9 @@ fun LoginScreen(navController: NavController, snackbarHostState: SnackbarHostSta
 
         OutlinedTextField(
             value = password,
-            onValueChange = { password = it },
+            onValueChange = {
+                if(it.length <= maxUsernameLength)
+                    password = it},
             label = { Text("Mot de passe") },
             modifier = Modifier.padding(bottom = 16.dp),
             singleLine = true,
