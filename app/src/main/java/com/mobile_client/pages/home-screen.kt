@@ -30,6 +30,7 @@ import com.mobile_client.environment.ENVIRONMENT
 import com.mobile_client.pages.ui.theme.MobileclientTheme
 import com.mobile_client.pages.ui.theme.Pink80
 import com.mobile_client.services.AccountRepository
+import com.mobile_client.services.ChatViewModel
 import com.mobile_client.services.HttpService
 import com.mobile_client.services.SocketManager
 import io.ktor.client.statement.HttpResponse
@@ -57,6 +58,7 @@ fun HomeScreen(navController: NavController){
                         launchSingleTop = true
                     }
                     SocketManager.disconnect()
+                    ChatViewModel.clear()
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -73,15 +75,13 @@ fun HomeScreen(navController: NavController){
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically) {
                 Button(onClick = { logout() }, modifier = Modifier) {
-                    Text("Logout")
+                    Text("Se déconnecter")
                 }
                 Text(
-                    text = "Home",
+                    text = "Accueil",
                     style = MaterialTheme.typography.headlineLarge)
-                Button(onClick= {
-//                    navController.navigate(Screen.Account.route)
-                                }, modifier = Modifier) {
-                    Text("Account")
+                Button(onClick= { navController.navigate(Screen.Account.route) }, modifier = Modifier) {
+                    Text("Compte")
                 }
             }
 
@@ -99,12 +99,12 @@ fun HomeScreen(navController: NavController){
                 Button(onClick = {navController.navigate(Screen.JoinGame.route)},
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
                     modifier = Modifier.padding(bottom=10.dp)) {
-                    Text("Join Game", color = Color.Black)
+                    Text("Joindre une partie", color = Color.Black)
                 }
                 Button(onClick = {navController.navigate(Screen.Games.route)},
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
                     modifier = Modifier.padding(bottom=10.dp)) {
-                    Text("Games", color = Color.Black)
+                    Text("Créer une partie", color = Color.Black)
                 }
             }
         }

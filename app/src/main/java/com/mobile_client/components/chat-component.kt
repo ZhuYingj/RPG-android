@@ -16,6 +16,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -29,7 +31,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -39,12 +40,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mobile_client.pages.ui.theme.MobileclientTheme
 import com.mobile_client.services.AccountRepository
 import com.mobile_client.services.ChatViewModel
 import com.mobile_client.utils.ChatMessage
+
 
 @Composable
 fun ChatBox(modifier: Modifier = Modifier) {
@@ -55,13 +58,13 @@ fun ChatBox(modifier: Modifier = Modifier) {
     var mostRecentMessage by remember { mutableStateOf<String?>(null) }
     var listState = rememberLazyListState()
     var isCollapsed by remember { mutableStateOf(false) }
-    var emojiSelected by remember { mutableStateOf<String?>(null) }
-
-    DisposableEffect(Unit) {
-        onDispose {
-            ChatViewModel.clear()
-        }
-    }
+    var emojiSelected by remember { mutableStateOf("❤️") }
+    val maxChar = 200
+//    DisposableEffect(Unit) {
+//        onDispose {
+//            ChatViewModel.clear()
+//        }
+//    }
 
     LaunchedEffect(chatMessages.size) {
         if (chatMessages.isNotEmpty()) {
@@ -70,7 +73,7 @@ fun ChatBox(modifier: Modifier = Modifier) {
     }
 
     Card(
-        modifier = modifier.then(if(isCollapsed) Modifier.height(60.dp) else Modifier.height(400.dp)),
+        modifier = modifier.then(if(isCollapsed) Modifier.height(50.dp) else Modifier.height(400.dp)),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(8.dp)
     ) {
@@ -84,49 +87,26 @@ fun ChatBox(modifier: Modifier = Modifier) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-                    Row() {
-                        IconButton(onClick = {isCollapsed = !isCollapsed}){
-
-                            Icon(
-                                imageVector = if (isCollapsed) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                                contentDescription = if (isCollapsed) "Expand Chat" else "Collapse Chat",
-                                tint = Color.White)
-                        }
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Column {
-                            Text(
-                                "Chat",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = Color.White
-                            )
-                            Text(
-                                connectionStatus,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Color.White.copy(alpha = 0.8f)
-                            )
-                        }
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Start, modifier = Modifier.fillMaxWidth()) {
+                    IconButton(onClick = {isCollapsed = !isCollapsed}){
+                        Icon(
+                            imageVector = if (isCollapsed) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                            contentDescription = if (isCollapsed) "Expand Chat" else "Collapse Chat",
+                            tint = Color.White)
                     }
-//                    Spacer(modifier = Modifier.width(120.dp))
-
-                    ReactionPicker(
-                        onReactionSelected = { emojiSelected = it },
-                        modifier = Modifier , emojiSelected = emojiSelected
-                    )
-
-                    ShakeListener(
-                        onVerticalShake = {
-                            emojiSelected?.let { emoji ->
-                                ChatViewModel.sendMessage(emoji)
-                                mostRecentMessage = emoji
-                            }
-                        },
-                        onHorizontalShake = {
-                            mostRecentMessage?.let { lastMsg ->
-                                ChatViewModel.sendMessage(lastMsg)
-                            }
-                        }
-                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Column {
+                        Text(
+                            "Clavardage",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Color.White
+                        )
+                        Text(
+                            connectionStatus,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.White.copy(alpha = 0.8f)
+                        )
+                    }
                 }
             }
 
@@ -151,14 +131,44 @@ fun ChatBox(modifier: Modifier = Modifier) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically //horizontalArrangement = Arrangement.SpaceBetween
                 ) {
+                    ReactionPicker(
+                        onReactionSelected = { emojiSelected = it },
+                        modifier = Modifier.fillMaxWidth() , emojiSelected = emojiSelected
+                    )
+
+                    ShakeListener(
+                        onVerticalShake = {
+                            emojiSelected?.let { emoji ->
+                                ChatViewModel.sendMessage(emoji)
+                                mostRecentMessage = emoji
+                            }
+                        },
+                        onHorizontalShake = {
+                            mostRecentMessage?.let { lastMsg ->
+                                ChatViewModel.sendMessage(lastMsg)
+                            }
+                        }
+                    )
                     OutlinedTextField(
                         value = newMessage,
-                        onValueChange = { newMessage = it },
+                        onValueChange = { if(it.length <= maxChar) newMessage = it },
                         modifier = Modifier.weight(1f),
                         placeholder = { Text("Entrez un message...") },
-                        maxLines = 3
+                        maxLines = 3,
+                        keyboardOptions = KeyboardOptions(
+                            imeAction = ImeAction.Send   // ou Done
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onSend = {
+                                if (newMessage.isNotBlank()) {
+                                    mostRecentMessage = newMessage
+                                    ChatViewModel.sendMessage(newMessage)
+                                    newMessage = ""
+                                }
+                            }
+                        )
                     )
 
                     Spacer(modifier = Modifier.width(8.dp))
@@ -195,7 +205,7 @@ fun MessageBox(chatMessage: ChatMessage) {
             color = if (isFromCurrentUser)
                 MaterialTheme.colorScheme.primary
             else
-                MaterialTheme.colorScheme.surfaceVariant,
+                Color.White,
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier.widthIn(max = 260.dp)
         ) {
@@ -203,7 +213,10 @@ fun MessageBox(chatMessage: ChatMessage) {
                 Text(
                     text = chatMessage.username,
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = if (isFromCurrentUser)
+                        Color.Green
+                    else
+                        Color.Black
                 )
                 Spacer(modifier = Modifier.height(4.dp))
 

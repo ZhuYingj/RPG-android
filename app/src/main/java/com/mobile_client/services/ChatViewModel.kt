@@ -11,23 +11,20 @@ import kotlinx.coroutines.launch
 object ChatViewModel : ViewModel() {
     private val _messages = MutableStateFlow<List<ChatMessage>>(emptyList())
     val messages : StateFlow<List<ChatMessage>> = _messages.asStateFlow()
-    private val _connectionStatus = MutableStateFlow("Disconnected")
+    private val _connectionStatus = MutableStateFlow("Connecté")
     val connectionStatus: StateFlow<String> = _connectionStatus.asStateFlow()
 
 //    private val _unreadCount = MutableStateFlow(0)
 //    val unreadCount: StateFlow<Int> = _unreadCount.asStateFlow()
 
-    init {
-        enableListeners()
-    }
-    private fun enableListeners() {
+    fun enableListeners() {
         viewModelScope.launch {
             SocketManager.connect(
                 onConnected = {
-                    _connectionStatus.value = "Connected"
+                    _connectionStatus.value = "Connecté"
                 },
                 onDisconnected = {
-                    _connectionStatus.value = "Disconnected"
+                    _connectionStatus.value = "Déconnecté"
                 },
                 onChatMessage = { message ->
                     handleChatMessage(message)

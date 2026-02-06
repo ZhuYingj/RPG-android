@@ -49,7 +49,7 @@ fun ReactionPicker(
 @Composable
 fun ReactionButton(onClick: () -> Unit, emojiSelected: String? = null) {
     IconButton(onClick = onClick) {
-        Text(emojiSelected ?: "😮")
+        Text(emojiSelected ?: "❤️")
     }
 }
 
