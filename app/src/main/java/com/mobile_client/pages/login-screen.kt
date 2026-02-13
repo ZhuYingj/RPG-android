@@ -67,11 +67,14 @@ fun LoginScreen(navController: NavController, snackbarHostState: SnackbarHostSta
                         ChatViewModel.enableListeners()
                         navController.navigate(Screen.Home.route)
                     }
-                    HttpStatusCode.BadRequest -> {
-                        errorMessage = "Invalid credentials"
+                    HttpStatusCode.Unauthorized -> {
+                        errorMessage = "Nom d'utilisateur ou mot de passe invalide"
+                    }
+                    HttpStatusCode.Forbidden -> {
+                        errorMessage = "Ce compte est déjà connecté"
                     }
                     else -> {
-                        errorMessage = "Login failed. Please try again."
+                        errorMessage = "Une erreur s'est produite lors de la connexion"
                     }
                 }
             } catch (e: Exception) {
