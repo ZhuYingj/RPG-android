@@ -15,7 +15,8 @@ fun ShakeListener(
     onHorizontalShake: () -> Unit
 ) {
     val context = LocalContext.current
-    val sensorManager = remember { context.getSystemService(Context.SENSOR_SERVICE) as SensorManager }
+    // Use safe cast 'as? SensorManager' because SensorManager might be null in Previews or on devices without sensors
+    val sensorManager = remember { context.getSystemService(Context.SENSOR_SERVICE) as? SensorManager }
 
     val shakeThreshold  = 10f
     val cooldownMillis = 800L
@@ -57,7 +58,14 @@ fun ShakeListener(
     }
 
     DisposableEffect(sensorManager) {
+        // If sensorManager is null (e.g., in Preview), don't register the listener
+        if (sensorManager == null) {
+            return@DisposableEffect onDispose {}
+        }
         val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+        if (accelerometer == null) {
+            return@DisposableEffect onDispose {}
+        }
         sensorManager.registerListener(listener, accelerometer, SensorManager.SENSOR_DELAY_UI)
         onDispose { sensorManager.unregisterListener(listener) }
     }
