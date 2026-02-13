@@ -101,7 +101,7 @@ fun HomeScreen(navController: NavController){
                     modifier = Modifier.padding(bottom=10.dp)) {
                     Text("Joindre une partie", color = Color.Black)
                 }
-                Button(onClick = {navController.navigate(Screen.Games.route)},
+                Button(onClick = {navController.navigate(Screen.GameCreation.route)},
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
                     modifier = Modifier.padding(bottom=10.dp)) {
                     Text("Créer une partie", color = Color.Black)

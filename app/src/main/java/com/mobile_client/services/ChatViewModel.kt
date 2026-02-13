@@ -17,6 +17,9 @@ object ChatViewModel : ViewModel() {
 //    private val _unreadCount = MutableStateFlow(0)
 //    val unreadCount: StateFlow<Int> = _unreadCount.asStateFlow()
 
+//    init {
+//        enableListeners()
+//    }
     fun enableListeners() {
         viewModelScope.launch {
             SocketManager.connect(
