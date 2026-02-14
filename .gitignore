@@ -15,3 +15,10 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Files to ignore
+.idea/gradle.xml
+gradle/libs.versions.toml
+gradle/wrapper/gradle-wrapper.properties
+settings.gradle.kts
+gradle/gradle-daemon-jvm.properties
