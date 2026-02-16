@@ -42,28 +42,12 @@ object ChatViewModel : ViewModel() {
 //        _unreadCount.value++
     }
 
-    private fun getCurrentTime(): String {
-        val now = java.util.Calendar.getInstance()
-        val hours = now.get(java.util.Calendar.HOUR_OF_DAY).toString().padStart(2, '0')
-        val minutes = now.get(java.util.Calendar.MINUTE).toString().padStart(2, '0')
-        val seconds = now.get(java.util.Calendar.SECOND).toString().padStart(2, '0')
-        return "$hours:$minutes:$seconds"
-    }
-
     fun clear() {
         _messages.value = emptyList()
         _connectionStatus.value = "Disconnected"
     }
     fun sendMessage(messageContent: String) {
-        viewModelScope.launch {
-            val newMessage = ChatMessage(
-                username = AccountRepository.getUsername(),
-                message = messageContent,
-                concernedUser = "",
-                timestamp = getCurrentTime(),
-            )
-            SocketManager.sendMessage(newMessage)
-        }
+        viewModelScope.launch { SocketManager.sendMessage(messageContent) }
     }
 
 
