@@ -15,10 +15,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.mobile_client.pages.ui.theme.MobileclientTheme
+import com.mobile_client.services.ChatViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,6 +31,7 @@ class MainActivity : ComponentActivity() {
                 LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
                 val navController = rememberNavController()
                 val snackbarHostState = remember { SnackbarHostState() }
+                val chatViewModel: ChatViewModel = viewModel()
                 Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = { SnackbarHost(snackbarHostState) }) { innerPadding ->
                     NavHost(
                         navController = navController,
@@ -38,19 +41,15 @@ class MainActivity : ComponentActivity() {
                         composable(Screen.Login.route) {
 //                            if(navController.currentDestination?.route != Screen.Login.route && navController.currentDestination?.route != Screen.SignUp.route)
 //                                ChatBox(viewModel<ChatViewModel>(), modifier = Modifier.zIndex(1f))
-                            //HomeScreen(navController= navController)
-                            LoginScreen(navController = navController, snackbarHostState = snackbarHostState)
-                            //tanrin
-                            //12345
-                            }
+                            LoginScreen(navController = navController, snackbarHostState = snackbarHostState, chatViewModel = chatViewModel)}
 
                         composable(Screen.SignUp.route) { SignUpScreen(navController = navController)}
-
-                        composable(Screen.Home.route) { HomeScreen(navController = navController)}
-                        composable(Screen.GameCreation.route) { GamesCreationScreen(navController = navController)}
-                        composable(Screen.JoinGame.route) { JoinGameScreen(navController = navController)}
-                        composable(Screen.Account.route) { AccountScreen(navController = navController)}
-
+                        composable(Screen.Home.route) { HomeScreen(navController = navController, chatViewModel = chatViewModel)}
+                        composable(Screen.GameCreation.route) { GamesCreationScreen(navController = navController, chatViewModel = chatViewModel )}
+                        composable(Screen.JoinGame.route) { JoinGameScreen(navController = navController, chatViewModel = chatViewModel)}
+                        composable(Screen.Account.route) { AccountScreen(navController = navController, chatViewModel = chatViewModel)}
+                        composable(Screen.CharacterCreation.route) { CharacterCreationScreen(navController = navController, chatViewModel = chatViewModel)}
+                        composable(Screen.WaitingPage.route) { WaitingPageScreen(navController = navController, chatViewModel = chatViewModel)}
                     }
                 }
             }

@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-object ChatViewModel : ViewModel() {
+class ChatViewModel : ViewModel() {
     private val _messages = MutableStateFlow<List<ChatMessage>>(emptyList())
     val messages : StateFlow<List<ChatMessage>> = _messages.asStateFlow()
     private val _connectionStatus = MutableStateFlow("Connecté")
@@ -20,6 +20,12 @@ object ChatViewModel : ViewModel() {
 //    init {
 //        enableListeners()
 //    }
+
+    override fun onCleared() {
+        super.onCleared()
+        _messages.value = emptyList()
+        _connectionStatus.value = "Disconnected"
+    }
     fun enableListeners() {
         viewModelScope.launch {
             SocketManager.connect(
@@ -29,27 +35,20 @@ object ChatViewModel : ViewModel() {
                 onDisconnected = {
                     _connectionStatus.value = "Déconnecté"
                 },
-                onChatMessage = { message ->
-                    handleChatMessage(message)
-                }
             )
         }
     }
 
-    private fun handleChatMessage(message: ChatMessage) {
+    fun handleChatMessage(message: ChatMessage) {
         _messages.value += message
-//        _messages.value = _message.message
-//        _unreadCount.value++
     }
 
-    fun clear() {
+    fun clearList() {
         _messages.value = emptyList()
-        _connectionStatus.value = "Disconnected"
     }
     fun sendMessage(messageContent: String) {
         viewModelScope.launch { SocketManager.sendMessage(messageContent) }
     }
-
 
 }
 

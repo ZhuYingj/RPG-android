@@ -1,0 +1,25 @@
+package com.mobile_client.utils
+
+object LobbyEvents {
+    const val CREATE_LOBBY = "create-lobby"
+    const val LOBBY_CREATED = "lobby-created"
+    const val JOIN_LOBBY = "join-lobby"
+    const val LOBBY_JOINED = "lobby-joined"
+    const val LEAVE_LOBBY = "leave-lobby"
+    const val LOBBY_CLOSED = "lobby-closed"
+    const val KICK_PLAYER = "kick-player"
+    const val KICKED = "kicked"
+    const val PLAYERS = "player-list"
+    const val JOINING = "player-joining"
+    const val PLAYER_JOINED = "player-joined"
+    const val TOGGLE_LOCK = "toggle-lock"
+    const val ERROR = "error"
+    const val CONNECT = "connected"
+    const val DISCONNECT = "disconnected"
+    const val CONNECT_ERROR = "connect_error"
+    const val START_GAME = "start-game"
+    const val GAME_STARTED = "game-started"
+    const val AVATAR_SELECTED = "avatar-selected"
+    const val TOGGLE_BOT = "toggle-bot"
+    const val UNAUTHORIZED_LOGIN = "unauthorized-login"
+}

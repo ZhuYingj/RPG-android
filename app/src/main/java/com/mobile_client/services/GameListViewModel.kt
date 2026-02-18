@@ -54,20 +54,6 @@ class GameListViewModel : ViewModel() {  // ← Changed from 'object' to 'class'
         }
     }
 
-    fun nextMaps() {
-        if (_mapIndexEnd.value < _maps.value.size - 1) {
-            _mapIndexStart.value += 5
-            _mapIndexEnd.value = minOf(_mapIndexEnd.value + 5, _maps.value.size - 1)
-        }
-    }
-
-    fun previousMaps() {
-        if (_mapIndexStart.value > 0) {
-            _mapIndexStart.value = maxOf(_mapIndexStart.value - 5, 0)
-            _mapIndexEnd.value = _mapIndexStart.value + 4
-        }
-    }
-
     fun playGame(map: GameMap) {
         viewModelScope.launch {
             try {

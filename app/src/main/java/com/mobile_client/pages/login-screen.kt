@@ -40,9 +40,8 @@ import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-
 @Composable
-fun LoginScreen(navController: NavController, snackbarHostState: SnackbarHostState) {
+fun LoginScreen(navController: NavController, snackbarHostState: SnackbarHostState, chatViewModel: ChatViewModel) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
@@ -64,7 +63,7 @@ fun LoginScreen(navController: NavController, snackbarHostState: SnackbarHostSta
                         val loginData: LoginResponse = response.body()
                         AccountRepository.setAccount(loginData.account, loginData.token)
                         scope.launch{ snackbarHostState.showSnackbar("Connexion réussie", duration = SnackbarDuration.Short) }
-                        ChatViewModel.enableListeners()
+                        chatViewModel.enableListeners()
                         navController.navigate(Screen.Home.route)
                     }
                     HttpStatusCode.Unauthorized -> {

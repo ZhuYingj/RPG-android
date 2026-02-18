@@ -1,13 +1,10 @@
 package com.mobile_client.pages
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
@@ -16,74 +13,23 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.mobile_client.components.ChatBox
-import com.mobile_client.environment.ENVIRONMENT
-import com.mobile_client.pages.ui.theme.MobileclientTheme
-import com.mobile_client.pages.ui.theme.Pink80
-import com.mobile_client.services.AccountRepository
+import com.mobile_client.components.Header
 import com.mobile_client.services.ChatViewModel
-import com.mobile_client.services.HttpService
-import com.mobile_client.services.SocketManager
-import io.ktor.client.statement.HttpResponse
-import io.ktor.http.HttpStatusCode
-import kotlinx.coroutines.launch
-
 @Composable
-fun HomeScreen(navController: NavController){
+fun HomeScreen(navController: NavController, chatViewModel: ChatViewModel){
 
-    val scope = rememberCoroutineScope()
-    //val httpService = HttpService()
     BackHandler() { }
-
-    fun logout() {
-        scope.launch {
-            try {
-                val body = mapOf(
-                    "token" to AccountRepository.getToken()
-                )
-                val response: HttpResponse = HttpService.post("$ENVIRONMENT/api/auth/logout", body)
-                if (response.status == HttpStatusCode.OK) {
-                    AccountRepository.clear()
-                    navController.navigate(Screen.Login.route) {
-                        popUpTo(Screen.Home.route) { inclusive = true } // Clear all previous screens, remove destination and avoid duplicate login screen
-                        launchSingleTop = true
-                    }
-                    SocketManager.disconnect()
-                    ChatViewModel.clear()
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
-            Row(modifier = Modifier
-                .padding(bottom = 10.dp)
-                .fillMaxWidth()
-                .background(color = Pink80),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically) {
-                Button(onClick = { logout() }, modifier = Modifier) {
-                    Text("Se déconnecter")
-                }
-                Text(
-                    text = "Accueil",
-                    style = MaterialTheme.typography.headlineLarge)
-                Button(onClick= { navController.navigate(Screen.Account.route) }, modifier = Modifier) {
-                    Text("Compte")
-                }
-            }
+            Header(navController = navController, title = "Accueil", chatViewModel, showBackButton = false, showLogoutButton = true)
 
             Column(
                 modifier = Modifier
@@ -114,16 +60,16 @@ fun HomeScreen(navController: NavController){
                 .align(Alignment.BottomEnd)
                 .widthIn(max = 400.dp)
                 .padding(16.dp)
-                .zIndex(1f))
+                .zIndex(1f), chatViewModel)
     }
 }
 
-@Preview(showBackground = true, device="spec:width=2000px,height=1200px, orientation=landscape")
-@Composable
-fun HomeScreenPreview() {
-    MobileclientTheme {
-        //LoginScreen(onNavigateToSignUp = {}, onNavigateToHome = {})
-        HomeScreen(navController = rememberNavController())
-        //SignUpScreen(navController = rememberNavController())
-    }
-}
+//@Preview(showBackground = true, device="spec:width=2000px,height=1200px, orientation=landscape")
+//@Composable
+//fun HomeScreenPreview() {
+//    MobileclientTheme {
+//        //LoginScreen(onNavigateToSignUp = {}, onNavigateToHome = {})
+//        HomeScreen(navController = rememberNavController())
+//        //SignUpScreen(navController = rememberNavController())
+//    }
+//}
