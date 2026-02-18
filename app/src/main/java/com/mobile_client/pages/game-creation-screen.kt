@@ -10,10 +10,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mobile_client.components.GameList
+import com.mobile_client.components.Header
+import com.mobile_client.services.ChatViewModel
 
 @Composable
-fun GamesCreationScreen(navController: NavController) {
+fun GamesCreationScreen(navController: NavController, chatViewModel: ChatViewModel) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Header(navController, "Création de partie", chatViewModel)
         Text(
             text = "Créer un jeu",
             style = MaterialTheme.typography.headlineMedium

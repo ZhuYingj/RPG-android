@@ -8,7 +8,9 @@ sealed class Screen(val route: String) {
     object GameCreation : Screen("game_creation")
     object JoinGame : Screen("join_game")
 
-    object Lobby : Screen("lobby")
+    object CharacterCreation : Screen("character_form")
+
+    object WaitingPage : Screen("game_lobby")
 
     object Game : Screen("game")
 }

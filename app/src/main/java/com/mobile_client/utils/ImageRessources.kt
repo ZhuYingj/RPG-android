@@ -30,4 +30,19 @@ object ImageResources {
         TileConstants.MapSize.Medium to "Moyenne",
         TileConstants.MapSize.Large to "Grande"
     )
+
+    val avatarToImage = mapOf(
+        PlayerAvatars.Carrot to R.drawable.avatar1,
+        PlayerAvatars.Cabbage to R.drawable.avatar2,
+        PlayerAvatars.Pepper to R.drawable.avatar3,
+        PlayerAvatars.Brocoli to R.drawable.avatar4,
+        PlayerAvatars.Corn to R.drawable.avatar5,
+        PlayerAvatars.Beet to R.drawable.avatar6,
+        PlayerAvatars.Potato to R.drawable.avatar7,
+        PlayerAvatars.Mushroom to R.drawable.avatar8,
+        PlayerAvatars.Onion to R.drawable.avatar9,
+        PlayerAvatars.Cauliflower to R.drawable.avatar10,
+        PlayerAvatars.Celery to R.drawable.avatar11,
+        PlayerAvatars.Tomato to R.drawable.avatar12,
+    )
 }

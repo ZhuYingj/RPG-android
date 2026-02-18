@@ -31,6 +31,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -41,30 +42,31 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.mobile_client.pages.ui.theme.MobileclientTheme
 import com.mobile_client.services.AccountRepository
 import com.mobile_client.services.ChatViewModel
+import com.mobile_client.services.SocketManager
 import com.mobile_client.utils.ChatMessage
-
+import com.mobile_client.utils.MessageEvents
 
 @Composable
-fun ChatBox(modifier: Modifier = Modifier) {
-    //var messages by remember { mutableStateOf(emptyList<String>()) }
-    val chatMessages by ChatViewModel.messages.collectAsState()
-    val connectionStatus by ChatViewModel.connectionStatus.collectAsState()
+fun ChatBox(modifier: Modifier = Modifier, chatViewModel: ChatViewModel) {
+    val chatMessages by chatViewModel.messages.collectAsState()
+    val connectionStatus by chatViewModel.connectionStatus.collectAsState()
     var newMessage by remember { mutableStateOf("") }
     var mostRecentMessage by remember { mutableStateOf<String?>(null) }
     var listState = rememberLazyListState()
     var isCollapsed by remember { mutableStateOf(false) }
     var emojiSelected by remember { mutableStateOf("❤️") }
     val maxChar = 200
-//    DisposableEffect(Unit) {
-//        onDispose {
-//            ChatViewModel.clear()
-//        }
-//    }
+
+    LaunchedEffect(Unit) {
+        SocketManager.socket?.off(MessageEvents.CHAT_MESSAGE)
+        SocketManager.socket?.off(MessageEvents.GLOBAL_CHAT_MESSAGE)
+        SocketManager.initializeChatListeners { message ->
+            chatViewModel.handleChatMessage(message)
+        }
+    }
 
     LaunchedEffect(chatMessages.size) {
         if (chatMessages.isNotEmpty()) {
@@ -78,7 +80,6 @@ fun ChatBox(modifier: Modifier = Modifier) {
         elevation = CardDefaults.cardElevation(8.dp)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            // Header
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -140,14 +141,14 @@ fun ChatBox(modifier: Modifier = Modifier) {
 
                     ShakeListener(
                         onVerticalShake = {
-                            emojiSelected?.let { emoji ->
-                                ChatViewModel.sendMessage(emoji)
+                            emojiSelected.let { emoji ->
+                                chatViewModel.sendMessage(emoji)
                                 mostRecentMessage = emoji
                             }
                         },
                         onHorizontalShake = {
                             mostRecentMessage?.let { lastMsg ->
-                                ChatViewModel.sendMessage(lastMsg)
+                                chatViewModel.sendMessage(lastMsg)
                             }
                         }
                     )
@@ -164,7 +165,7 @@ fun ChatBox(modifier: Modifier = Modifier) {
                             onSend = {
                                 if (newMessage.isNotBlank()) {
                                     mostRecentMessage = newMessage
-                                    ChatViewModel.sendMessage(newMessage)
+                                    chatViewModel.sendMessage(newMessage)
                                     newMessage = ""
                                 }
                             }
@@ -177,7 +178,7 @@ fun ChatBox(modifier: Modifier = Modifier) {
                         onClick = {
                             if (newMessage.isNotBlank()) {
                                 mostRecentMessage = newMessage
-                                ChatViewModel.sendMessage(newMessage)
+                                chatViewModel.sendMessage(newMessage)
                                 newMessage = ""
                             }
                         },
@@ -243,10 +244,10 @@ fun MessageBox(chatMessage: ChatMessage) {
 }
 
 
-@Preview(showBackground = true, device="spec:width=2000px,height=1200px, orientation=landscape")
-@Composable
-fun ChatBoxPreview() {
-    MobileclientTheme {
-        ChatBox()
-    }
-}
+//@Preview(showBackground = true, device="spec:width=2000px,height=1200px, orientation=landscape")
+//@Composable
+//fun ChatBoxPreview() {
+//    MobileclientTheme {
+//        ChatBox()
+//    }
+//}

@@ -24,6 +24,13 @@ object HttpService {
             logger = Logger.DEFAULT
             level = LogLevel.ALL
         }
+        install(io.ktor.client.plugins.DefaultRequest) {
+            contentType(ContentType.Application.Json)
+            val token = AccountRepository.getToken()
+            if (!token.isNullOrEmpty()) {
+                headers.append("Authorization", "Bearer $token")
+            }
+        }
     }
 
     suspend fun get(url: String): String {
