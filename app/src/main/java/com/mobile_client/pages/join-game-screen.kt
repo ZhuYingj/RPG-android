@@ -26,11 +26,12 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mobile_client.components.GameList
 import com.mobile_client.components.Header
-import com.mobile_client.viewModels.ChatViewModel
 import com.mobile_client.services.GameLobbyService
+import com.mobile_client.viewModels.BaseGameListViewModel
+import com.mobile_client.viewModels.ChatViewModel
 
 @Composable
-fun JoinGameScreen(navController: NavController, chatViewModel: ChatViewModel) {
+fun JoinGameScreen(navController: NavController, chatViewModel: ChatViewModel, gameListViewModel: BaseGameListViewModel) {
     var showCodeDialog by remember { mutableStateOf(false) }
     var lobbyCode by remember { mutableStateOf("") }
 
@@ -58,7 +59,7 @@ fun JoinGameScreen(navController: NavController, chatViewModel: ChatViewModel) {
             text = "Liste des salles",
             style = MaterialTheme.typography.headlineMedium
         )
-        GameList(modifier = Modifier.fillMaxSize())
+        GameList(gameListViewModel, modifier = Modifier.fillMaxSize())
     }
 
     if (showCodeDialog) {

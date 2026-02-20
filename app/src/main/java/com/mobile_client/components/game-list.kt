@@ -28,6 +28,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,11 +49,11 @@ import com.mobile_client.utils.GameMap
 import com.mobile_client.utils.ImageResources
 import com.mobile_client.utils.Tile
 import com.mobile_client.utils.TileConstants
-import com.mobile_client.viewModels.GameListViewModel
+import com.mobile_client.viewModels.BaseGameListViewModel
 
 @Composable
 fun GameList(
-    viewModel: GameListViewModel = GameListViewModel(),
+    viewModel: BaseGameListViewModel,
     modifier: Modifier = Modifier
 ) {
     val maps by viewModel.maps.collectAsState()
@@ -63,6 +64,9 @@ fun GameList(
 
     var descriptionId by remember { mutableStateOf<String?>(null) }
     val listState = rememberLazyListState()
+    LaunchedEffect(Unit) {
+        viewModel.loadMaps()
+    }
 
     Column(modifier = modifier.fillMaxSize()) {
         when {
@@ -321,7 +325,7 @@ fun GameListPreview() {
                 .fillMaxSize()
                 .padding(20.dp)
         ) {
-            GameList()
+            //GameList(GameListViewModel())
         }
     }
 }

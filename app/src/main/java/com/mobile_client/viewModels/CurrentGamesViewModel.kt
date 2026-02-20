@@ -5,9 +5,9 @@ import com.mobile_client.services.GameListService
 import com.mobile_client.utils.GameMap
 import kotlinx.coroutines.launch
 
-class GameListViewModel : BaseGameListViewModel() {  // ← Changed from 'object' to 'class'
-
+class CurrentGamesViewModel: BaseGameListViewModel() {
     override fun loadMaps(isVisible: Boolean) {
+        //TODO: Charger les parties en cours
         viewModelScope.launch {
             _isLoading.value = true
             _error.value = null
@@ -30,16 +30,7 @@ class GameListViewModel : BaseGameListViewModel() {  // ← Changed from 'object
             }
         }
     }
-
     override fun onClick(map: GameMap) {
-        viewModelScope.launch {
-            try {
-                println("Starting game with map: ${map.name}, ID: ${map._id}")
-                // TODO: Implement play game logic
-            } catch (e: Exception) {
-                e.printStackTrace()
-                _error.value = "Erreur lors du démarrage du jeu: ${e.message}"
-            }
-        }
+        //TODO: Joindre la partie
     }
 }

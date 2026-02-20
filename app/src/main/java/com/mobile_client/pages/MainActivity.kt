@@ -21,6 +21,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.mobile_client.pages.ui.theme.MobileclientTheme
 import com.mobile_client.viewModels.ChatViewModel
+import com.mobile_client.viewModels.CurrentGamesViewModel
+import com.mobile_client.viewModels.GameListViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,6 +34,8 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 val snackbarHostState = remember { SnackbarHostState() }
                 val chatViewModel: ChatViewModel = viewModel()
+                val gameListViewModel: GameListViewModel = viewModel()
+                val currentGamesViewModel: CurrentGamesViewModel = viewModel()
                 Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = { SnackbarHost(snackbarHostState) }) { innerPadding ->
                     NavHost(
                         navController = navController,
@@ -45,8 +49,8 @@ class MainActivity : ComponentActivity() {
 
                         composable(Screen.SignUp.route) { SignUpScreen(navController = navController)}
                         composable(Screen.Home.route) { HomeScreen(navController = navController, chatViewModel = chatViewModel)}
-                        composable(Screen.GameCreation.route) { GamesCreationScreen(navController = navController, chatViewModel = chatViewModel )}
-                        composable(Screen.JoinGame.route) { JoinGameScreen(navController = navController, chatViewModel = chatViewModel)}
+                        composable(Screen.GameCreation.route) { GamesCreationScreen(navController = navController, chatViewModel = chatViewModel, gameListViewModel = gameListViewModel)}
+                        composable(Screen.JoinGame.route) { JoinGameScreen(navController = navController, chatViewModel = chatViewModel, gameListViewModel = currentGamesViewModel)}
                         composable(Screen.Account.route) { AccountScreen(navController = navController, chatViewModel = chatViewModel)}
                         composable(Screen.CharacterCreation.route) { CharacterCreationScreen(navController = navController, chatViewModel = chatViewModel)}
                         composable(Screen.WaitingPage.route) { WaitingPageScreen(navController = navController, chatViewModel = chatViewModel)}
