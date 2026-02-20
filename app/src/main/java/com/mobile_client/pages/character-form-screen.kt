@@ -46,7 +46,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mobile_client.components.Header
 import com.mobile_client.services.AccountRepository
-import com.mobile_client.services.ChatViewModel
+import com.mobile_client.viewModels.ChatViewModel
 import com.mobile_client.services.GameLobbyService
 import com.mobile_client.utils.BASE_STAT_VALUE
 import com.mobile_client.utils.Dices

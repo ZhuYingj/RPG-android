@@ -1,4 +1,4 @@
-package com.mobile_client.viewmodels
+package com.mobile_client.viewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -54,7 +54,7 @@ class GameListViewModel : ViewModel() {  // ← Changed from 'object' to 'class'
         }
     }
 
-    fun playGame(map: GameMap) {
+    fun onClick(map: GameMap) {
         viewModelScope.launch {
             try {
                 println("Starting game with map: ${map.name}, ID: ${map._id}")

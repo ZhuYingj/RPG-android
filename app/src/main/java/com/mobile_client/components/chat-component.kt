@@ -44,7 +44,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.mobile_client.services.AccountRepository
-import com.mobile_client.services.ChatViewModel
+import com.mobile_client.viewModels.ChatViewModel
 import com.mobile_client.services.SocketManager
 import com.mobile_client.utils.ChatMessage
 import com.mobile_client.utils.MessageEvents

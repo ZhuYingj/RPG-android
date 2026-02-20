@@ -48,7 +48,7 @@ import com.mobile_client.utils.GameMap
 import com.mobile_client.utils.ImageResources
 import com.mobile_client.utils.Tile
 import com.mobile_client.utils.TileConstants
-import com.mobile_client.viewmodels.GameListViewModel
+import com.mobile_client.viewModels.GameListViewModel
 
 @Composable
 fun GameList(
@@ -119,7 +119,7 @@ fun GameList(
                             showDescription = descriptionId == map._id,
                             onMouseEnter = { descriptionId = map._id },
                             onMouseLeave = { descriptionId = null },
-                            onPlay = { viewModel.playGame(map) }
+                            onPlay = { viewModel.onClick(map) }
                         )
                     }
                 }

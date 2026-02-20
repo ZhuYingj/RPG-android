@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mobile_client.environment.ENVIRONMENT
 import com.mobile_client.services.AccountRepository
-import com.mobile_client.services.ChatViewModel
+import com.mobile_client.viewModels.ChatViewModel
 import com.mobile_client.services.HttpService
 import com.mobile_client.utils.LoginResponse
 import io.ktor.client.call.body

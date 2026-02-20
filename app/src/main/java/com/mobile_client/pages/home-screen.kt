@@ -21,7 +21,7 @@ import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import com.mobile_client.components.ChatBox
 import com.mobile_client.components.Header
-import com.mobile_client.services.ChatViewModel
+import com.mobile_client.viewModels.ChatViewModel
 @Composable
 fun HomeScreen(navController: NavController, chatViewModel: ChatViewModel){
 

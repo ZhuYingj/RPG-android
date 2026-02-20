@@ -1,7 +1,8 @@
-package com.mobile_client.services
+package com.mobile_client.viewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mobile_client.services.SocketManager
 import com.mobile_client.utils.ChatMessage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -51,7 +52,3 @@ class ChatViewModel : ViewModel() {
     }
 
 }
-
-
-
-

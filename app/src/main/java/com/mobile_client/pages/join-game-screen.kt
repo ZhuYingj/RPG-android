@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mobile_client.components.GameList
 import com.mobile_client.components.Header
-import com.mobile_client.services.ChatViewModel
+import com.mobile_client.viewModels.ChatViewModel
 import com.mobile_client.services.GameLobbyService
 
 @Composable
