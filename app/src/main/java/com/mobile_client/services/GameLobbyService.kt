@@ -25,6 +25,7 @@ object GameLobbyService {
     var isGameStarted = mutableStateOf(false)
     var isSubmitted = mutableStateOf(false)
     var lobbyCode = mutableStateOf("")
+    var isHost = mutableStateOf(false)
 
     val gson = Gson()
 
@@ -37,6 +38,7 @@ object GameLobbyService {
         availableAvatars.clear()
         availableAvatars.addAll(PlayerAvatars.entries.filter { it != PlayerAvatars.None })
         isSubmitted.value = false
+        isHost.value = false
         SocketManager.closeLobbyListeners()
     }
 
@@ -57,6 +59,24 @@ object GameLobbyService {
                         val message = data.optString("message", "Impossible de rejoindre")
                         onError(message)
                     }
+                }
+            }
+        }
+    }
+
+    fun createLobby(onSuccess: () -> Unit, onError: (String) -> Unit) {
+        val socket = SocketManager.socket ?: return
+        clear()
+        SocketManager.initializeLobbyListeners(this)
+        isHost.value = true
+        socket.emit(LobbyEvents.CREATE_LOBBY, gson.toJson(map.value))
+        socket.once(LobbyEvents.LOBBY_CREATED) { args ->
+            Handler(Looper.getMainLooper()).post {
+                if (args.isNotEmpty()) {
+                    lobbyCode.value = args[0].toString()
+                    onSuccess()
+                } else {
+                    onError("Impossible de créer le lobby")
                 }
             }
         }

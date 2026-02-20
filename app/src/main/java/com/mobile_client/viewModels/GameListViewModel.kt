@@ -1,8 +1,13 @@
 package com.mobile_client.viewModels
 
 import androidx.lifecycle.viewModelScope
+import com.mobile_client.pages.Screen
 import com.mobile_client.services.GameListService
+import com.mobile_client.services.GameLobbyService
 import com.mobile_client.utils.GameMap
+import com.mobile_client.utils.PlayerTypes
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 
 class GameListViewModel : BaseGameListViewModel() {  // ← Changed from 'object' to 'class'
@@ -34,6 +39,17 @@ class GameListViewModel : BaseGameListViewModel() {  // ← Changed from 'object
     override fun onClick(map: GameMap) {
         viewModelScope.launch {
             try {
+                GameLobbyService.map.value = map
+                GameLobbyService.createLobby(
+                    onSuccess = {
+                        viewModelScope.launch {
+                            navigationEvent.emit(Screen.CharacterCreation.route)
+                        }
+                    },
+                    onError = { message ->
+                        _error.value = message
+                    }
+                )
                 println("Starting game with map: ${map.name}, ID: ${map._id}")
                 // TODO: Implement play game logic
             } catch (e: Exception) {

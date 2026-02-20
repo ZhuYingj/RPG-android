@@ -122,7 +122,6 @@ object SocketManager {
         socket.on(LobbyEvents.LOBBY_CLOSED) { args ->
             val message = if (args.isNotEmpty()) args[0] as String else "Lobby fermé"
             println("Lobby closed: $message")
-
             clear()
         }
 

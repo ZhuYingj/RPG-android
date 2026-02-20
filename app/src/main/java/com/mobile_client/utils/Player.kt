@@ -60,7 +60,7 @@ data class Position(
 data class Player(
     val username: String,
     val avatar: PlayerAvatars,
-    val playerType: PlayerTypes,
+    var playerType: PlayerTypes,
     val attack: Dices,
     val defense: Dices,
     val isBonusLife: Boolean,

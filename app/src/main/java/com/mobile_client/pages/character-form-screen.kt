@@ -65,8 +65,6 @@ fun CharacterCreationScreen(navController: NavController, chatViewModel: ChatVie
     val availableAvatars = GameLobbyService.availableAvatars
     val allAvatars = PlayerAvatars.entries.filter { it != PlayerAvatars.None }
 
-    var host by remember { mutableStateOf(false)}
-
     var selectedAvatar by remember { mutableStateOf(PlayerAvatars.None) }
     var previousAvatar by remember { mutableStateOf(PlayerAvatars.None) }
     var isBonusLife by remember { mutableStateOf<Boolean?>(false) }
@@ -286,7 +284,7 @@ fun CharacterCreationScreen(navController: NavController, chatViewModel: ChatVie
                                             val player = Player(
                                                 username = AccountRepository.getUsername(),
                                                 avatar = selectedAvatar,
-                                                playerType = PlayerTypes.Human,
+                                                playerType = if (GameLobbyService.isHost.value) PlayerTypes.Host else PlayerTypes.Human,
                                                 attack = attackDice ?: Dices.D6,
                                                 defense = if (attackDice == Dices.D6) Dices.D4 else Dices.D6,
                                                 isBonusLife = isBonusLife == true,
