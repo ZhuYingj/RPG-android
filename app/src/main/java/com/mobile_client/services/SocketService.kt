@@ -22,7 +22,10 @@ import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-object SocketManager {
+class SocketService private constructor() {
+    companion object {
+        val instance: SocketService by lazy { SocketService() }
+    }
     var socket: Socket? = null
     private val serverUrl = ENVIRONMENT
 
@@ -36,7 +39,7 @@ object SocketManager {
 //                reconnection = true
 //                reconnectionDelay = 1000
 //                reconnectionAttempts = 5
-                auth = mapOf("token" to AccountRepository.getToken())
+                auth = mapOf("token" to AccountService.instance.getToken())
 
             }
 

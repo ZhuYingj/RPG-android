@@ -19,12 +19,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mobile_client.environment.ENVIRONMENT
-import com.mobile_client.utils.Screen
 import com.mobile_client.screens.ui.theme.Pink80
-import com.mobile_client.services.AccountRepository
-import com.mobile_client.viewModels.ChatViewModel
+import com.mobile_client.services.AccountService
 import com.mobile_client.services.HttpService
-import com.mobile_client.services.SocketManager
+import com.mobile_client.services.SocketService
+import com.mobile_client.utils.Screen
+import com.mobile_client.viewModels.ChatViewModel
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.launch
@@ -43,13 +43,13 @@ fun Header(
         scope.launch {
             try {
                 val body = emptyMap<String, String>()
-                val response: HttpResponse = HttpService.post(
+                val response: HttpResponse = HttpService.instance.post(
                     "$ENVIRONMENT/api/auth/logout",
                     body
                 )
                 if (response.status == HttpStatusCode.OK) {
-                    SocketManager.disconnect()
-                    AccountRepository.clear()
+                    SocketService.instance.disconnect()
+                    AccountService.instance.clear()
                     chatViewModel.clearList()
                     navController.navigate(Screen.Login.route) {
                         popUpTo(0) { inclusive = true }

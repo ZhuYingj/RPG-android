@@ -12,7 +12,6 @@ import java.util.Locale
 import java.util.TimeZone
 
 class GameListService private constructor() {
-
     companion object {
     private const val BASE_URL = "$ENVIRONMENT/api/maps/"
         val instance: GameListService by lazy { GameListService() }
@@ -39,7 +38,7 @@ class GameListService private constructor() {
 
     suspend fun getAllMaps(isVisible: Boolean = false): List<GameMap> {
         return try {
-            val response = HttpService.get(BASE_URL)
+            val response = HttpService.instance.get(BASE_URL)
             val mapListType = object : TypeToken<List<GameMap>>() {}.type
             val maps: List<GameMap> = gson.fromJson(response, mapListType)
             if (isVisible) maps.filter { it.isVisible } else maps

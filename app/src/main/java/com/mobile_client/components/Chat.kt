@@ -42,11 +42,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import com.mobile_client.services.AccountRepository
-import com.mobile_client.viewModels.ChatViewModel
-import com.mobile_client.services.SocketManager
+import com.mobile_client.services.AccountService
+import com.mobile_client.services.SocketService
 import com.mobile_client.utils.ChatMessage
 import com.mobile_client.utils.MessageEvents
+import com.mobile_client.viewModels.ChatViewModel
 
 @Composable
 fun ChatBox(modifier: Modifier = Modifier, chatViewModel: ChatViewModel) {
@@ -58,11 +58,12 @@ fun ChatBox(modifier: Modifier = Modifier, chatViewModel: ChatViewModel) {
     var isCollapsed by remember { mutableStateOf(false) }
     var emojiSelected by remember { mutableStateOf("❤️") }
     val maxChar = 200
+    val socketManager = SocketService.instance
 
     LaunchedEffect(Unit) {
-        SocketManager.socket?.off(MessageEvents.CHAT_MESSAGE)
-        SocketManager.socket?.off(MessageEvents.GLOBAL_CHAT_MESSAGE)
-        SocketManager.initializeChatListeners { message ->
+        socketManager.socket?.off(MessageEvents.CHAT_MESSAGE)
+        socketManager.socket?.off(MessageEvents.GLOBAL_CHAT_MESSAGE)
+        socketManager.initializeChatListeners { message ->
             chatViewModel.handleChatMessage(message)
         }
     }
@@ -193,7 +194,7 @@ fun ChatBox(modifier: Modifier = Modifier, chatViewModel: ChatViewModel) {
 
 @Composable
 fun MessageBox(chatMessage: ChatMessage) {
-    val isFromCurrentUser = chatMessage.username == AccountRepository.getUsername()
+    val isFromCurrentUser = chatMessage.username == AccountService.instance.getUsername()
 
     Row(
         modifier = Modifier

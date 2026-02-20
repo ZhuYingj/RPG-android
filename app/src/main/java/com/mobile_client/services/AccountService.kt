@@ -2,7 +2,10 @@ package com.mobile_client.services
 
 import com.mobile_client.utils.Account
 
-object AccountRepository {
+class AccountService private constructor() {
+    companion object {
+        val instance: AccountService by lazy { AccountService() }
+    }
     private var token: String? = null
     private var accountInfo: Account? = null
 

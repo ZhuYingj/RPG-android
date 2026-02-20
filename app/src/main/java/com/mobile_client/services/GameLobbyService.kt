@@ -29,6 +29,8 @@ object GameLobbyService {
 
     val gson = Gson()
 
+    private val socketManager = SocketService.instance
+
     fun clear() {
         isGameStarted.value = false
         isLobbyLocked.value = false
@@ -39,12 +41,12 @@ object GameLobbyService {
         availableAvatars.addAll(PlayerAvatars.entries.filter { it != PlayerAvatars.None })
         isSubmitted.value = false
         isHost.value = false
-        SocketManager.closeLobbyListeners()
+        socketManager.closeLobbyListeners()
     }
 
     fun joinLobby(code: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
-        val socket = SocketManager.socket ?: return
-        SocketManager.initializeLobbyListeners(this)
+        val socket = socketManager.socket ?: return
+        socketManager.initializeLobbyListeners(this)
 
         socket.emit(LobbyEvents.JOIN_LOBBY, code)
         socket.once(LobbyEvents.LOBBY_JOINED) { args ->
@@ -65,9 +67,9 @@ object GameLobbyService {
     }
 
     fun createLobby(onSuccess: () -> Unit, onError: (String) -> Unit) {
-        val socket = SocketManager.socket ?: return
+        val socket = socketManager.socket ?: return
         clear()
-        SocketManager.initializeLobbyListeners(this)
+        socketManager.initializeLobbyListeners(this)
         isHost.value = true
         socket.emit(LobbyEvents.CREATE_LOBBY, gson.toJson(map.value))
         socket.once(LobbyEvents.LOBBY_CREATED) { args ->
@@ -83,7 +85,7 @@ object GameLobbyService {
     }
 
     fun selectAvatar(previousAvatar: PlayerAvatars, avatar: PlayerAvatars) {
-        val socket = SocketManager.socket ?: return
+        val socket = socketManager.socket ?: return
         val data = JSONObject().apply {
             put("avatar", gson.toJson(avatar).trim('"'))
             put("previousAvatar", gson.toJson(previousAvatar).trim('"'))
@@ -92,7 +94,7 @@ object GameLobbyService {
     }
 
     fun addPlayer(player: Player, onJoined: () -> Unit) {
-        val socket = SocketManager.socket ?: return
+        val socket = socketManager.socket ?: return
         val playerJson = JSONObject(gson.toJson(player))
         socket.emit(LobbyEvents.PLAYER_JOINED, playerJson)
         socket.once(LobbyEvents.JOINING) { args ->
@@ -107,18 +109,18 @@ object GameLobbyService {
     }
 
     fun leaveLobby() {
-        val socket = SocketManager.socket ?: return
+        val socket = socketManager.socket ?: return
         socket.emit(LobbyEvents.LEAVE_LOBBY)
         clear()
     }
 
     fun toggleLobbyLock() {
-        val socket = SocketManager.socket ?: return
+        val socket = socketManager.socket ?: return
         socket.emit(LobbyEvents.TOGGLE_LOCK)
     }
 
     fun startGame() {
-        val socket = SocketManager.socket ?: return
+        val socket = socketManager.socket ?: return
         val current = currentPlayer.value ?: return
         if (current.playerType == PlayerTypes.Host) {
             socket.emit(LobbyEvents.START_GAME)
@@ -126,7 +128,7 @@ object GameLobbyService {
     }
 
     fun kickPlayer(player: Player) {
-        val socket = SocketManager.socket ?: return
+        val socket = socketManager.socket ?: return
         val playerJson = JSONObject(gson.toJson(player))
         socket.emit(LobbyEvents.KICK_PLAYER, playerJson)
         players.remove(player)

@@ -16,6 +16,8 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -38,15 +40,13 @@ import androidx.navigation.NavController
 import com.mobile_client.environment.ENVIRONMENT
 import com.mobile_client.screens.ui.theme.Pink80
 import com.mobile_client.services.HttpService
+import com.mobile_client.utils.Screen
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.json.JSONObject
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import com.mobile_client.utils.Screen
 
 
 @Composable
@@ -114,7 +114,7 @@ fun SignUpScreen(navController: NavController) {
                     "password" to password
                 )
 
-                val response: HttpResponse = HttpService.post("$ENVIRONMENT/api/auth/signup", body)
+                val response: HttpResponse = HttpService.instance.post("$ENVIRONMENT/api/auth/signup", body)
 
                 when (response.status) {
                     HttpStatusCode.Created, HttpStatusCode.OK -> {

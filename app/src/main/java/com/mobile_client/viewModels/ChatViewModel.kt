@@ -2,7 +2,7 @@ package com.mobile_client.viewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mobile_client.services.SocketManager
+import com.mobile_client.services.SocketService
 import com.mobile_client.utils.ChatMessage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,7 +29,7 @@ class ChatViewModel : ViewModel() {
     }
     fun enableListeners() {
         viewModelScope.launch {
-            SocketManager.connect(
+            SocketService.instance.connect(
                 onConnected = {
                     _connectionStatus.value = "Connecté"
                 },
@@ -48,7 +48,7 @@ class ChatViewModel : ViewModel() {
         _messages.value = emptyList()
     }
     fun sendMessage(messageContent: String) {
-        viewModelScope.launch { SocketManager.sendMessage(messageContent) }
+        viewModelScope.launch { SocketService.instance.sendMessage(messageContent) }
     }
 
 }

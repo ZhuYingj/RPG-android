@@ -30,11 +30,11 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mobile_client.environment.ENVIRONMENT
-import com.mobile_client.services.AccountRepository
-import com.mobile_client.viewModels.ChatViewModel
+import com.mobile_client.services.AccountService
 import com.mobile_client.services.HttpService
 import com.mobile_client.utils.LoginResponse
 import com.mobile_client.utils.Screen
+import com.mobile_client.viewModels.ChatViewModel
 import io.ktor.client.call.body
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpStatusCode
@@ -58,11 +58,11 @@ fun LoginScreen(navController: NavController, snackbarHostState: SnackbarHostSta
                     "password" to password
                 )
 
-                val response: HttpResponse = HttpService.post("$ENVIRONMENT/api/auth/login", body)
+                val response: HttpResponse = HttpService.instance.post("$ENVIRONMENT/api/auth/login", body)
                 when (response.status) {
                     HttpStatusCode.OK -> {
                         val loginData: LoginResponse = response.body()
-                        AccountRepository.setAccount(loginData.account, loginData.token)
+                        AccountService.instance.setAccount(loginData.account, loginData.token)
                         scope.launch{ snackbarHostState.showSnackbar("Connexion réussie", duration = SnackbarDuration.Short) }
                         chatViewModel.enableListeners()
                         navController.navigate(Screen.Home.route)

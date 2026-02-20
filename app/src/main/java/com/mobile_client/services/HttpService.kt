@@ -15,7 +15,10 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.gson.gson
 
-object HttpService {
+class HttpService private constructor() {
+    companion object {
+        val instance: HttpService by lazy { HttpService() }
+    }
     private val client: HttpClient = HttpClient(Android) {
         install(ContentNegotiation) {
             gson()
@@ -26,7 +29,7 @@ object HttpService {
         }
         install(io.ktor.client.plugins.DefaultRequest) {
             contentType(ContentType.Application.Json)
-            val token = AccountRepository.getToken()
+            val token = AccountService.instance.getToken()
             if (!token.isNullOrEmpty()) {
                 headers.append("Authorization", "Bearer $token")
             }

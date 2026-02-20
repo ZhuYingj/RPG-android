@@ -45,8 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mobile_client.components.Header
-import com.mobile_client.services.AccountRepository
-import com.mobile_client.viewModels.ChatViewModel
+import com.mobile_client.services.AccountService
 import com.mobile_client.services.GameLobbyService
 import com.mobile_client.utils.BASE_STAT_VALUE
 import com.mobile_client.utils.Dices
@@ -56,6 +55,7 @@ import com.mobile_client.utils.PlayerAvatars
 import com.mobile_client.utils.PlayerTypes
 import com.mobile_client.utils.Screen
 import com.mobile_client.utils.Stats
+import com.mobile_client.viewModels.ChatViewModel
 
 private val DarkBrown = Color(0xFF3E2723)
 private val IconDark = Color(0xFF3E2723)
@@ -110,7 +110,7 @@ fun CharacterCreationScreen(navController: NavController, chatViewModel: ChatVie
                 Spacer(modifier = Modifier.height(8.dp))
 
                 OutlinedTextField(
-                    value = AccountRepository.getUsername(),
+                    value = AccountService.instance.getUsername(),
                     onValueChange = {},
                     singleLine = true,
                     enabled = false,
@@ -283,7 +283,7 @@ fun CharacterCreationScreen(navController: NavController, chatViewModel: ChatVie
                                                 defense = BASE_STAT_VALUE
                                             )
                                             val player = Player(
-                                                username = AccountRepository.getUsername(),
+                                                username = AccountService.instance.getUsername(),
                                                 avatar = selectedAvatar,
                                                 playerType = if (GameLobbyService.isHost.value) PlayerTypes.Host else PlayerTypes.Human,
                                                 attack = attackDice ?: Dices.D6,
