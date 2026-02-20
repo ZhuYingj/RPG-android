@@ -1,4 +1,4 @@
-package com.mobile_client.pages
+package com.mobile_client.screens
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
@@ -21,6 +21,7 @@ import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import com.mobile_client.components.ChatBox
 import com.mobile_client.components.Header
+import com.mobile_client.utils.Screen
 import com.mobile_client.viewModels.ChatViewModel
 @Composable
 fun HomeScreen(navController: NavController, chatViewModel: ChatViewModel){

@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.mobile_client.pages"
+    namespace = "com.mobile_client.screens"
     compileSdk {
         version = release(36)
     }

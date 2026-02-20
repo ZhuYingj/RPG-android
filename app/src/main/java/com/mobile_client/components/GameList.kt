@@ -44,7 +44,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mobile_client.pages.ui.theme.MobileclientTheme
+import com.mobile_client.screens.ui.theme.MobileclientTheme
 import com.mobile_client.utils.GameMap
 import com.mobile_client.utils.ImageResources
 import com.mobile_client.utils.Tile

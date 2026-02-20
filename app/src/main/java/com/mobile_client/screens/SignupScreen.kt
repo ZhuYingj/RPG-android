@@ -1,4 +1,4 @@
-package com.mobile_client.pages
+package com.mobile_client.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mobile_client.environment.ENVIRONMENT
-import com.mobile_client.pages.ui.theme.Pink80
+import com.mobile_client.screens.ui.theme.Pink80
 import com.mobile_client.services.HttpService
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
@@ -46,6 +46,7 @@ import kotlinx.coroutines.launch
 import org.json.JSONObject
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import com.mobile_client.utils.Screen
 
 
 @Composable

@@ -1,4 +1,4 @@
-package com.mobile_client.pages
+package com.mobile_client.screens
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

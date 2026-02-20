@@ -1,4 +1,4 @@
-package com.mobile_client.pages
+package com.mobile_client.screens
 
 import android.content.pm.ActivityInfo
 import android.os.Bundle
@@ -19,7 +19,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.mobile_client.pages.ui.theme.MobileclientTheme
+import com.mobile_client.screens.ui.theme.MobileclientTheme
+import com.mobile_client.utils.Screen
 import com.mobile_client.viewModels.ChatViewModel
 import com.mobile_client.viewModels.CurrentGamesViewModel
 import com.mobile_client.viewModels.GameListViewModel

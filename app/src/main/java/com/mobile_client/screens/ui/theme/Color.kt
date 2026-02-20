@@ -1,4 +1,4 @@
-package com.mobile_client.pages.ui.theme
+package com.mobile_client.screens.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

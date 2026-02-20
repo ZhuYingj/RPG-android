@@ -1,13 +1,10 @@
 package com.mobile_client.viewModels
 
 import androidx.lifecycle.viewModelScope
-import com.mobile_client.pages.Screen
+import com.mobile_client.utils.Screen
 import com.mobile_client.services.GameListService
 import com.mobile_client.services.GameLobbyService
 import com.mobile_client.utils.GameMap
-import com.mobile_client.utils.PlayerTypes
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 
 class GameListViewModel : BaseGameListViewModel() {  // ← Changed from 'object' to 'class'

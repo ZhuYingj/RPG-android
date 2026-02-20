@@ -1,6 +1,6 @@
 package com.mobile_client.utils
 
-import com.mobile_client.pages.R
+import com.mobile_client.screens.R
 
 object ImageResources {
     val tileTypeToImage = mapOf(

@@ -1,4 +1,4 @@
-package com.mobile_client.pages
+package com.mobile_client.screens
 
 import android.os.Handler
 import android.os.Looper
@@ -54,6 +54,7 @@ import com.mobile_client.utils.ImageResources
 import com.mobile_client.utils.Player
 import com.mobile_client.utils.PlayerAvatars
 import com.mobile_client.utils.PlayerTypes
+import com.mobile_client.utils.Screen
 import com.mobile_client.utils.Stats
 
 private val DarkBrown = Color(0xFF3E2723)

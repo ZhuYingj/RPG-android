@@ -1,4 +1,4 @@
-package com.mobile_client.pages
+package com.mobile_client.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -27,6 +27,7 @@ import androidx.navigation.NavController
 import com.mobile_client.components.GameList
 import com.mobile_client.components.Header
 import com.mobile_client.services.GameLobbyService
+import com.mobile_client.utils.Screen
 import com.mobile_client.viewModels.BaseGameListViewModel
 import com.mobile_client.viewModels.ChatViewModel
 

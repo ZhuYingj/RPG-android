@@ -1,4 +1,4 @@
-package com.mobile_client.pages
+package com.mobile_client.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.BorderStroke
@@ -42,6 +42,7 @@ import com.mobile_client.utils.ImageResources
 import com.mobile_client.utils.Player
 import com.mobile_client.utils.PlayerAvatars
 import com.mobile_client.utils.PlayerTypes
+import com.mobile_client.utils.Screen
 import com.mobile_client.utils.isBot
 
 private val BotBlue = Color(0xFF20B6E3)

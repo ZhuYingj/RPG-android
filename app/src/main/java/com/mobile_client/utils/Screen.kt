@@ -1,4 +1,4 @@
-package com.mobile_client.pages
+package com.mobile_client.utils
 
 sealed class Screen(val route: String) {
     object Home : Screen("home")

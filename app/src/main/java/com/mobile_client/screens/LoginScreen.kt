@@ -1,4 +1,4 @@
-package com.mobile_client.pages
+package com.mobile_client.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -34,6 +34,7 @@ import com.mobile_client.services.AccountRepository
 import com.mobile_client.viewModels.ChatViewModel
 import com.mobile_client.services.HttpService
 import com.mobile_client.utils.LoginResponse
+import com.mobile_client.utils.Screen
 import io.ktor.client.call.body
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpStatusCode
