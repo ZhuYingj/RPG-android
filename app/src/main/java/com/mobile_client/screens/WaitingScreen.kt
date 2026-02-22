@@ -37,7 +37,7 @@ import androidx.navigation.NavController
 import com.mobile_client.components.ChatBox
 import com.mobile_client.components.Header
 import com.mobile_client.viewModels.ChatViewModel
-import com.mobile_client.services.GameLobbyService
+import com.mobile_client.viewModels.GameLobbyViewModel
 import com.mobile_client.utils.ImageResources
 import com.mobile_client.utils.Player
 import com.mobile_client.utils.PlayerAvatars
@@ -51,15 +51,15 @@ private val StartGreen = Color(0xFF109E1F)
 private val DarkText = Color(0xFF1A1A1A)
 
 @Composable
-fun WaitingPageScreen(navController: NavController, chatViewModel: ChatViewModel) {
-    val players = GameLobbyService.players
-    val currentPlayer = GameLobbyService.currentPlayer.value
-    val isLobbyLocked = GameLobbyService.isLobbyLocked.value
-    val lobbyCode = GameLobbyService.lobbyCode.value
+fun WaitingPageScreen(navController: NavController, chatViewModel: ChatViewModel, gameLobbyViewModel: GameLobbyViewModel) {
+    val players = gameLobbyViewModel.players
+    val currentPlayer = gameLobbyViewModel.currentPlayer.value
+    val isLobbyLocked = gameLobbyViewModel.isLobbyLocked.value
+    val lobbyCode = gameLobbyViewModel.lobbyCode.value
     val isHost = currentPlayer?.playerType == PlayerTypes.Host
 
-    LaunchedEffect(GameLobbyService.lobbyCode.value, players.size) {
-        if (GameLobbyService.lobbyCode.value.isEmpty() && !GameLobbyService.isGameStarted.value) {
+    LaunchedEffect(gameLobbyViewModel.lobbyCode.value, players.size) {
+        if (gameLobbyViewModel.lobbyCode.value.isEmpty() && !gameLobbyViewModel.isGameStarted.value) {
             navController.navigate(Screen.Home.route) {
                 popUpTo(0) { inclusive = true }
             }
@@ -68,18 +68,18 @@ fun WaitingPageScreen(navController: NavController, chatViewModel: ChatViewModel
 
     DisposableEffect(Unit) {
         onDispose {
-            if (!GameLobbyService.isGameStarted.value) {
-                GameLobbyService.selectAvatar(
+            if (!gameLobbyViewModel.isGameStarted.value) {
+                gameLobbyViewModel.selectAvatar(
                     currentPlayer?.avatar ?: PlayerAvatars.None,
                     PlayerAvatars.None
                 )
-                GameLobbyService.leaveLobby()
+                gameLobbyViewModel.leaveLobby()
             }
         }
     }
 
-    LaunchedEffect(GameLobbyService.isGameStarted.value) {
-        if (GameLobbyService.isGameStarted.value) {
+    LaunchedEffect(gameLobbyViewModel.isGameStarted.value) {
+        if (gameLobbyViewModel.isGameStarted.value) {
             navController.navigate(Screen.Game.route) {
                 launchSingleTop = true
             }
@@ -146,7 +146,7 @@ fun WaitingPageScreen(navController: NavController, chatViewModel: ChatViewModel
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             items(players) { player ->
-                                PlayerCard(player, isHost)
+                                PlayerCard(player, isHost, gameLobbyViewModel)
                             }
                         }
 
@@ -158,7 +158,7 @@ fun WaitingPageScreen(navController: NavController, chatViewModel: ChatViewModel
                                 horizontalArrangement = Arrangement.spacedBy(16.dp)
                             ) {
                                 OutlinedButton(
-                                    onClick = { GameLobbyService.createBotPlayer() },
+                                    onClick = { gameLobbyViewModel.createBotPlayer() },
                                     border = BorderStroke(2.dp, BotBlue),
                                     shape = RoundedCornerShape(6.dp)
                                 ) {
@@ -166,7 +166,7 @@ fun WaitingPageScreen(navController: NavController, chatViewModel: ChatViewModel
                                 }
 
                                 OutlinedButton(
-                                    onClick = { GameLobbyService.toggleLobbyLock() },
+                                    onClick = { gameLobbyViewModel.toggleLobbyLock() },
                                     border = BorderStroke(2.dp, LockOrange),
                                     shape = RoundedCornerShape(6.dp)
                                 ) {
@@ -214,7 +214,7 @@ fun WaitingPageScreen(navController: NavController, chatViewModel: ChatViewModel
                         // Start game button (host only)
                         if (isHost) {
                             OutlinedButton(
-                                onClick = { GameLobbyService.startGame() },
+                                onClick = { gameLobbyViewModel.startGame() },
                                 border = BorderStroke(2.dp, StartGreen),
                                 shape = RoundedCornerShape(6.dp)
                             ) {
@@ -234,7 +234,7 @@ fun WaitingPageScreen(navController: NavController, chatViewModel: ChatViewModel
 }
 
 @Composable
-fun PlayerCard(player: Player, isHost: Boolean) {
+fun PlayerCard(player: Player, isHost: Boolean, gameLobbyViewModel: GameLobbyViewModel) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -277,7 +277,7 @@ fun PlayerCard(player: Player, isHost: Boolean) {
         // Kick button (host can kick non-host players)
         if (isHost && player.playerType != PlayerTypes.Host) {
             Button(
-                onClick = { GameLobbyService.kickPlayer(player) },
+                onClick = { gameLobbyViewModel.kickPlayer(player) },
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
                 shape = RoundedCornerShape(6.dp)
             ) {

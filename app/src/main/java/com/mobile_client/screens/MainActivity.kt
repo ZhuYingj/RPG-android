@@ -24,6 +24,7 @@ import com.mobile_client.utils.Screen
 import com.mobile_client.viewModels.ChatViewModel
 import com.mobile_client.viewModels.CurrentGamesViewModel
 import com.mobile_client.viewModels.GameListViewModel
+import com.mobile_client.viewModels.GameLobbyViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,6 +38,7 @@ class MainActivity : ComponentActivity() {
                 val chatViewModel: ChatViewModel = viewModel()
                 val gameListViewModel: GameListViewModel = viewModel()
                 val currentGamesViewModel: CurrentGamesViewModel = viewModel()
+                val gameLobbyViewModel: GameLobbyViewModel = viewModel()
                 Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = { SnackbarHost(snackbarHostState) }) { innerPadding ->
                     NavHost(
                         navController = navController,
@@ -44,31 +46,21 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxSize().padding(innerPadding)
                     ) {
                         composable(Screen.Login.route) {
-//                            if(navController.currentDestination?.route != Screen.Login.route && navController.currentDestination?.route != Screen.SignUp.route)
-//                                ChatBox(viewModel<ChatViewModel>(), modifier = Modifier.zIndex(1f))
                             LoginScreen(navController = navController, snackbarHostState = snackbarHostState, chatViewModel = chatViewModel)}
 
                         composable(Screen.SignUp.route) { SignUpScreen(navController = navController)}
                         composable(Screen.Home.route) { HomeScreen(navController = navController, chatViewModel = chatViewModel)}
-                        composable(Screen.GameCreation.route) { GamesCreationScreen(navController = navController, chatViewModel = chatViewModel, gameListViewModel = gameListViewModel)}
-                        composable(Screen.JoinGame.route) { JoinGameScreen(navController = navController, chatViewModel = chatViewModel, gameListViewModel = currentGamesViewModel)}
+                        composable(Screen.GameCreation.route) { GamesCreationScreen(navController = navController, chatViewModel = chatViewModel, gameListViewModel = gameListViewModel, gameLobbyViewModel = gameLobbyViewModel)}
+                        composable(Screen.JoinGame.route) { JoinGameScreen(navController = navController, chatViewModel = chatViewModel, gameListViewModel = currentGamesViewModel, gameLobbyViewModel = gameLobbyViewModel)}
                         composable(Screen.Account.route) { AccountScreen(navController = navController, chatViewModel = chatViewModel)}
-                        composable(Screen.CharacterCreation.route) { CharacterCreationScreen(navController = navController, chatViewModel = chatViewModel)}
-                        composable(Screen.WaitingPage.route) { WaitingPageScreen(navController = navController, chatViewModel = chatViewModel)}
+                        composable(Screen.CharacterCreation.route) { CharacterCreationScreen(navController = navController, chatViewModel = chatViewModel, gameLobbyViewModel = gameLobbyViewModel)}
+                        composable(Screen.WaitingPage.route) { WaitingPageScreen(navController = navController, chatViewModel = chatViewModel, gameLobbyViewModel = gameLobbyViewModel)}
                     }
                 }
             }
         }
     }
 }
-/*
-@Preview(showBackground = true, device="spec:width=2000px,height=1200px, orientation=landscape")
-@Composable
-fun GreetingPreview() {
-    MobileclientTheme {
-        LoginScreen(navController = rememberNavController())
-    }
-}*/
 
 @Composable
 fun LockScreenOrientation(orientation: Int) {
@@ -78,7 +70,6 @@ fun LockScreenOrientation(orientation: Int) {
         val originalOrientation = activity.requestedOrientation
         activity.requestedOrientation = orientation
         onDispose {
-            // restore original orientation when view disappears
             activity.requestedOrientation = originalOrientation
         }
     }

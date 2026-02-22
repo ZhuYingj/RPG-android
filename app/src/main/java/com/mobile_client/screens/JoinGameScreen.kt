@@ -26,13 +26,13 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mobile_client.components.GameList
 import com.mobile_client.components.Header
-import com.mobile_client.services.GameLobbyService
 import com.mobile_client.utils.Screen
 import com.mobile_client.viewModels.BaseGameListViewModel
 import com.mobile_client.viewModels.ChatViewModel
+import com.mobile_client.viewModels.GameLobbyViewModel
 
 @Composable
-fun JoinGameScreen(navController: NavController, chatViewModel: ChatViewModel, gameListViewModel: BaseGameListViewModel) {
+fun JoinGameScreen(navController: NavController, chatViewModel: ChatViewModel, gameListViewModel: BaseGameListViewModel, gameLobbyViewModel: GameLobbyViewModel) {
     var showCodeDialog by remember { mutableStateOf(false) }
     var lobbyCode by remember { mutableStateOf("") }
 
@@ -86,7 +86,7 @@ fun JoinGameScreen(navController: NavController, chatViewModel: ChatViewModel, g
                 Button(
                     onClick = {
                         showCodeDialog = false
-                        GameLobbyService.joinLobby(
+                        gameLobbyViewModel.joinLobby(
                             lobbyCode,
                             {navController.navigate(Screen.CharacterCreation.route)},
                             {} // Afficher msg erreur d'une facon

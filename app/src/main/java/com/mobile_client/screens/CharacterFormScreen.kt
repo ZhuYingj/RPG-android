@@ -46,7 +46,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mobile_client.components.Header
 import com.mobile_client.services.AccountService
-import com.mobile_client.services.GameLobbyService
 import com.mobile_client.utils.BASE_STAT_VALUE
 import com.mobile_client.utils.Dices
 import com.mobile_client.utils.ImageResources
@@ -56,14 +55,15 @@ import com.mobile_client.utils.PlayerTypes
 import com.mobile_client.utils.Screen
 import com.mobile_client.utils.Stats
 import com.mobile_client.viewModels.ChatViewModel
+import com.mobile_client.viewModels.GameLobbyViewModel
 
 private val DarkBrown = Color(0xFF3E2723)
 private val IconDark = Color(0xFF3E2723)
 private val SelectedGreen = Color(0xFF4CAF50)
 
 @Composable
-fun CharacterCreationScreen(navController: NavController, chatViewModel: ChatViewModel) {
-    val availableAvatars = GameLobbyService.availableAvatars
+fun CharacterCreationScreen(navController: NavController, chatViewModel: ChatViewModel, gameLobbyViewModel: GameLobbyViewModel) {
+    val availableAvatars = gameLobbyViewModel.availableAvatars
     val allAvatars = PlayerAvatars.entries.filter { it != PlayerAvatars.None }
 
     var selectedAvatar by remember { mutableStateOf(PlayerAvatars.None) }
@@ -76,9 +76,9 @@ fun CharacterCreationScreen(navController: NavController, chatViewModel: ChatVie
 
     DisposableEffect(Unit) {
         onDispose {
-            if (!GameLobbyService.isSubmitted.value) {
-                GameLobbyService.selectAvatar(selectedAvatar, PlayerAvatars.None)
-                GameLobbyService.leaveLobby()
+            if (!gameLobbyViewModel.isSubmitted.value) {
+                gameLobbyViewModel.selectAvatar(selectedAvatar, PlayerAvatars.None)
+                gameLobbyViewModel.leaveLobby()
             }
         }
     }
@@ -165,25 +165,20 @@ fun CharacterCreationScreen(navController: NavController, chatViewModel: ChatVie
                                         val avatar = allAvatars[index]
                                         val isSelected = selectedAvatar == avatar
                                         val isAvailable = availableAvatars.contains(avatar)
-
                                         Box(
                                             modifier = Modifier
-                                                .size(72.dp)
+                                                .size(80.dp)
                                                 .clip(RoundedCornerShape(8.dp))
-                                                .background(
-                                                    if (isSelected) Color.White.copy(alpha = 0.2f)
-                                                    else Color.Transparent
-                                                )
-                                                .then(
-                                                    if (isSelected) Modifier.border(
-                                                        2.dp, SelectedGreen, RoundedCornerShape(8.dp)
-                                                    ) else Modifier
+                                                .border(
+                                                    if (isSelected) 3.dp else 1.dp,
+                                                    if (isSelected) SelectedGreen else Color.Transparent,
+                                                    RoundedCornerShape(8.dp)
                                                 )
                                                 .alpha(if (isAvailable) 1f else 0.3f)
                                                 .clickable(enabled = isAvailable) {
                                                     previousAvatar = selectedAvatar
                                                     selectedAvatar = avatar
-                                                    GameLobbyService.selectAvatar(previousAvatar, avatar)
+                                                    gameLobbyViewModel.selectAvatar(previousAvatar, avatar)
                                                 },
                                             contentAlignment = Alignment.Center
                                         ) {
@@ -285,13 +280,13 @@ fun CharacterCreationScreen(navController: NavController, chatViewModel: ChatVie
                                             val player = Player(
                                                 username = AccountService.instance.getUsername(),
                                                 avatar = selectedAvatar,
-                                                playerType = if (GameLobbyService.isHost.value) PlayerTypes.Host else PlayerTypes.Human,
+                                                playerType = if (gameLobbyViewModel.isHost.value) PlayerTypes.Host else PlayerTypes.Human,
                                                 attack = attackDice ?: Dices.D6,
                                                 defense = if (attackDice == Dices.D6) Dices.D4 else Dices.D6,
                                                 isBonusLife = isBonusLife == true,
                                                 stats = stats
                                             )
-                                            GameLobbyService.addPlayer(player) {
+                                            gameLobbyViewModel.addPlayer(player) {
                                                 Handler(Looper.getMainLooper()).post {
                                                     navController.navigate(Screen.WaitingPage.route) {
                                                         launchSingleTop = true

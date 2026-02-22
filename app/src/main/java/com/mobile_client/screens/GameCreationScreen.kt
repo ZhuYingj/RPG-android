@@ -12,15 +12,30 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mobile_client.components.GameList
 import com.mobile_client.components.Header
-import com.mobile_client.viewModels.BaseGameListViewModel
+import com.mobile_client.utils.Screen
 import com.mobile_client.viewModels.ChatViewModel
+import com.mobile_client.viewModels.GameListViewModel
+import com.mobile_client.viewModels.GameLobbyViewModel
 
 @Composable
-fun GamesCreationScreen(navController: NavController, chatViewModel: ChatViewModel, gameListViewModel: BaseGameListViewModel) {
+fun GamesCreationScreen(
+    navController: NavController,
+    chatViewModel: ChatViewModel,
+    gameListViewModel: GameListViewModel,
+    gameLobbyViewModel: GameLobbyViewModel
+) {
 
     LaunchedEffect(Unit) {
-        gameListViewModel.navigationEvent.collect { route ->
-            navController.navigate(route)
+        gameListViewModel.mapSelected.collect { map ->
+            gameLobbyViewModel.createLobby(
+                map = map,
+                onSuccess = {
+                    navController.navigate(Screen.CharacterCreation.route)
+                },
+                onError = { message ->
+                    println("Erreur lors du démarrage du jeu: $message")
+                }
+            )
         }
     }
 
