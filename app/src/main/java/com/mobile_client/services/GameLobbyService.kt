@@ -4,7 +4,6 @@ import android.os.Handler
 import android.os.Looper
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import com.google.gson.Gson
 import com.mobile_client.utils.BASE_STAT_VALUE
 import com.mobile_client.utils.Dices
 import com.mobile_client.utils.GameMap
@@ -15,6 +14,7 @@ import com.mobile_client.utils.PlayerAvatars
 import com.mobile_client.utils.PlayerTypes
 import com.mobile_client.utils.Stats
 import org.json.JSONObject
+import com.mobile_client.utils.AppGson
 
 object GameLobbyService {
     var map = mutableStateOf<GameMap?>(null)
@@ -27,7 +27,7 @@ object GameLobbyService {
     var lobbyCode = mutableStateOf("")
     var isHost = mutableStateOf(false)
 
-    val gson = Gson()
+    val gson = AppGson
 
     private val socketManager = SocketService.instance
 
@@ -71,7 +71,7 @@ object GameLobbyService {
         clear()
         socketManager.initializeLobbyListeners(this)
         isHost.value = true
-        socket.emit(LobbyEvents.CREATE_LOBBY, gson.toJson(map.value))
+        socket.emit(LobbyEvents.CREATE_LOBBY, JSONObject(gson.toJson(map.value)))
         socket.once(LobbyEvents.LOBBY_CREATED) { args ->
             Handler(Looper.getMainLooper()).post {
                 if (args.isNotEmpty()) {

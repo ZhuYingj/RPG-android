@@ -4,11 +4,8 @@ import com.google.gson.annotations.SerializedName
 
 object TileConstants {
     enum class MapSize {
-        @SerializedName("10")
         Small,
-        @SerializedName("15")
         Medium,
-        @SerializedName("20")
         Large
     }
 
