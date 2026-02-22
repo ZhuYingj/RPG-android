@@ -17,7 +17,6 @@ import org.json.JSONObject
 import com.mobile_client.utils.AppGson
 
 object GameLobbyService {
-    var map = mutableStateOf<GameMap?>(null)
     var isLobbyLocked = mutableStateOf(false)
     var players = mutableStateListOf<Player>()
     var currentPlayer = mutableStateOf<Player?>(null)
@@ -66,12 +65,12 @@ object GameLobbyService {
         }
     }
 
-    fun createLobby(onSuccess: () -> Unit, onError: (String) -> Unit) {
+    fun createLobby(map: GameMap, onSuccess: () -> Unit, onError: (String) -> Unit) {
         val socket = socketManager.socket ?: return
         clear()
         socketManager.initializeLobbyListeners(this)
         isHost.value = true
-        socket.emit(LobbyEvents.CREATE_LOBBY, JSONObject(gson.toJson(map.value)))
+        socket.emit(LobbyEvents.CREATE_LOBBY, JSONObject(gson.toJson(map)))
         socket.once(LobbyEvents.LOBBY_CREATED) { args ->
             Handler(Looper.getMainLooper()).post {
                 if (args.isNotEmpty()) {

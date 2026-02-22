@@ -36,8 +36,8 @@ class GameListViewModel : BaseGameListViewModel() {  // ← Changed from 'object
     override fun onClick(map: GameMap) {
         viewModelScope.launch {
             try {
-                GameLobbyService.map.value = map
                 GameLobbyService.createLobby(
+                    map = map,
                     onSuccess = {
                         viewModelScope.launch {
                             navigationEvent.emit(Screen.CharacterCreation.route)
@@ -48,7 +48,6 @@ class GameListViewModel : BaseGameListViewModel() {  // ← Changed from 'object
                     }
                 )
                 println("Starting game with map: ${map.name}, ID: ${map._id}")
-                // TODO: Implement play game logic
             } catch (e: Exception) {
                 e.printStackTrace()
                 _error.value = "Erreur lors du démarrage du jeu: ${e.message}"
