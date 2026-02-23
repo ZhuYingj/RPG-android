@@ -20,10 +20,13 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,6 +47,7 @@ import com.mobile_client.utils.PlayerAvatars
 import com.mobile_client.utils.PlayerTypes
 import com.mobile_client.utils.Screen
 import com.mobile_client.utils.isBot
+import kotlinx.coroutines.launch
 
 private val BotBlue = Color(0xFF20B6E3)
 private val LockOrange = Color(0xFFD88B06)
@@ -51,12 +55,19 @@ private val StartGreen = Color(0xFF109E1F)
 private val DarkText = Color(0xFF1A1A1A)
 
 @Composable
-fun WaitingPageScreen(navController: NavController, chatViewModel: ChatViewModel, gameLobbyViewModel: GameLobbyViewModel) {
+fun WaitingPageScreen(navController: NavController, snackbarHostState: SnackbarHostState, chatViewModel: ChatViewModel, gameLobbyViewModel: GameLobbyViewModel) {
     val players = gameLobbyViewModel.players
     val currentPlayer = gameLobbyViewModel.currentPlayer.value
     val isLobbyLocked = gameLobbyViewModel.isLobbyLocked.value
     val lobbyCode = gameLobbyViewModel.lobbyCode.value
     val isHost = currentPlayer?.playerType == PlayerTypes.Host
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        gameLobbyViewModel.errorMessage.collect { message ->
+            scope.launch { snackbarHostState.showSnackbar(message, duration = SnackbarDuration.Short) }
+        }
+    }
 
     LaunchedEffect(gameLobbyViewModel.lobbyCode.value, players.size) {
         if (gameLobbyViewModel.lobbyCode.value.isEmpty() && !gameLobbyViewModel.isGameStarted.value) {

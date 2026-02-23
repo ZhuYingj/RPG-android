@@ -51,10 +51,10 @@ class MainActivity : ComponentActivity() {
                         composable(Screen.SignUp.route) { SignUpScreen(navController = navController)}
                         composable(Screen.Home.route) { HomeScreen(navController = navController, chatViewModel = chatViewModel)}
                         composable(Screen.GameCreation.route) { GamesCreationScreen(navController = navController, chatViewModel = chatViewModel, gameListViewModel = gameListViewModel, gameLobbyViewModel = gameLobbyViewModel)}
-                        composable(Screen.JoinGame.route) { JoinGameScreen(navController = navController, chatViewModel = chatViewModel, gameListViewModel = currentGamesViewModel, gameLobbyViewModel = gameLobbyViewModel)}
+                        composable(Screen.JoinGame.route) { JoinGameScreen(navController = navController, snackbarHostState = snackbarHostState, chatViewModel = chatViewModel, gameListViewModel = currentGamesViewModel, gameLobbyViewModel = gameLobbyViewModel)}
                         composable(Screen.Account.route) { AccountScreen(navController = navController, chatViewModel = chatViewModel)}
-                        composable(Screen.CharacterCreation.route) { CharacterCreationScreen(navController = navController, chatViewModel = chatViewModel, gameLobbyViewModel = gameLobbyViewModel)}
-                        composable(Screen.WaitingPage.route) { WaitingPageScreen(navController = navController, chatViewModel = chatViewModel, gameLobbyViewModel = gameLobbyViewModel)}
+                        composable(Screen.CharacterCreation.route) { CharacterCreationScreen(navController = navController, snackbarHostState = snackbarHostState, chatViewModel = chatViewModel, gameLobbyViewModel = gameLobbyViewModel)}
+                        composable(Screen.WaitingPage.route) { WaitingPageScreen(navController = navController, chatViewModel = chatViewModel, snackbarHostState = snackbarHostState, gameLobbyViewModel = gameLobbyViewModel)}
                     }
                 }
             }

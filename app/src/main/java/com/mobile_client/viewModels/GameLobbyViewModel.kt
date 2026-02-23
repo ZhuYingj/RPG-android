@@ -3,10 +3,14 @@ package com.mobile_client.viewModels
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.mobile_client.services.GameLobbyService
 import com.mobile_client.services.SocketService
 import com.mobile_client.utils.Player
 import com.mobile_client.utils.PlayerAvatars
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
 
 class GameLobbyViewModel : ViewModel() {
     var isLobbyLocked = mutableStateOf(false)
@@ -17,6 +21,8 @@ class GameLobbyViewModel : ViewModel() {
     var isSubmitted = mutableStateOf(false)
     var lobbyCode = mutableStateOf("")
     var isHost = mutableStateOf(false)
+    private val _errorMessage = MutableSharedFlow<String>()
+    val errorMessage = _errorMessage.asSharedFlow()
 
     init {
         availableAvatars.addAll(PlayerAvatars.entries.filter { it != PlayerAvatars.None })
@@ -104,4 +110,9 @@ class GameLobbyViewModel : ViewModel() {
             existingPlayerNames = players.map { it.username }
         ) {}
     }
+
+    fun showMessage(message: String) {
+        viewModelScope.launch { _errorMessage.emit(message) }
+    }
+
 }

@@ -11,12 +11,15 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,11 +33,14 @@ import com.mobile_client.utils.Screen
 import com.mobile_client.viewModels.BaseGameListViewModel
 import com.mobile_client.viewModels.ChatViewModel
 import com.mobile_client.viewModels.GameLobbyViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
-fun JoinGameScreen(navController: NavController, chatViewModel: ChatViewModel, gameListViewModel: BaseGameListViewModel, gameLobbyViewModel: GameLobbyViewModel) {
+fun JoinGameScreen(navController: NavController, snackbarHostState: SnackbarHostState, chatViewModel: ChatViewModel, gameListViewModel: BaseGameListViewModel, gameLobbyViewModel: GameLobbyViewModel) {
     var showCodeDialog by remember { mutableStateOf(false) }
     var lobbyCode by remember { mutableStateOf("") }
+    val scope: CoroutineScope = rememberCoroutineScope()
 
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Header(navController, "Rejoindre une partie", chatViewModel)
@@ -89,7 +95,7 @@ fun JoinGameScreen(navController: NavController, chatViewModel: ChatViewModel, g
                         gameLobbyViewModel.joinLobby(
                             lobbyCode,
                             {navController.navigate(Screen.CharacterCreation.route)},
-                            {} // Afficher msg erreur d'une facon
+                            { message -> scope.launch { snackbarHostState.showSnackbar(message, duration = SnackbarDuration.Short) } }
                         )
                     },
                     enabled = lobbyCode.isNotBlank()

@@ -26,12 +26,16 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,13 +60,15 @@ import com.mobile_client.utils.Screen
 import com.mobile_client.utils.Stats
 import com.mobile_client.viewModels.ChatViewModel
 import com.mobile_client.viewModels.GameLobbyViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 private val DarkBrown = Color(0xFF3E2723)
 private val IconDark = Color(0xFF3E2723)
 private val SelectedGreen = Color(0xFF4CAF50)
 
 @Composable
-fun CharacterCreationScreen(navController: NavController, chatViewModel: ChatViewModel, gameLobbyViewModel: GameLobbyViewModel) {
+fun CharacterCreationScreen(navController: NavController, snackbarHostState: SnackbarHostState, chatViewModel: ChatViewModel, gameLobbyViewModel: GameLobbyViewModel) {
     val availableAvatars = gameLobbyViewModel.availableAvatars
     val allAvatars = PlayerAvatars.entries.filter { it != PlayerAvatars.None }
 
@@ -74,12 +80,20 @@ fun CharacterCreationScreen(navController: NavController, chatViewModel: ChatVie
     val hp = if (isBonusLife == true) BASE_STAT_VALUE + 2 else BASE_STAT_VALUE
     val speed = if (isBonusLife == false) BASE_STAT_VALUE + 2 else BASE_STAT_VALUE
 
+    val scope: CoroutineScope = rememberCoroutineScope()
+
     DisposableEffect(Unit) {
         onDispose {
             if (!gameLobbyViewModel.isSubmitted.value) {
                 gameLobbyViewModel.selectAvatar(selectedAvatar, PlayerAvatars.None)
                 gameLobbyViewModel.leaveLobby()
             }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        gameLobbyViewModel.errorMessage.collect { message ->
+            scope.launch { snackbarHostState.showSnackbar(message, duration = SnackbarDuration.Short) }
         }
     }
 
@@ -178,7 +192,10 @@ fun CharacterCreationScreen(navController: NavController, chatViewModel: ChatVie
                                                 .clickable(enabled = isAvailable) {
                                                     previousAvatar = selectedAvatar
                                                     selectedAvatar = avatar
-                                                    gameLobbyViewModel.selectAvatar(previousAvatar, avatar)
+                                                    gameLobbyViewModel.selectAvatar(
+                                                        previousAvatar,
+                                                        avatar
+                                                    )
                                                 },
                                             contentAlignment = Alignment.Center
                                         ) {
