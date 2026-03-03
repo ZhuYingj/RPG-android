@@ -24,7 +24,6 @@ import com.mobile_client.services.AccountService
 import com.mobile_client.services.HttpService
 import com.mobile_client.services.SocketService
 import com.mobile_client.utils.Screen
-import com.mobile_client.viewModels.ChatViewModel
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.launch
@@ -33,7 +32,6 @@ import kotlinx.coroutines.launch
 fun Header(
     navController: NavController,
     title: String,
-    chatViewModel: ChatViewModel,
     showLogoutButton: Boolean = false,
     showBackButton: Boolean = true
 ) {
@@ -50,7 +48,6 @@ fun Header(
                 if (response.status == HttpStatusCode.OK) {
                     SocketService.instance.disconnect()
                     AccountService.instance.clear()
-                    chatViewModel.clearList()
                     navController.navigate(Screen.Login.route) {
                         popUpTo(0) { inclusive = true }
                         launchSingleTop = true

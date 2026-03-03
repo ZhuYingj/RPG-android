@@ -47,8 +47,8 @@ class ChatViewModel : ViewModel() {
     fun clearList() {
         _messages.value = emptyList()
     }
-    fun sendMessage(messageContent: String) {
-        viewModelScope.launch { SocketService.instance.sendMessage(messageContent) }
+    fun sendMessage(messageContent: String, lobby: String = "") {
+        viewModelScope.launch { SocketService.instance.sendMessage(messageContent,lobby) }
     }
 
 }

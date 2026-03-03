@@ -1,7 +1,7 @@
 package com.mobile_client.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -37,16 +37,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.mobile_client.components.ChatBox
 import com.mobile_client.components.Header
-import com.mobile_client.viewModels.ChatViewModel
-import com.mobile_client.viewModels.GameLobbyViewModel
 import com.mobile_client.utils.ImageResources
 import com.mobile_client.utils.Player
 import com.mobile_client.utils.PlayerAvatars
 import com.mobile_client.utils.PlayerTypes
 import com.mobile_client.utils.Screen
 import com.mobile_client.utils.isBot
+import com.mobile_client.viewModels.GameLobbyViewModel
 import kotlinx.coroutines.launch
 
 private val BotBlue = Color(0xFF20B6E3)
@@ -55,7 +53,7 @@ private val StartGreen = Color(0xFF109E1F)
 private val DarkText = Color(0xFF1A1A1A)
 
 @Composable
-fun WaitingPageScreen(navController: NavController, snackbarHostState: SnackbarHostState, chatViewModel: ChatViewModel, gameLobbyViewModel: GameLobbyViewModel) {
+fun WaitingPageScreen(navController: NavController, snackbarHostState: SnackbarHostState, gameLobbyViewModel: GameLobbyViewModel) {
     val players = gameLobbyViewModel.players
     val currentPlayer = gameLobbyViewModel.currentPlayer.value
     val isLobbyLocked = gameLobbyViewModel.isLobbyLocked.value
@@ -110,7 +108,6 @@ fun WaitingPageScreen(navController: NavController, snackbarHostState: SnackbarH
             Header(
                 navController = navController,
                 title = "Salle d'attente",
-                chatViewModel,
                 showBackButton = true
             )
 
@@ -213,11 +210,6 @@ fun WaitingPageScreen(navController: NavController, snackbarHostState: SnackbarH
                             )
 
                             Spacer(modifier = Modifier.height(8.dp))
-
-                            ChatBox(
-                                chatViewModel = chatViewModel,
-                                modifier = Modifier.fillMaxSize()
-                            )
                         }
 
                         Spacer(modifier = Modifier.height(12.dp))

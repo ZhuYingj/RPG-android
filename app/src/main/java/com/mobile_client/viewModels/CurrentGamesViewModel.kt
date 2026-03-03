@@ -1,36 +1,36 @@
 package com.mobile_client.viewModels
 
 import androidx.lifecycle.viewModelScope
-import com.mobile_client.services.GameListService
+import com.mobile_client.services.CurrentGameListService
 import com.mobile_client.utils.GameMap
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 
 class CurrentGamesViewModel: BaseGameListViewModel() {
+    override val isLobbyMode: Boolean = true
+    private val _lobbySelected = MutableSharedFlow<String>()
+    val lobbySelected = _lobbySelected.asSharedFlow()
+
     override fun loadMaps(isVisible: Boolean) {
-        //TODO: Charger les parties en cours
         viewModelScope.launch {
             _isLoading.value = true
             _error.value = null
             try {
-                val fetchedMaps = GameListService.instance.getAllMaps(isVisible)
-                _maps.value = fetchedMaps
-
-                println("Loaded ${fetchedMaps.size} maps")
-                fetchedMaps.forEach { map ->
-                    println("Map: ${map.name}, ID: ${map._id}")
-                }
-
+                val fetchedCurrentGames = CurrentGameListService.instance.getCurrentGames()
+                _maps.value = fetchedCurrentGames.map { it.map as GameMap }
+                _currentGames.value = fetchedCurrentGames // keep full lobbies if needed later
             } catch (e: Exception) {
-                e.printStackTrace()
-                _error.value = "Erreur lors du chargement des jeux: ${e.message}"
-                println("Error loading maps: ${e.message}")
-                println("Stack trace: ${e.stackTraceToString()}")
+                _error.value = "Erreur lors du chargement des parties en cours: ${e.message}"
             } finally {
                 _isLoading.value = false
             }
         }
     }
     override fun onClick(map: GameMap) {
-        //TODO: Joindre la partie
+        viewModelScope.launch {
+            val lobby = _currentGames.value.find { (it.map as GameMap)._id == map._id }
+            lobby?.code?.let { _lobbySelected.emit(it) }
+        }
     }
 }

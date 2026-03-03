@@ -31,6 +31,12 @@ object ImageResources {
         TileConstants.MapSize.Large to "Grande"
     )
 
+    val sizeToPlayerNumber = mapOf(
+        TileConstants.MapSize.Small to 2,
+        TileConstants.MapSize.Medium to 4,
+        TileConstants.MapSize.Large to 6
+    )
+
     val avatarToImage = mapOf(
         PlayerAvatars.Carrot to R.drawable.avatar1,
         PlayerAvatars.Cabbage to R.drawable.avatar2,

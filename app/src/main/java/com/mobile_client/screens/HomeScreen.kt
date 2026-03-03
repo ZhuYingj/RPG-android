@@ -5,9 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -17,20 +15,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
-import com.mobile_client.components.ChatBox
 import com.mobile_client.components.Header
 import com.mobile_client.utils.Screen
-import com.mobile_client.viewModels.ChatViewModel
+
 @Composable
-fun HomeScreen(navController: NavController, chatViewModel: ChatViewModel){
+fun HomeScreen(navController: NavController){
 
     BackHandler() { }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
-            Header(navController = navController, title = "Accueil", chatViewModel, showBackButton = false, showLogoutButton = true)
+            Header(navController = navController, title = "Accueil", showBackButton = false, showLogoutButton = true)
 
             Column(
                 modifier = Modifier
@@ -55,13 +51,6 @@ fun HomeScreen(navController: NavController, chatViewModel: ChatViewModel){
                 }
             }
         }
-        ChatBox(
-            modifier = Modifier
-                .heightIn(max=400.dp)
-                .align(Alignment.BottomEnd)
-                .widthIn(max = 400.dp)
-                .padding(16.dp)
-                .zIndex(1f), chatViewModel)
     }
 }
 

@@ -1,6 +1,7 @@
 package com.mobile_client.screens
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -13,14 +14,12 @@ import androidx.navigation.NavController
 import com.mobile_client.components.GameList
 import com.mobile_client.components.Header
 import com.mobile_client.utils.Screen
-import com.mobile_client.viewModels.ChatViewModel
 import com.mobile_client.viewModels.GameListViewModel
 import com.mobile_client.viewModels.GameLobbyViewModel
 
 @Composable
 fun GamesCreationScreen(
     navController: NavController,
-    chatViewModel: ChatViewModel,
     gameListViewModel: GameListViewModel,
     gameLobbyViewModel: GameLobbyViewModel
 ) {
@@ -39,8 +38,8 @@ fun GamesCreationScreen(
         }
     }
 
-    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Header(navController, "Création de partie", chatViewModel)
+    Column (modifier = Modifier.fillMaxSize()) {
+        Header(navController, "Création de partie")
         Text(
             text = "Créer un jeu",
             style = MaterialTheme.typography.headlineMedium
@@ -49,6 +48,10 @@ fun GamesCreationScreen(
             text = "Liste des jeux disponibles",
             style = MaterialTheme.typography.headlineMedium
         )
-        GameList(gameListViewModel, modifier = Modifier.fillMaxSize())
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                GameList(gameListViewModel)
+            }
+        }
     }
 }

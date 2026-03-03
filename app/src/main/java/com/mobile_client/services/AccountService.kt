@@ -6,17 +6,21 @@ class AccountService private constructor() {
     companion object {
         val instance: AccountService by lazy { AccountService() }
     }
-    private var token: String? = null
-    private var accountInfo: Account? = null
+
+    var token: String? = null
+        private set
+
+    var accountInfo: Account? = null
+        private set
+
+    val username: String
+        get() = accountInfo?.username ?: ""
 
     fun setAccount(account: Account, token: String) {
         this.accountInfo = account
         this.token = token
     }
 
-    fun getToken(): String? = token
-    fun getAccountInfo(): Account? = accountInfo
-    fun getUsername(): String = accountInfo?.username ?: ""
     fun clear() {
         token = null
         accountInfo = null

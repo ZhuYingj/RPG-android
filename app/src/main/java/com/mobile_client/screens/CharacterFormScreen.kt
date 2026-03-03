@@ -58,7 +58,6 @@ import com.mobile_client.utils.PlayerAvatars
 import com.mobile_client.utils.PlayerTypes
 import com.mobile_client.utils.Screen
 import com.mobile_client.utils.Stats
-import com.mobile_client.viewModels.ChatViewModel
 import com.mobile_client.viewModels.GameLobbyViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -68,7 +67,7 @@ private val IconDark = Color(0xFF3E2723)
 private val SelectedGreen = Color(0xFF4CAF50)
 
 @Composable
-fun CharacterCreationScreen(navController: NavController, snackbarHostState: SnackbarHostState, chatViewModel: ChatViewModel, gameLobbyViewModel: GameLobbyViewModel) {
+fun CharacterCreationScreen(navController: NavController, snackbarHostState: SnackbarHostState, gameLobbyViewModel: GameLobbyViewModel) {
     val availableAvatars = gameLobbyViewModel.availableAvatars
     val allAvatars = PlayerAvatars.entries.filter { it != PlayerAvatars.None }
 
@@ -106,7 +105,7 @@ fun CharacterCreationScreen(navController: NavController, snackbarHostState: Sna
         )
 
         Column(modifier = Modifier.fillMaxSize()) {
-            Header(navController = navController, title = "Création du personnage", chatViewModel, showBackButton = true)
+            Header(navController = navController, title = "Création du personnage", showBackButton = true)
 
             Column(
                 modifier = Modifier
@@ -124,7 +123,7 @@ fun CharacterCreationScreen(navController: NavController, snackbarHostState: Sna
                 Spacer(modifier = Modifier.height(8.dp))
 
                 OutlinedTextField(
-                    value = AccountService.instance.getUsername(),
+                    value = AccountService.instance.username,
                     onValueChange = {},
                     singleLine = true,
                     enabled = false,
@@ -295,7 +294,7 @@ fun CharacterCreationScreen(navController: NavController, snackbarHostState: Sna
                                                 defense = BASE_STAT_VALUE
                                             )
                                             val player = Player(
-                                                username = AccountService.instance.getUsername(),
+                                                username = AccountService.instance.username,
                                                 avatar = selectedAvatar,
                                                 playerType = if (gameLobbyViewModel.isHost.value) PlayerTypes.Host else PlayerTypes.Human,
                                                 attack = attackDice ?: Dices.D6,
