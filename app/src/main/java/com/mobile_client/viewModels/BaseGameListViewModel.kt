@@ -2,6 +2,7 @@ package com.mobile_client.viewModels
 
 import androidx.lifecycle.ViewModel
 import com.mobile_client.utils.GameMap
+import com.mobile_client.utils.SocketCommunicationConst
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,8 +12,11 @@ import kotlinx.coroutines.flow.asStateFlow
 abstract class BaseGameListViewModel : ViewModel() {
 
     val navigationEvent = MutableSharedFlow<String>()
+    open val isLobbyMode: Boolean = false
     protected val _maps = MutableStateFlow<List<GameMap>>(emptyList())
     val maps: StateFlow<List<GameMap>> = _maps.asStateFlow()
+    protected val _currentGames = MutableStateFlow<List<SocketCommunicationConst.SendableLobbies>>(emptyList())
+    val currentGames: StateFlow<List<SocketCommunicationConst.SendableLobbies>> = _currentGames.asStateFlow()
 
     protected val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()

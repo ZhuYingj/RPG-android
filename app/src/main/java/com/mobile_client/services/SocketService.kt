@@ -34,7 +34,7 @@ class SocketService private constructor() {
         try {
             val options = IO.Options().apply {
                 transports = arrayOf("websocket")
-                auth = mapOf("token" to AccountService.instance.getToken())
+                auth = mapOf("token" to AccountService.instance.token)
             }
 
             socket = IO.socket(serverUrl, options)
@@ -56,6 +56,7 @@ class SocketService private constructor() {
 
     fun initializeChatListeners(onChatMessage: (ChatMessage) -> Unit) {
         socket?.on(MessageEvents.CHAT_MESSAGE) { args ->
+            println("WW")
             if (args.isNotEmpty()) {
                 val data = args[0] as JSONObject
                 val message = ChatMessage(

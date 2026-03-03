@@ -1,6 +1,7 @@
 package com.mobile_client.components
 
 import ShakeListener
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
@@ -22,14 +24,17 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -42,6 +47,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.mobile_client.services.AccountService
 import com.mobile_client.services.SocketService
 import com.mobile_client.utils.ChatMessage
@@ -49,8 +55,10 @@ import com.mobile_client.utils.MessageEvents
 import com.mobile_client.viewModels.ChatViewModel
 
 @Composable
-fun ChatBox(modifier: Modifier = Modifier, chatViewModel: ChatViewModel) {
-    val chatMessages by chatViewModel.messages.collectAsState()
+fun ChatBox(modifier: Modifier = Modifier.then(Modifier.heightIn(max=400.dp)
+    .widthIn(max = 400.dp)
+    .padding(16.dp)
+    .zIndex(1f)), chatViewModel: ChatViewModel, lobbyChatViewModel: ChatViewModel? = null, lobbyCode: String) {
     val connectionStatus by chatViewModel.connectionStatus.collectAsState()
     var newMessage by remember { mutableStateOf("") }
     var mostRecentMessage by remember { mutableStateOf<String?>(null) }
@@ -60,12 +68,21 @@ fun ChatBox(modifier: Modifier = Modifier, chatViewModel: ChatViewModel) {
     val maxChar = 200
     val socketManager = SocketService.instance
 
-    LaunchedEffect(Unit) {
+    var isLobbyChat by remember { mutableStateOf(false) }
+    val activeViewModel = if (isLobbyChat && lobbyChatViewModel != null) lobbyChatViewModel else chatViewModel
+    val chatMessages by activeViewModel.messages.collectAsState()
+
+    LaunchedEffect(activeViewModel) {
         socketManager.socket?.off(MessageEvents.CHAT_MESSAGE)
         socketManager.socket?.off(MessageEvents.GLOBAL_CHAT_MESSAGE)
+
         socketManager.initializeChatListeners { message ->
-            chatViewModel.handleChatMessage(message)
+            activeViewModel.handleChatMessage(message)
         }
+    }
+
+    LaunchedEffect(lobbyChatViewModel) {
+        if (lobbyChatViewModel == null)  isLobbyChat = false
     }
 
     LaunchedEffect(chatMessages.size) {
@@ -75,7 +92,11 @@ fun ChatBox(modifier: Modifier = Modifier, chatViewModel: ChatViewModel) {
     }
 
     Card(
-        modifier = modifier.then(if(isCollapsed) Modifier.height(50.dp) else Modifier.height(400.dp)),
+        modifier = modifier
+            .widthIn(max = 400.dp)
+            .height(if (isCollapsed) 80.dp else 400.dp)
+            .padding(16.dp)
+            .zIndex(1f),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(8.dp)
     ) {
@@ -88,7 +109,7 @@ fun ChatBox(modifier: Modifier = Modifier, chatViewModel: ChatViewModel) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Start, modifier = Modifier.fillMaxWidth()) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Start, ) {
                     IconButton(onClick = {isCollapsed = !isCollapsed}){
                         Icon(
                             imageVector = if (isCollapsed) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
@@ -107,6 +128,31 @@ fun ChatBox(modifier: Modifier = Modifier, chatViewModel: ChatViewModel) {
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.White.copy(alpha = 0.8f)
                         )
+                    }
+                }
+                if (lobbyChatViewModel != null && !isCollapsed) {
+                    Row() {
+                        OutlinedButton(
+                            onClick = { isLobbyChat = false },
+                            colors = ButtonDefaults.textButtonColors(
+                                containerColor = if((!isLobbyChat)) Color.Yellow else Color.Transparent),
+                                border = BorderStroke(2.dp, Color.White),
+                                shape = RoundedCornerShape(0.dp)){
+                            Text(
+                                "Global",
+                                color = if (!isLobbyChat) Color.Black else Color.White.copy(alpha = 0.5f)
+                            )
+                        }
+                        OutlinedButton(onClick = { isLobbyChat = true },
+                            colors = ButtonDefaults.textButtonColors(
+                                containerColor = if((isLobbyChat)) Color.Yellow else Color.Transparent),
+                                border = BorderStroke(2.dp, Color.White),
+                                shape = RoundedCornerShape(0.dp)){
+                            Text(
+                                "Lobby",
+                                color = if (isLobbyChat) Color.Black else Color.White.copy(alpha = 0.5f)
+                            )
+                        }
                     }
                 }
             }
@@ -132,7 +178,7 @@ fun ChatBox(modifier: Modifier = Modifier, chatViewModel: ChatViewModel) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(8.dp),
-                    verticalAlignment = Alignment.CenterVertically //horizontalArrangement = Arrangement.SpaceBetween
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     ReactionPicker(
                         onReactionSelected = { emojiSelected = it },
@@ -142,13 +188,13 @@ fun ChatBox(modifier: Modifier = Modifier, chatViewModel: ChatViewModel) {
                     ShakeListener(
                         onVerticalShake = {
                             emojiSelected.let { emoji ->
-                                chatViewModel.sendMessage(emoji)
+                                activeViewModel.sendMessage(emoji, if (isLobbyChat) lobbyCode else "")
                                 mostRecentMessage = emoji
                             }
                         },
                         onHorizontalShake = {
                             mostRecentMessage?.let { lastMsg ->
-                                chatViewModel.sendMessage(lastMsg)
+                                activeViewModel.sendMessage(lastMsg, if (isLobbyChat) lobbyCode else "")
                             }
                         }
                     )
@@ -165,7 +211,7 @@ fun ChatBox(modifier: Modifier = Modifier, chatViewModel: ChatViewModel) {
                             onSend = {
                                 if (newMessage.isNotBlank()) {
                                     mostRecentMessage = newMessage
-                                    chatViewModel.sendMessage(newMessage)
+                                    activeViewModel.sendMessage(newMessage, if (isLobbyChat) lobbyCode else "")
                                     newMessage = ""
                                 }
                             }
@@ -178,7 +224,7 @@ fun ChatBox(modifier: Modifier = Modifier, chatViewModel: ChatViewModel) {
                         onClick = {
                             if (newMessage.isNotBlank()) {
                                 mostRecentMessage = newMessage
-                                chatViewModel.sendMessage(newMessage)
+                                activeViewModel.sendMessage(newMessage, if (isLobbyChat) lobbyCode else "")
                                 newMessage = ""
                             }
                         },
@@ -194,7 +240,7 @@ fun ChatBox(modifier: Modifier = Modifier, chatViewModel: ChatViewModel) {
 
 @Composable
 fun MessageBox(chatMessage: ChatMessage) {
-    val isFromCurrentUser = chatMessage.username == AccountService.instance.getUsername()
+    val isFromCurrentUser = chatMessage.username == AccountService.instance.username
 
     Row(
         modifier = Modifier

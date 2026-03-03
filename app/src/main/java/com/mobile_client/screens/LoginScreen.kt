@@ -34,7 +34,6 @@ import com.mobile_client.services.AccountService
 import com.mobile_client.services.HttpService
 import com.mobile_client.utils.LoginResponse
 import com.mobile_client.utils.Screen
-import com.mobile_client.viewModels.ChatViewModel
 import io.ktor.client.call.body
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpStatusCode
@@ -42,7 +41,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun LoginScreen(navController: NavController, snackbarHostState: SnackbarHostState, chatViewModel: ChatViewModel) {
+fun LoginScreen(navController: NavController, snackbarHostState: SnackbarHostState) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
@@ -64,7 +63,6 @@ fun LoginScreen(navController: NavController, snackbarHostState: SnackbarHostSta
                         val loginData: LoginResponse = response.body()
                         AccountService.instance.setAccount(loginData.account, loginData.token)
                         scope.launch{ snackbarHostState.showSnackbar("Connexion réussie", duration = SnackbarDuration.Short) }
-                        chatViewModel.enableListeners()
                         navController.navigate(Screen.Home.route)
                     }
                     HttpStatusCode.Unauthorized -> {

@@ -1,7 +1,7 @@
 package com.mobile_client.utils
 
 data class Account(
-    val userId: String,
+    val userId: String?,
     val username: String,
     val email: String,
     val password: String? = null,

@@ -29,7 +29,7 @@ class HttpService private constructor() {
         }
         install(io.ktor.client.plugins.DefaultRequest) {
             contentType(ContentType.Application.Json)
-            val token = AccountService.instance.getToken()
+            val token = AccountService.instance.token
             if (!token.isNullOrEmpty()) {
                 headers.append("Authorization", "Bearer $token")
             }

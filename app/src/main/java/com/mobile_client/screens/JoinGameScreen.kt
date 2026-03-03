@@ -3,7 +3,6 @@ package com.mobile_client.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
@@ -16,6 +15,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,20 +30,29 @@ import androidx.navigation.NavController
 import com.mobile_client.components.GameList
 import com.mobile_client.components.Header
 import com.mobile_client.utils.Screen
-import com.mobile_client.viewModels.BaseGameListViewModel
-import com.mobile_client.viewModels.ChatViewModel
+import com.mobile_client.viewModels.CurrentGamesViewModel
 import com.mobile_client.viewModels.GameLobbyViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun JoinGameScreen(navController: NavController, snackbarHostState: SnackbarHostState, chatViewModel: ChatViewModel, gameListViewModel: BaseGameListViewModel, gameLobbyViewModel: GameLobbyViewModel) {
+fun JoinGameScreen(navController: NavController, snackbarHostState: SnackbarHostState, currentGameListViewModel: CurrentGamesViewModel, gameLobbyViewModel: GameLobbyViewModel) {
     var showCodeDialog by remember { mutableStateOf(false) }
     var lobbyCode by remember { mutableStateOf("") }
     val scope: CoroutineScope = rememberCoroutineScope()
 
+    LaunchedEffect(Unit) {
+        currentGameListViewModel.lobbySelected.collect { lobbyCode ->
+            gameLobbyViewModel.joinLobby(
+                lobbyCode,
+                {navController.navigate(Screen.CharacterCreation.route)},
+                { message -> scope.launch { snackbarHostState.showSnackbar(message, duration = SnackbarDuration.Short) } }
+            )
+        }
+    }
+
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Header(navController, "Rejoindre une partie", chatViewModel)
+        Header(navController, "Rejoindre une partie")
         Row(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -61,12 +70,18 @@ fun JoinGameScreen(navController: NavController, snackbarHostState: SnackbarHost
             ) {
                 Text("Entrer un code", color = Color.Black)
             }
+            Button(
+                onClick = {currentGameListViewModel.loadMaps()},
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Green)
+            ) {
+                Text("Reload", color = Color.Black)
+            }
         }
         Text(
             text = "Liste des salles",
             style = MaterialTheme.typography.headlineMedium
         )
-        GameList(gameListViewModel, modifier = Modifier.fillMaxSize())
+        GameList(currentGameListViewModel)
     }
 
     if (showCodeDialog) {
