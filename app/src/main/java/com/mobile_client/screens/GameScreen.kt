@@ -1,5 +1,6 @@
 package com.mobile_client.screens
 
+import com.mobile_client.components.ShakeListener
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -79,6 +80,7 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
     val isInCombat = controller.fightService.isFight.value
     val gameWinner = controller.gameWinner.value
     val lastPlayer = controller.lastPlayer.value
+    var shakeCount by remember { mutableStateOf(0) }
 
 
     var accessibleTiles by remember { mutableStateOf<List<Position>>(emptyList()) }
@@ -187,10 +189,18 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
                     modifier = Modifier.size(40.dp)
                 )
             }
-            if (isDebug) {
-                Text("Mode Debug", color = Color.Red, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-            }
+            Spacer(modifier = Modifier.height(8.dp))
 
+            Text( if (isDebug) "Mode Debug" else "", color = Color.Red, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+            ShakeListener({},
+                onHorizontalShake = {
+                    shakeCount++
+                    if (shakeCount == 3) {
+                        controller.setDebug()
+                        shakeCount = 0
+                    }
+                }
+            )
             Spacer(modifier = Modifier.height(8.dp))
 
             // Player stats
@@ -257,6 +267,7 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
                     onTileClick = { pos ->
                         if (isDebug && controller.isTeleport()) {
                             // Debug mode: teleport directly
+                            println("TELEPORTING TO $pos")
                             controller.teleport(pos)
                         } else if (isAction) {
                             controller.action(pos)

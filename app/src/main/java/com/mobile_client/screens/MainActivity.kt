@@ -8,7 +8,9 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -19,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -128,7 +131,10 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                             ChatBox(
-                                modifier = Modifier.align(Alignment.BottomEnd),
+                                modifier = Modifier.align(Alignment.BottomEnd).heightIn(max=400.dp)
+                                    .widthIn(max = 400.dp)
+                                    .padding(16.dp)
+                                    .zIndex(1f),
                                 chatViewModel = globalChatViewModel,
                                 lobbyChatViewModel = if (showLobbyTab) lobbyChatViewModel else null,
                                 lobbyCode = lobbyCode
