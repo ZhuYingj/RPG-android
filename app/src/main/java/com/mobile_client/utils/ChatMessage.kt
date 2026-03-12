@@ -2,7 +2,7 @@ package com.mobile_client.utils
 data class ChatMessage(
     val username: String,
     val message: String,
-    val concernedUser: String,
+    val avatar: String,
     val timestamp: String,
 )
 

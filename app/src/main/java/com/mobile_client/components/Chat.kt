@@ -1,6 +1,7 @@
 package com.mobile_client.components
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -55,6 +56,10 @@ import com.mobile_client.services.SocketService
 import com.mobile_client.utils.ChatMessage
 import com.mobile_client.utils.MessageEvents
 import com.mobile_client.viewModels.ChatViewModel
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.rememberAsyncImagePainter
+import com.mobile_client.utils.ImageUtils
 
 @Composable
 fun ChatBox(modifier: Modifier = Modifier, chatViewModel: ChatViewModel, lobbyChatViewModel: ChatViewModel? = null, lobbyCode: String) {
@@ -257,6 +262,9 @@ fun ChatBox(modifier: Modifier = Modifier, chatViewModel: ChatViewModel, lobbyCh
 @Composable
 fun MessageBox(chatMessage: ChatMessage) {
     val isFromCurrentUser = chatMessage.username == AccountService.instance.username
+    val avatarBitmap = remember(chatMessage.avatar) {
+        ImageUtils.base64ToBitmap(chatMessage.avatar)
+    }
 
     Row(
         modifier = Modifier
@@ -264,6 +272,31 @@ fun MessageBox(chatMessage: ChatMessage) {
             .padding(vertical = 4.dp),
         horizontalArrangement = if (isFromCurrentUser) Arrangement.End else Arrangement.Start
     ) {
+        if (!isFromCurrentUser) {
+            Box(
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                contentAlignment = Alignment.Center
+            ) {
+                if (avatarBitmap != null) {
+                    Image(
+                        painter = rememberAsyncImagePainter(avatarBitmap),
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize().clip(CircleShape),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Text(
+                        text = chatMessage.username.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+        }
+
         Surface(
             color = if (isFromCurrentUser)
                 MaterialTheme.colorScheme.primary
@@ -276,13 +309,9 @@ fun MessageBox(chatMessage: ChatMessage) {
                 Text(
                     text = chatMessage.username,
                     style = MaterialTheme.typography.labelSmall,
-                    color = if (isFromCurrentUser)
-                        Color.Green
-                    else
-                        Color.Black
+                    color = if (isFromCurrentUser) Color.Green else Color.Black
                 )
                 Spacer(modifier = Modifier.height(4.dp))
-
                 Text(
                     text = chatMessage.message,
                     style = MaterialTheme.typography.bodyMedium,
@@ -300,6 +329,31 @@ fun MessageBox(chatMessage: ChatMessage) {
                         MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                     modifier = Modifier.padding(top = 4.dp)
                 )
+            }
+        }
+
+        if (isFromCurrentUser) {
+            Spacer(modifier = Modifier.width(8.dp))
+            Box(
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                contentAlignment = Alignment.Center
+            ) {
+                if (avatarBitmap != null) {
+                    Image(
+                        painter = rememberAsyncImagePainter(avatarBitmap),
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize().clip(CircleShape),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Text(
+                        text = chatMessage.username.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                }
             }
         }
     }

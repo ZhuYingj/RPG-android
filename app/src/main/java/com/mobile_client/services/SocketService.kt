@@ -65,7 +65,7 @@ class SocketService private constructor() {
                 val message = ChatMessage(
                     username = data.getString("username"),
                     message = data.getString("message"),
-                    concernedUser = data.optString("avatar", ""),
+                    avatar = data.getString("avatar"),
                     timestamp = convertUTCToLocalTime(data.getString("time")),
                 )
                 onChatMessage(message)
@@ -78,7 +78,7 @@ class SocketService private constructor() {
                 val message = ChatMessage(
                     username = data.getString("username"),
                     message = data.getString("message"),
-                    concernedUser = data.optString("avatar", ""),
+                    avatar = data.getString("avatar"),
                     timestamp = convertUTCToLocalTime(data.getString("time")),
                 )
                 onChatMessage(message)
