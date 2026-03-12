@@ -68,4 +68,5 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:2.3.7")
     implementation("io.ktor:ktor-serialization-gson:2.3.7")
     implementation("io.ktor:ktor-client-logging:2.3.7")
+    implementation("io.coil-kt:coil-compose:2.5.0")
 }

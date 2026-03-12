@@ -13,16 +13,47 @@ class AccountViewModel : ViewModel() {
     private val _account = MutableStateFlow<Account?>(null)
     val account: StateFlow<Account?> = _account
 
+    private val _message = MutableStateFlow<String?>(null)
+    val message: StateFlow<String?> = _message
+
+    private val accountService = AccountService.instance
+
     init {
-        _account.value = AccountService.instance.accountInfo
+        _account.value = accountService.accountInfo
     }
 
     fun updateAccount(name: String, email: String) {
         viewModelScope.launch {
-            val current = _account.value ?: return@launch
-            val updated = current.copy(username = name, email = email)
-            _account.value = updated
-            AccountService.instance.setAccount(updated, AccountService.instance.token ?: "")
+            val current = accountService.accountInfo ?: return@launch
+            val usernameChanged = current.username != name
+            val emailChanged = current.email != email
+
+            if (!usernameChanged && !emailChanged) return@launch
+
+            try {
+                if (usernameChanged) accountService.updateUsername(name)
+                if (emailChanged) accountService.updateEmail(email)
+                _account.value = accountService.accountInfo
+                _message.value = "Informations mises à jour avec succès"
+            } catch (e: Exception) {
+                _message.value = "${e.message}"
+            }
         }
+    }
+
+    fun updateAccountAvatar(base64Avatar: String) {
+        viewModelScope.launch {
+            try {
+                accountService.updateAvatar(base64Avatar)
+                _account.value = accountService.accountInfo
+                _message.value = "Avatar mis à jour avec succès"
+            } catch (e: Exception) {
+                _message.value = "${e.message}"
+            }
+        }
+    }
+
+    fun clearMessage() {
+        _message.value = null
     }
 }

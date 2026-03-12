@@ -18,14 +18,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.mobile_client.environment.ENVIRONMENT
 import com.mobile_client.screens.ui.theme.Pink80
 import com.mobile_client.services.AccountService
-import com.mobile_client.services.HttpService
-import com.mobile_client.services.SocketService
 import com.mobile_client.utils.Screen
-import io.ktor.client.statement.HttpResponse
-import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.launch
 
 @Composable
@@ -39,23 +34,11 @@ fun Header(
 
     fun logout() {
         scope.launch {
-            try {
-                val body = emptyMap<String, String>()
-                val response: HttpResponse = HttpService.instance.post(
-                    "$ENVIRONMENT/api/auth/logout",
-                    body
-                )
-                if (response.status == HttpStatusCode.OK) {
-                    SocketService.instance.disconnect()
-                    AccountService.instance.clear()
-                    navController.navigate(Screen.Login.route) {
-                        popUpTo(0) { inclusive = true }
-                        launchSingleTop = true
-                    }
+            if (AccountService.instance.logout()) {
+                navController.navigate(Screen.Login.route) {
+                    popUpTo(0) { inclusive = true }
+                    launchSingleTop = true
                 }
-            } catch (e: Exception) {
-                println("Logout exception: ${e.message}")
-                e.printStackTrace()
             }
         }
     }

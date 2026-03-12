@@ -26,7 +26,7 @@ object TileConstants {
 
     enum class Items {
         @SerializedName("6")
-        None,          // This was the bug! None = 6, not 0
+        None,
         @SerializedName("7")
         Object1,
         @SerializedName("8")
@@ -43,7 +43,7 @@ object TileConstants {
         ObjectRandom,
         @SerializedName("14")
         Spawn,
-        @SerializedName("16")   // Note: skips 15!
+        @SerializedName("16")   // Note: skips 15?
         Flag
     }
 }

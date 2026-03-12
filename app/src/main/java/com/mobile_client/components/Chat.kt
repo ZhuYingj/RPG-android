@@ -4,6 +4,7 @@ import ShakeListener
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,21 +13,28 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.ChatBubble
+import androidx.compose.material.icons.filled.CloseFullscreen
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Message
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -90,147 +98,164 @@ fun ChatBox(modifier: Modifier = Modifier.then(Modifier.heightIn(max=400.dp)
             listState.animateScrollToItem(chatMessages.size - 1)
         }
     }
-
-    Card(
-        modifier = modifier
-            .widthIn(max = 400.dp)
-            .height(if (isCollapsed) 80.dp else 400.dp)
-            .padding(16.dp)
-            .zIndex(1f),
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(8.dp)
-    ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.primary)
-                    .padding(12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+    Box(modifier.zIndex(1f).padding(16.dp)) {
+        if (isCollapsed) {
+            FloatingActionButton(
+                onClick = { isCollapsed = !isCollapsed },
+                shape = CircleShape,
+                containerColor = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(56.dp)
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Start, ) {
-                    IconButton(onClick = {isCollapsed = !isCollapsed}){
-                        Icon(
-                            imageVector = if (isCollapsed) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                            contentDescription = if (isCollapsed) "Expand Chat" else "Collapse Chat",
-                            tint = Color.White)
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Column {
-                        Text(
-                            "Clavardage",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = Color.White
-                        )
-                        Text(
-                            connectionStatus,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color.White.copy(alpha = 0.8f)
-                        )
-                    }
-                }
-                if (lobbyChatViewModel != null && !isCollapsed) {
-                    Row() {
-                        OutlinedButton(
-                            onClick = { isLobbyChat = false },
-                            colors = ButtonDefaults.textButtonColors(
-                                containerColor = if((!isLobbyChat)) Color.Yellow else Color.Transparent),
-                                border = BorderStroke(2.dp, Color.White),
-                                shape = RoundedCornerShape(0.dp)){
-                            Text(
-                                "Global",
-                                color = if (!isLobbyChat) Color.Black else Color.White.copy(alpha = 0.5f)
-                            )
-                        }
-                        OutlinedButton(onClick = { isLobbyChat = true },
-                            colors = ButtonDefaults.textButtonColors(
-                                containerColor = if((isLobbyChat)) Color.Yellow else Color.Transparent),
-                                border = BorderStroke(2.dp, Color.White),
-                                shape = RoundedCornerShape(0.dp)){
-                            Text(
-                                "Lobby",
-                                color = if (isLobbyChat) Color.Black else Color.White.copy(alpha = 0.5f)
-                            )
-                        }
-                    }
-                }
+                Icon(
+                    imageVector = Icons.Default.ChatBubble,
+                    contentDescription = "Chat",
+                    tint = Color.White
+                )
             }
-
-            if(!isCollapsed) {
-
-                // Messages
-                LazyColumn(
-                    state = listState,
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                ) {
-                    println(chatMessages)
-                    items(chatMessages) { message ->
-                        MessageBox(message)
-                    }
-                }
-
-                // Input
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    ReactionPicker(
-                        onReactionSelected = { emojiSelected = it },
-                        modifier = Modifier.fillMaxWidth() , emojiSelected = emojiSelected
-                    )
-
-                    ShakeListener(
-                        onVerticalShake = {
-                            emojiSelected.let { emoji ->
-                                activeViewModel.sendMessage(emoji, if (isLobbyChat) lobbyCode else "")
-                                mostRecentMessage = emoji
-                            }
-                        },
-                        onHorizontalShake = {
-                            mostRecentMessage?.let { lastMsg ->
-                                activeViewModel.sendMessage(lastMsg, if (isLobbyChat) lobbyCode else "")
+        }
+        else {
+            Card(
+                modifier = modifier
+                    .widthIn(max = 400.dp)
+                    .height(400.dp),
+                shape = RoundedCornerShape(16.dp),
+                elevation = CardDefaults.cardElevation(8.dp)
+            ) {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.primary)
+                            .padding(12.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.ChatBubble,
+                                contentDescription = "Chat",
+                                tint = Color.White
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column {
+                                Text(
+                                    "Clavardage",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = Color.White
+                                )
+                                Text(
+                                    connectionStatus,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = Color.White.copy(alpha = 0.8f)
+                                )
                             }
                         }
-                    )
-                    OutlinedTextField(
-                        value = newMessage,
-                        onValueChange = { if(it.length <= maxChar) newMessage = it },
-                        modifier = Modifier.weight(1f),
-                        placeholder = { Text("Entrez un message...") },
-                        maxLines = 3,
-                        keyboardOptions = KeyboardOptions(
-                            imeAction = ImeAction.Send   // ou Done
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onSend = {
+                        if (lobbyChatViewModel != null && !isCollapsed) {
+                            Row() {
+                                OutlinedButton(
+                                    onClick = { isLobbyChat = false },
+                                    colors = ButtonDefaults.textButtonColors(
+                                        containerColor = if((!isLobbyChat)) Color.Yellow else Color.Transparent),
+                                    border = BorderStroke(2.dp, Color.White),
+                                    shape = RoundedCornerShape(0.dp)){
+                                    Text(
+                                        "Global",
+                                        color = if (!isLobbyChat) Color.Black else Color.White.copy(alpha = 0.5f)
+                                    )
+                                }
+                                OutlinedButton(onClick = { isLobbyChat = true },
+                                    colors = ButtonDefaults.textButtonColors(
+                                        containerColor = if((isLobbyChat)) Color.Yellow else Color.Transparent),
+                                    border = BorderStroke(2.dp, Color.White),
+                                    shape = RoundedCornerShape(0.dp)){
+                                    Text(
+                                        "Lobby",
+                                        color = if (isLobbyChat) Color.Black else Color.White.copy(alpha = 0.5f)
+                                    )
+                                }
+                            }
+                        }
+                        IconButton(onClick = {isCollapsed = !isCollapsed}){
+                            Icon(
+                                imageVector = Icons.Default.CloseFullscreen,
+                                contentDescription = "Collapse Chat",
+                                tint = Color.White)
+                        }
+                    }
+
+                    // Messages
+                    LazyColumn(
+                        state = listState,
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                    ) {
+                        println(chatMessages)
+                        items(chatMessages) { message ->
+                            MessageBox(message)
+                        }
+                    }
+
+                        // Input
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        ReactionPicker(
+                            onReactionSelected = { emojiSelected = it },
+                            modifier = Modifier.fillMaxWidth() , emojiSelected = emojiSelected
+                        )
+
+                        ShakeListener(
+                            onVerticalShake = {
+                                emojiSelected.let { emoji ->
+                                    activeViewModel.sendMessage(emoji, if (isLobbyChat) lobbyCode else "")
+                                    mostRecentMessage = emoji
+                                }
+                            },
+                            onHorizontalShake = {
+                                mostRecentMessage?.let { lastMsg ->
+                                    activeViewModel.sendMessage(lastMsg, if (isLobbyChat) lobbyCode else "")
+                                }
+                            }
+                        )
+                        OutlinedTextField(
+                            value = newMessage,
+                            onValueChange = { if(it.length <= maxChar) newMessage = it },
+                            modifier = Modifier.weight(1f),
+                            placeholder = { Text("Entrez un message...") },
+                            maxLines = 3,
+                            keyboardOptions = KeyboardOptions(
+                                imeAction = ImeAction.Send   // ou Done
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onSend = {
+                                    if (newMessage.isNotBlank()) {
+                                        mostRecentMessage = newMessage
+                                        activeViewModel.sendMessage(newMessage, if (isLobbyChat) lobbyCode else "")
+                                        newMessage = ""
+                                    }
+                                }
+                            )
+                        )
+
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                        IconButton(
+                            onClick = {
                                 if (newMessage.isNotBlank()) {
                                     mostRecentMessage = newMessage
                                     activeViewModel.sendMessage(newMessage, if (isLobbyChat) lobbyCode else "")
                                     newMessage = ""
                                 }
-                            }
-                        )
-                    )
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    IconButton(
-                        onClick = {
-                            if (newMessage.isNotBlank()) {
-                                mostRecentMessage = newMessage
-                                activeViewModel.sendMessage(newMessage, if (isLobbyChat) lobbyCode else "")
-                                newMessage = ""
-                            }
-                        },
-                        enabled = newMessage.isNotBlank()
-                    ) {
-                        Icon(Icons.AutoMirrored.Default.Send, contentDescription = "Send")
+                            },
+                            enabled = newMessage.isNotBlank()
+                        ) {
+                            Icon(Icons.AutoMirrored.Default.Send, contentDescription = "Send")
+                        }
                     }
                 }
             }
