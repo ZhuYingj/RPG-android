@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -80,7 +81,7 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
     val isInCombat = controller.fightService.isFight.value
     val gameWinner = controller.gameWinner.value
     val lastPlayer = controller.lastPlayer.value
-    var shakeCount by remember { mutableStateOf(0) }
+    var shakeCount by remember { mutableIntStateOf(0) }
 
 
     var accessibleTiles by remember { mutableStateOf<List<Position>>(emptyList()) }
@@ -263,7 +264,6 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
                     accessibleTiles = accessibleTiles,
                     path = path,
                     isDebug = isDebug,
-                    //TODO: onclick should move the character, start fight, open door, debug = teleport
                     onTileClick = { pos ->
                         if (isDebug && controller.isTeleport()) {
                             // Debug mode: teleport directly

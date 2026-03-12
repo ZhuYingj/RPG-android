@@ -131,8 +131,7 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                             ChatBox(
-                                modifier = Modifier.align(Alignment.BottomEnd).heightIn(max=400.dp)
-                                    .widthIn(max = 400.dp)
+                                modifier = Modifier.align(Alignment.BottomEnd)
                                     .padding(16.dp)
                                     .zIndex(1f),
                                 chatViewModel = globalChatViewModel,

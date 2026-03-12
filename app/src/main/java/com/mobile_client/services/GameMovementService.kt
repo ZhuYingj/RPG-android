@@ -51,10 +51,12 @@ class GameMovementService {
             if (!isInMap(Position(x, y))) continue
 
             val adjacentTile = tiles[x][y]
-            if (adjacentTile.type == TileConstants.Types.Wall || adjacentTile.type == TileConstants.Types.ClosedDoor) continue
+            val tileType = if(isDebug && adjacentTile.type == TileConstants.Types.ClosedDoor) TileConstants.Types.OpenDoor else adjacentTile.type
+
+            if (tileType == TileConstants.Types.Wall || tileType == TileConstants.Types.ClosedDoor) continue
             if (hasPlayer(Position(x, y), players)) continue
 
-            val newCost = tiles[tile.x][tile.y].cost + (TypeToCost[adjacentTile.type] ?: 99)
+            val newCost = tiles[tile.x][tile.y].cost + (TypeToCost[tileType] ?: 99)
             if (adjacentTile.parentTile == null || newCost < adjacentTile.cost) {
                 adjacentTile.cost = newCost
                 adjacentTile.parentTile = tile

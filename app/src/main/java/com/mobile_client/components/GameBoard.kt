@@ -77,7 +77,7 @@ fun TileCell(
     Box(
         modifier = Modifier
             .aspectRatio(1f)
-            .clickable { onClick() }, //TODO: Allow click to move character
+            .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
         // Tile background

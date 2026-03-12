@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -88,7 +89,7 @@ fun ChatBox(modifier: Modifier = Modifier, chatViewModel: ChatViewModel, lobbyCh
             listState.animateScrollToItem(chatMessages.size - 1)
         }
     }
-    Box(modifier.zIndex(1f).padding(16.dp)) {
+    Box(modifier.zIndex(1f)) {
         if (isCollapsed) {
             FloatingActionButton(
                 onClick = { isCollapsed = !isCollapsed },
@@ -106,8 +107,8 @@ fun ChatBox(modifier: Modifier = Modifier, chatViewModel: ChatViewModel, lobbyCh
         else {
             Card(
                 modifier = modifier
-                    .widthIn(max = 400.dp)
-                    .height(400.dp),
+                    .widthIn(max=400.dp)
+                    .heightIn(max=600.dp),
                 shape = RoundedCornerShape(16.dp),
                 elevation = CardDefaults.cardElevation(8.dp)
             ) {
