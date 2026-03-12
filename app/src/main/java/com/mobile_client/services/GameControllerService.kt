@@ -81,7 +81,7 @@ class GameControllerService private constructor() {
         val socket = socketManager.socket ?: return
         socket.emit(GameEvents.ABANDON)
         socketManager.closeGameListeners()
-        socketManager.closeLobbyListeners()// close the listener
+        GameLobbyService.instance.closeLobbyListeners()// close the listener
         socket.once(GameEvents.ABANDON) {
             Handler(Looper.getMainLooper()).post {
                 onAbandoned()
@@ -119,15 +119,15 @@ class GameControllerService private constructor() {
         socket.emit(GameEvents.ACTION, JSONObject(gson.toJson(position)))
     }
 
+    fun setDebug() {
+        socketManager.socket?.emit(GameEvents.DEBUG)
+    }
+
     fun teleport(position: Position) {
         val socket = socketManager.socket ?: return
         val p = player.value ?: return
         if (isSameTile(position, p.position)) return
         socket.emit(GameEvents.TELEPORT, JSONObject(gson.toJson(position)))
-    }
-
-    fun setDebug() {
-        socketManager.socket?.emit(GameEvents.DEBUG)
     }
 
     fun resetTiles() {

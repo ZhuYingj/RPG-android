@@ -196,6 +196,7 @@ class SocketService private constructor() {
         }
 
         socket.on(GameEvents.DEBUG) { args ->
+            println("DEBUG fired")
             if (args.isNotEmpty()) {
                 controller.isDebug.value = args[0] as Boolean
             }
