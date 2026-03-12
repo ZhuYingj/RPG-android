@@ -18,16 +18,19 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.mobile_client.components.ChatBox
+import com.mobile_client.components.FriendsPanel
 import com.mobile_client.screens.ui.theme.MobileclientTheme
 import com.mobile_client.utils.Screen
 import com.mobile_client.viewModels.ChatViewModel
 import com.mobile_client.viewModels.CurrentGamesViewModel
+import com.mobile_client.viewModels.FriendsViewModel
 import com.mobile_client.viewModels.GameListViewModel
 import com.mobile_client.viewModels.GameLobbyViewModel
 
@@ -83,7 +86,8 @@ class MainActivity : ComponentActivity() {
                             }
                             composable(Screen.Account.route) {
                                 AccountScreen(
-                                    navController = navController
+                                    navController = navController,
+                                    snackbarHostState = snackbarHostState,
                                 )
                             }
                             composable(Screen.CharacterCreation.route) {
@@ -100,10 +104,17 @@ class MainActivity : ComponentActivity() {
                                     gameLobbyViewModel = gameLobbyViewModel
                                 )
                             }
+                            composable(Screen.Game.route) {
+                                GameScreen(
+                                    navController = navController,
+                                    snackbarHostState = snackbarHostState,
+                                )
+                            }
                         }
                         if (showChat) {
                             val globalChatViewModel: ChatViewModel = viewModel()
                             val lobbyChatViewModel: ChatViewModel = viewModel(key = "lobbyChat")
+                            val friendsViewModel: FriendsViewModel = viewModel()
                             val lobbyCode = gameLobbyViewModel.lobbyCode.value
                             DisposableEffect(Unit) {
                                 globalChatViewModel.enableListeners()
@@ -121,6 +132,10 @@ class MainActivity : ComponentActivity() {
                                 chatViewModel = globalChatViewModel,
                                 lobbyChatViewModel = if (showLobbyTab) lobbyChatViewModel else null,
                                 lobbyCode = lobbyCode
+                            )
+                            FriendsPanel(
+                                modifier = Modifier.align(Alignment.BottomStart).padding(16.dp),
+                                friendsViewModel = friendsViewModel
                             )
                         }
                     }

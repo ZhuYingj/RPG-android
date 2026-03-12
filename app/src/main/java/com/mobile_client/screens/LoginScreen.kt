@@ -1,21 +1,30 @@
 package com.mobile_client.screens
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,16 +33,23 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mobile_client.environment.ENVIRONMENT
 import com.mobile_client.services.AccountService
 import com.mobile_client.services.HttpService
 import com.mobile_client.utils.LoginResponse
 import com.mobile_client.utils.Screen
+import com.mobile_client.utils.Validation.MAX_PASSWORD_LENGTH
+import com.mobile_client.utils.Validation.MAX_USERNAME_LENGTH
 import io.ktor.client.call.body
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpStatusCode
@@ -45,7 +61,7 @@ fun LoginScreen(navController: NavController, snackbarHostState: SnackbarHostSta
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
-    val maxUsernameLength = 20
+    var passwordVisible by remember { mutableStateOf(false) }
     val scope: CoroutineScope = rememberCoroutineScope()
 
     fun loginValidate() {
@@ -62,7 +78,7 @@ fun LoginScreen(navController: NavController, snackbarHostState: SnackbarHostSta
                     HttpStatusCode.OK -> {
                         val loginData: LoginResponse = response.body()
                         AccountService.instance.setAccount(loginData.account, loginData.token)
-                        scope.launch{ snackbarHostState.showSnackbar("Connexion réussie", duration = SnackbarDuration.Short) }
+                        scope.launch { snackbarHostState.showSnackbar("Connexion réussie", duration = SnackbarDuration.Short) }
                         navController.navigate(Screen.Home.route)
                     }
                     HttpStatusCode.Unauthorized -> {
@@ -76,69 +92,136 @@ fun LoginScreen(navController: NavController, snackbarHostState: SnackbarHostSta
                     }
                 }
             } catch (e: Exception) {
-                errorMessage = "Network error: ${e.message}"
+                errorMessage = "Erreur réseau: ${e.message}"
                 e.printStackTrace()
             }
         }
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "Connexion",
-            style = MaterialTheme.typography.headlineLarge,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = username,
-            onValueChange = {
-                if(it.length <= maxUsernameLength)
-                    username = it},
-            label = { Text("Nom d'utilisateur") },
-            modifier = Modifier.padding(bottom = 16.dp),
-            singleLine = true
+    Box(modifier = Modifier.fillMaxSize()) {
+        Image(
+            painter = painterResource(id = R.drawable.main_page),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = password,
-            onValueChange = {
-                if(it.length <= maxUsernameLength)
-                    password = it},
-            label = { Text("Mot de passe") },
-            modifier = Modifier.padding(bottom = 16.dp),
-            singleLine = true,
-            visualTransformation = PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
-        )
-
-        errorMessage?.let { error ->
-            Text(
-                text = error,
-                color = Color.Red,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(bottom = 8.dp, start = 16.dp, end = 16.dp),
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(onClick = { loginValidate() },
-            enabled = username.isNotBlank() && password.isNotBlank(),
-            modifier = Modifier.height(40.dp).width(180.dp)
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Connexion")
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-        TextButton(onClick = { navController.navigate(Screen.SignUp.route) }, modifier = Modifier.fillMaxWidth()) {
-            Text("Créer un compte")
-        }
+            Column(
+                modifier = Modifier
+                    .width(450.dp)
+                    .shadow(
+                        elevation = 8.dp,
+                        shape = RoundedCornerShape(16.dp),
+                        clip = false
+                    )
+                    .background(
+                        color = Color.White.copy(alpha = 0.95f),
+                        shape = RoundedCornerShape(16.dp)
+                    )
+                    .padding(horizontal = 40.dp, vertical = 36.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Connexion",
+                    style = MaterialTheme.typography.headlineLarge,
+                    fontSize = 36.sp,
+                    modifier = Modifier.padding(bottom = 24.dp)
+                )
 
+                Column {
+                    Text(
+                        text = "Nom d'utilisateur",
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontSize = 16.sp
+                    )
+                    OutlinedTextField(
+                        value = username,
+                        onValueChange = {
+                            if (it.length <= MAX_USERNAME_LENGTH) username = it
+                        },
+                        singleLine = true,
+                        modifier = Modifier
+                            .width(350.dp)
+                            .padding(bottom = 16.dp)
+                    )
+                }
+
+                Column {
+                    Text(
+                        text = "Mot de passe",
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontSize = 16.sp
+                    )
+                    OutlinedTextField(
+                        value = password,
+                        onValueChange = {
+                            if (it.length <= MAX_PASSWORD_LENGTH) password = it
+                        },
+                        singleLine = true,
+                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        trailingIcon = {
+                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                Icon(
+                                    imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                                    contentDescription = if (passwordVisible) "Masquer" else "Afficher"
+                                )
+                            }
+                        },
+                        modifier = Modifier
+                            .width(350.dp)
+                            .padding(bottom = 8.dp)
+                    )
+                }
+
+                errorMessage?.let { error ->
+                    Text(
+                        text = error,
+                        color = Color.Red,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    modifier = Modifier.width(350.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Button(
+                        onClick = { navController.navigate(Screen.SignUp.route) },
+                        modifier = Modifier.height(50.dp).width(165.dp),
+                        shape = RoundedCornerShape(5.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.LightGray,
+                            contentColor = Color.Black
+                        )
+                    ) {
+                        Text("Créer un compte")
+                    }
+
+                    Button(
+                        onClick = { loginValidate() },
+                        enabled = username.isNotBlank() && password.isNotBlank(),
+                        modifier = Modifier.height(50.dp).width(165.dp),
+                        shape = RoundedCornerShape(5.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF357abd),
+                            contentColor = Color.White,
+                            disabledContainerColor = Color.Gray,
+                            disabledContentColor = Color.DarkGray
+                        )
+                    ) {
+                        Text("Connexion")
+                    }
+                }
+            }
+        }
     }
 }

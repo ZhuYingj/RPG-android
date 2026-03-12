@@ -61,8 +61,6 @@ fun GameList(
     val currentGames by viewModel.currentGames.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
-    val mapIndexStart by viewModel.mapIndexStart.collectAsState()
-    val mapIndexEnd by viewModel.mapIndexEnd.collectAsState()
 
     var descriptionId by remember { mutableStateOf<String?>(null) }
     val listState = rememberLazyListState()
@@ -105,17 +103,13 @@ fun GameList(
             }
             else -> {
                 if (viewModel.isLobbyMode) {
-                    val visibleLobbies = currentGames.subList(
-                        mapIndexStart,
-                        minOf(mapIndexEnd + 1, currentGames.size)
-                    )
                     LazyColumn(
                         state = listState,
                         modifier = Modifier.weight(1f),
                         contentPadding = PaddingValues(0.dp),
                         verticalArrangement = Arrangement.spacedBy(0.dp)
                     ) {
-                        items(visibleLobbies) { lobby ->
+                        items(currentGames) { lobby ->
                             LobbyMapItem(
                                 map = lobby.map as GameMap,
                                 lobby = lobby,
@@ -127,17 +121,13 @@ fun GameList(
                         }
                     }
                 } else {
-                    val visibleMaps = maps.subList(
-                        mapIndexStart,
-                        minOf(mapIndexEnd + 1, maps.size)
-                    )
                     LazyColumn(
                         state = listState,
                         modifier = Modifier.weight(1f),
                         contentPadding = PaddingValues(0.dp),
                         verticalArrangement = Arrangement.spacedBy(0.dp)
                     ) {
-                        items(visibleMaps) { map ->
+                        items(maps) { map ->
                             MapItem(
                                 map = map,
                                 showDescription = descriptionId == map._id,
@@ -179,7 +169,6 @@ fun LobbyMapItem(
         ) {
             MapTilesDisplay(
                 tiles = map.tiles,
-                size = map.size,
                 modifier = Modifier.size(200.dp)
             )
 
@@ -292,7 +281,6 @@ fun MapItem(
         ) {
             MapTilesDisplay(
                 tiles = map.tiles,
-                size = map.size,
                 modifier = Modifier.size(200.dp)
             )
 
@@ -328,7 +316,6 @@ fun MapItem(
 @Composable
 fun MapTilesDisplay(
     tiles: List<List<Tile>>,
-    size: TileConstants.MapSize,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
@@ -391,7 +378,7 @@ fun DescriptionBubble(description: String) {
 fun MapInfo(map: GameMap, showLastModified: Boolean = true) {
     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
         Text(text = map.name, fontSize = 35.sp, fontWeight = FontWeight.Normal, color = Color(0xFF313131), letterSpacing = 2.sp, modifier = Modifier.padding(bottom = 8.dp))
-        Text(text = "Taille : ${ImageResources.sizeString[map.size]}", fontSize = 19.sp, color = Color(0xFF555555))
+        Text(text = "Taille : ${map.size}", fontSize = 19.sp, color = Color(0xFF555555))
         Text(text = "Mode : ${if (map.isCaptureTheFlag) "CTF" else "Classique"}", fontSize = 19.sp, color = Color(0xFF555555))
         if (showLastModified) {
             Text(text = "Dernière Modification : ${map.lastModified}", fontSize = 19.sp, color = Color(0xFF555555))

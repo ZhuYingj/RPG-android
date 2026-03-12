@@ -66,7 +66,7 @@ data class Player(
     val isBonusLife: Boolean,
     val stats: Stats,
     val position: Position = Position(),
-    val items: List<Any> = emptyList(),
+    val items: List<TileConstants.Items> = listOf(TileConstants.Items.None, TileConstants.Items.None),
     val currentLife: Int = stats.life,
     val movement: Int = 0,
     val hasAction: Boolean = true,

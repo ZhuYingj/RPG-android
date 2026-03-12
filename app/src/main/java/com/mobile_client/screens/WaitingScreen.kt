@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -38,17 +39,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mobile_client.components.Header
+import com.mobile_client.services.GameControllerService
 import com.mobile_client.utils.ImageResources
 import com.mobile_client.utils.Player
 import com.mobile_client.utils.PlayerAvatars
 import com.mobile_client.utils.PlayerTypes
 import com.mobile_client.utils.Screen
 import com.mobile_client.utils.isBot
+import com.mobile_client.utils.toGameTiles
 import com.mobile_client.viewModels.GameLobbyViewModel
 import kotlinx.coroutines.launch
 
 private val BotBlue = Color(0xFF20B6E3)
 private val LockOrange = Color(0xFFD88B06)
+private val DropInCyan = Color(0xFF009688)
 private val StartGreen = Color(0xFF109E1F)
 private val DarkText = Color(0xFF1A1A1A)
 
@@ -77,6 +81,7 @@ fun WaitingPageScreen(navController: NavController, snackbarHostState: SnackbarH
 
     DisposableEffect(Unit) {
         onDispose {
+//            println("WaitingScreen onDispose: isGameStarted=${gameLobbyViewModel.isGameStarted.value}")
             if (!gameLobbyViewModel.isGameStarted.value) {
                 gameLobbyViewModel.selectAvatar(
                     currentPlayer?.avatar ?: PlayerAvatars.None,
@@ -89,6 +94,14 @@ fun WaitingPageScreen(navController: NavController, snackbarHostState: SnackbarH
 
     LaunchedEffect(gameLobbyViewModel.isGameStarted.value) {
         if (gameLobbyViewModel.isGameStarted.value) {
+            val controller = GameControllerService.instance
+            controller.gameMap.value = gameLobbyViewModel.gameMap.value
+            controller.gameTiles.value = gameLobbyViewModel.gameMap.value?.tiles?.toGameTiles() ?: emptyList()
+            controller.players.value = gameLobbyViewModel.players.toList()
+            controller.player.value = gameLobbyViewModel.currentPlayer.value
+            controller.originalPlayers.value = gameLobbyViewModel.players.toList()
+            controller.lastPlayer.value = false
+
             navController.navigate(Screen.Game.route) {
                 launchSingleTop = true
             }
@@ -136,7 +149,7 @@ fun WaitingPageScreen(navController: NavController, snackbarHostState: SnackbarH
 
                 // Main layout: Players on left, Chat on right
                 Row(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.width(800.dp).fillMaxHeight(),
                     horizontalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
                     Column(
@@ -159,63 +172,47 @@ fun WaitingPageScreen(navController: NavController, snackbarHostState: SnackbarH
                         }
 
                         Spacer(modifier = Modifier.height(12.dp))
-
-                        // Host controls
-                        if (isHost) {
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(16.dp)
-                            ) {
-                                OutlinedButton(
-                                    onClick = { gameLobbyViewModel.createBotPlayer() },
-                                    border = BorderStroke(2.dp, BotBlue),
-                                    shape = RoundedCornerShape(6.dp)
-                                ) {
-                                    Text("+ Ajouter un JV", color = BotBlue, fontWeight = FontWeight.Bold)
-                                }
-
-                                OutlinedButton(
-                                    onClick = { gameLobbyViewModel.toggleLobbyLock() },
-                                    border = BorderStroke(2.dp, LockOrange),
-                                    shape = RoundedCornerShape(6.dp)
-                                ) {
-                                    Text(
-                                        if (isLobbyLocked) "Déverrouiller" else "Verrouiller",
-                                        color = LockOrange,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
-                            }
-                        }
                     }
 
-                    // === RIGHT: Chat + Start game ===
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        // Chat wrapper
+                    // === RIGHT: Start game ===
+                    if (isHost) {
                         Column(
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(Color(0xFFCAC6C6))
-                                .padding(10.dp)
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            Text(
-                                "Clavardage de ${currentPlayer?.username ?: ""}",
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.align(Alignment.CenterHorizontally)
-                            )
 
-                            Spacer(modifier = Modifier.height(8.dp))
-                        }
+                            OutlinedButton(
+                                onClick = { gameLobbyViewModel.toggleLobbyLock() },
+                                border = BorderStroke(2.dp, LockOrange),
+                                shape = RoundedCornerShape(6.dp)
+                            ) {
+                                Text(
+                                    if (isLobbyLocked) "Déverrouiller" else "Verrouiller",
+                                    color = LockOrange,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
 
-                        Spacer(modifier = Modifier.height(12.dp))
+                            OutlinedButton(
+                                onClick = { //TODO: implement dropIn/dropOut
+                                },
+                                border = BorderStroke(2.dp, DropInCyan),
+                                shape = RoundedCornerShape(6.dp)
+                            ) {
+                                Text(
+                                    "dropIn/dropOut", //TODO: sync with feature
+                                    color = DropInCyan,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
 
-                        // Start game button (host only)
-                        if (isHost) {
+                            OutlinedButton(
+                                onClick = { gameLobbyViewModel.createBotPlayer() },
+                                border = BorderStroke(2.dp, BotBlue),
+                                shape = RoundedCornerShape(6.dp)
+                            ) {
+                                Text("+ Ajouter un JV", color = BotBlue, fontWeight = FontWeight.Bold)
+                            }
+
                             OutlinedButton(
                                 onClick = { gameLobbyViewModel.startGame() },
                                 border = BorderStroke(2.dp, StartGreen),
@@ -229,6 +226,7 @@ fun WaitingPageScreen(navController: NavController, snackbarHostState: SnackbarH
                                 )
                             }
                         }
+
                     }
                 }
             }
