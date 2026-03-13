@@ -23,6 +23,8 @@ class GameLobbyViewModel : ViewModel() {
     var lobbyCode = mutableStateOf("")
     var isHost = mutableStateOf(false)
     var gameMap = mutableStateOf<GameMap?>(null)
+
+    var entryFee = mutableStateOf(0)
     private val _errorMessage = MutableSharedFlow<String>()
     val errorMessage = _errorMessage.asSharedFlow()
 
@@ -41,6 +43,7 @@ class GameLobbyViewModel : ViewModel() {
         isSubmitted.value = false
         isHost.value = false
         gameMap.value = null
+        entryFee.value = 0
         GameLobbyService.instance.closeLobbyListeners()
     }
 
@@ -52,16 +55,22 @@ class GameLobbyViewModel : ViewModel() {
                 lobbyCode.value = code
                 onSuccess()
             },
-            onError = onError
+            onError = { message ->
+                SocketService.instance.closeLobbyListeners()
+                onError(message)
+            }
         )
     }
 
-    fun createLobby(map: com.mobile_client.utils.GameMap, onSuccess: () -> Unit, onError: (String) -> Unit) {
+    fun createLobby(map: GameMap, fee: Int = 0, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        GameLobbyService.instance.leaveLobby()
         clear()
         SocketService.instance.initializeLobbyListeners(this)
         isHost.value = true
+        entryFee.value = fee
         GameLobbyService.instance.createLobby(
             map = map,
+            fee = fee,
             onSuccess = { code ->
                 lobbyCode.value = code
                 onSuccess()

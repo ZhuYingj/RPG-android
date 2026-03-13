@@ -27,6 +27,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.mobile_client.components.ChatBox
 import com.mobile_client.components.FriendsPanel
+import com.mobile_client.components.HomeButton
 import com.mobile_client.screens.ui.theme.MobileclientTheme
 import com.mobile_client.utils.Screen
 import com.mobile_client.viewModels.ChatViewModel
@@ -49,7 +50,13 @@ class MainActivity : ComponentActivity() {
                 val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
                 val showChat = currentRoute != null && currentRoute !in listOf(Screen.Login.route, Screen.SignUp.route)
                 val gameLobbyViewModel: GameLobbyViewModel = viewModel()
-                val showLobbyTab = currentRoute in listOf(Screen.WaitingPage.route, Screen.Game.route)
+                val showLobbyTab = currentRoute in listOf(Screen.WaitingPage.route, Screen.Game.route, Screen.EndGame.route)
+                val hideBackButton = currentRoute in listOf(
+                    Screen.Login.route,
+                    Screen.SignUp.route,
+                    Screen.Home.route,
+                    Screen.Game.route
+                )
                 Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = { SnackbarHost(snackbarHostState) }) { innerPadding ->
                     Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
                         NavHost(
@@ -63,8 +70,9 @@ class MainActivity : ComponentActivity() {
                                     snackbarHostState = snackbarHostState,
                                 )
                             }
-
-                            composable(Screen.SignUp.route) { SignUpScreen(navController = navController) }
+                            composable(Screen.SignUp.route) {
+                                SignUpScreen(navController = navController)
+                            }
                             composable(Screen.Home.route) {
                                 HomeScreen(
                                     navController = navController,
@@ -73,6 +81,7 @@ class MainActivity : ComponentActivity() {
                             composable(Screen.GameCreation.route) {
                                 GamesCreationScreen(
                                     navController = navController,
+                                    snackbarHostState = snackbarHostState,
                                     gameListViewModel = gameListViewModel,
                                     gameLobbyViewModel = gameLobbyViewModel
                                 )
@@ -87,7 +96,6 @@ class MainActivity : ComponentActivity() {
                             }
                             composable(Screen.Account.route) {
                                 AccountScreen(
-                                    navController = navController,
                                     snackbarHostState = snackbarHostState,
                                 )
                             }
@@ -111,6 +119,18 @@ class MainActivity : ComponentActivity() {
                                     snackbarHostState = snackbarHostState,
                                 )
                             }
+                            composable(Screen.EndGame.route) {
+                                EndGameScreen(navController = navController)
+                            }
+                        }
+                        if (!hideBackButton) {
+                            HomeButton(
+                                navController = navController,
+                                modifier = Modifier
+                                    .align(Alignment.TopStart)
+                                    .padding(8.dp)
+                                    .zIndex(1f)
+                            )
                         }
 
                         val globalChatViewModel: ChatViewModel = viewModel()

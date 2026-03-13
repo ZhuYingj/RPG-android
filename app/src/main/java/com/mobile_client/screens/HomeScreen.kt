@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,7 +32,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
-import com.mobile_client.components.Header
 import com.mobile_client.services.AccountService
 import com.mobile_client.utils.ImageUtils
 import com.mobile_client.utils.Screen
@@ -47,11 +47,11 @@ fun HomeScreen(navController: NavController) {
     val account = AccountService.instance.accountInfo
     val avatarBitmap = ImageUtils.base64ToBitmap(account?.avatar)
     val scope = rememberCoroutineScope()
+    val money = AccountService.instance.money.value
 
     val buttons = listOf(
         HomeButton("Joindre une partie") { navController.navigate(Screen.JoinGame.route) },
         HomeButton("Créer une partie") { navController.navigate(Screen.GameCreation.route) },
-        HomeButton("Administrer les jeux") { navController.navigate("admin") },
         HomeButton("Se déconnecter") {
             scope.launch {
                 if (AccountService.instance.logout()) {
@@ -63,6 +63,10 @@ fun HomeScreen(navController: NavController) {
         },
     )
 
+    LaunchedEffect(navController.currentBackStackEntry) {
+        AccountService.instance.fetchAccount()
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
             painter = painterResource(id = R.drawable.main_page),
@@ -72,8 +76,6 @@ fun HomeScreen(navController: NavController) {
         )
 
         Column(modifier = Modifier.fillMaxSize()) {
-            Header(navController = navController, title = "Accueil", showBackButton = false, showLogoutButton = true)
-
             Column(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -116,9 +118,16 @@ fun HomeScreen(navController: NavController) {
         Row(
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .padding(top = 12.dp, end = 16.dp),
+                .padding(top = 12.dp, end = 16.dp)
+                .clickable { navController.navigate(Screen.Account.route) { launchSingleTop = true } },
             verticalAlignment = Alignment.CenterVertically
         ) {
+            Text(
+                text = "$money $",
+                color = Color.Black,
+                fontSize = 14.sp
+            )
+
             Text(
                 text = account?.username ?: "",
                 color = Color.Black,

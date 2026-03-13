@@ -28,9 +28,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
-import com.mobile_client.components.Header
 import com.mobile_client.utils.ImageUtils
 import com.mobile_client.utils.Validation
 import com.mobile_client.viewModels.AccountViewModel
@@ -40,7 +38,6 @@ import java.io.File
 
 @Composable
 fun AccountScreen(
-    navController: NavController,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     accountViewModel: AccountViewModel = viewModel()
 ) {
@@ -126,8 +123,6 @@ fun AccountScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
-        Header(navController, "Compte")
 
         Column(
             modifier = Modifier
