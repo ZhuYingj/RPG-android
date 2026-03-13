@@ -1,7 +1,9 @@
 package com.mobile_client.services
 
+import androidx.compose.runtime.mutableStateOf
 import com.mobile_client.environment.ENVIRONMENT
 import com.mobile_client.utils.Account
+import com.mobile_client.utils.AppGson
 import io.ktor.client.statement.bodyAsText
 import org.json.JSONObject
 
@@ -19,12 +21,27 @@ class AccountService private constructor() {
     var accountInfo: Account? = null
         private set
 
+    var money = mutableStateOf(0)
+        private set
+
     val username: String
         get() = accountInfo?.username ?: ""
 
     fun setAccount(account: Account, token: String) {
         this.accountInfo = account
+        this.money.value = account.money
         this.token = token
+    }
+
+    suspend fun fetchAccount(): Boolean {
+        return try {
+            val response = http.get("$ENVIRONMENT/api/user/")
+            val account = AppGson.fromJson(response, Account::class.java)
+            accountInfo = account
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 
     suspend fun updateUsername(newUsername: String): Account {
@@ -83,6 +100,7 @@ class AccountService private constructor() {
         accountInfo = updated
         return updated
     }
+
 
     suspend fun logout(): Boolean {
         return try {

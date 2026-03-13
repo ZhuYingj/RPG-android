@@ -312,10 +312,6 @@ class SocketService private constructor() {
                     controller.endGame(data.winnerName)
                 }
             }
-            //TODO pour ne pas ne faire crash, emit EndGameLeave au serveur (it should do that in leaveStatScreen, but its not implemented yet
-            socket.emit(GameEvents.END_GAME_LEAVE)
-            closeGameListeners()
-            closeLobbyListeners()
         }
     }
 

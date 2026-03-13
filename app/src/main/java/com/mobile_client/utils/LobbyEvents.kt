@@ -22,4 +22,5 @@ object LobbyEvents {
     const val AVATAR_SELECTED = "avatar-selected"
     const val TOGGLE_BOT = "toggle-bot"
     const val UNAUTHORIZED_LOGIN = "unauthorized-login"
+    const val SET_PRICE = "set-price"
 }

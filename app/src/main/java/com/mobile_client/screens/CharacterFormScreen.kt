@@ -48,7 +48,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.mobile_client.components.Header
 import com.mobile_client.services.AccountService
 import com.mobile_client.utils.BASE_STAT_VALUE
 import com.mobile_client.utils.Dices
@@ -105,8 +104,6 @@ fun CharacterCreationScreen(navController: NavController, snackbarHostState: Sna
         )
 
         Column(modifier = Modifier.fillMaxSize()) {
-            Header(navController = navController, title = "Création du personnage", showBackButton = true)
-
             Column(
                 modifier = Modifier
                     .fillMaxSize()
