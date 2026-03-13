@@ -45,7 +45,9 @@ data class GameStats(
     val gameTime: Long = 0,
     val doorActivated: List<Position> = emptyList(),
     val tilesVisited: List<Position> = emptyList(),
-    val flagTaken: List<String> = emptyList()
+    val flagTaken: List<String> = emptyList(),
+    val doorNumber: Double = 0.0,
+    val tilesVisitedNumber: Double = 0.0
 )
 
 data class PlayerStat(
@@ -57,7 +59,8 @@ data class PlayerStat(
     val lifeLost: Int = 0,
     val damageDealt: Int = 0,
     val itemPicked: List<TileConstants.Items> = emptyList(),
-    val visitedTile: List<Position> = emptyList()
+    val visitedTile: List<Position> = emptyList(),
+    val visitedTileNumber: Double = 0.0
 )
 
 data class StartGameObject(

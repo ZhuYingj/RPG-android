@@ -28,7 +28,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mobile_client.components.GameList
-import com.mobile_client.components.Header
 import com.mobile_client.utils.Screen
 import com.mobile_client.viewModels.CurrentGamesViewModel
 import com.mobile_client.viewModels.GameLobbyViewModel
@@ -51,8 +50,16 @@ fun JoinGameScreen(navController: NavController, snackbarHostState: SnackbarHost
         }
     }
 
-    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Header(navController, "Rejoindre une partie")
+    LaunchedEffect(Unit) {
+        gameLobbyViewModel.errorMessage.collect { message ->
+            scope.launch { snackbarHostState.showSnackbar(message, duration = SnackbarDuration.Short) }
+        }
+    }
+
+    Column(
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = Modifier.padding(top = 56.dp)
+    ) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically,

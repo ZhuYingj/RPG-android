@@ -3,6 +3,7 @@ package com.mobile_client.services
 import android.os.Handler
 import android.os.Looper
 import androidx.compose.runtime.mutableStateOf
+import com.mobile_client.utils.AppGson
 import com.mobile_client.utils.GameEvents
 import com.mobile_client.utils.GameMap
 import com.mobile_client.utils.GameStats
@@ -12,9 +13,7 @@ import com.mobile_client.utils.Player
 import com.mobile_client.utils.PlayerStat
 import com.mobile_client.utils.Position
 import com.mobile_client.utils.TileConstants
-import com.mobile_client.utils.TypeToCost
 import org.json.JSONObject
-import com.mobile_client.utils.AppGson
 
 class GameControllerService private constructor() {
     companion object {
@@ -92,6 +91,7 @@ class GameControllerService private constructor() {
 
     fun leaveEndGame() {
         GameLobbyService.instance.closeLobbyListeners()
+        socketManager.closeGameListeners()
         socketManager.socket?.emit(GameEvents.END_GAME_LEAVE)
     }
 

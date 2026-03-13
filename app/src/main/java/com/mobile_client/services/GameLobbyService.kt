@@ -41,13 +41,30 @@ class GameLobbyService private constructor() {
         }
     }
 
-    fun createLobby(map: GameMap, onSuccess: (String) -> Unit, onError: (String) -> Unit) {
+    fun createLobby(map: GameMap, fee: Int = 0, onSuccess: (String) -> Unit, onError: (String) -> Unit) {
         val socket = socketManager.socket ?: return
+        socket.off(LobbyEvents.SET_PRICE)
+        socket.off(LobbyEvents.ERROR)
+        socket.off(LobbyEvents.LOBBY_CREATED)
+
         socket.emit(LobbyEvents.CREATE_LOBBY, JSONObject(gson.toJson(map)))
         socket.once(LobbyEvents.LOBBY_CREATED) { args ->
             Handler(Looper.getMainLooper()).post {
                 if (args.isNotEmpty()) {
-                    onSuccess(args[0].toString())
+                    val code = args[0].toString()
+                    socket.once(LobbyEvents.SET_PRICE) { _ ->
+                        Handler(Looper.getMainLooper()).post {
+                            socket.off(LobbyEvents.ERROR)
+                            onSuccess(code)
+                        }
+                    }
+                    socket.once(LobbyEvents.ERROR) { errorArgs ->
+                        Handler(Looper.getMainLooper()).post {
+                            socket.off(LobbyEvents.SET_PRICE)
+                            onError(errorArgs[0].toString())
+                        }
+                    }
+                    socket.emit(LobbyEvents.SET_PRICE, fee)
                 } else {
                     onError("Impossible de créer le lobby")
                 }

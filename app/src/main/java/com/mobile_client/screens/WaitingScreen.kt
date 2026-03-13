@@ -38,7 +38,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.mobile_client.components.Header
 import com.mobile_client.services.GameControllerService
 import com.mobile_client.utils.ImageResources
 import com.mobile_client.utils.Player
@@ -63,6 +62,7 @@ fun WaitingPageScreen(navController: NavController, snackbarHostState: SnackbarH
     val isLobbyLocked = gameLobbyViewModel.isLobbyLocked.value
     val lobbyCode = gameLobbyViewModel.lobbyCode.value
     val isHost = currentPlayer?.playerType == PlayerTypes.Host
+    val entryFee = gameLobbyViewModel.entryFee.value
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
@@ -118,12 +118,6 @@ fun WaitingPageScreen(navController: NavController, snackbarHostState: SnackbarH
         )
 
         Column(modifier = Modifier.fillMaxSize()) {
-            Header(
-                navController = navController,
-                title = "Salle d'attente",
-                showBackButton = true
-            )
-
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -141,6 +135,14 @@ fun WaitingPageScreen(navController: NavController, snackbarHostState: SnackbarH
 
                 Text(
                     "Statut de la salle d'attente: ${if (isLobbyLocked) "Verrouillée" else "Déverrouillée"}",
+                    fontSize = 18.sp,
+                    color = DarkText
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    "Frais d'entrée : $entryFee$",
                     fontSize = 18.sp,
                     color = DarkText
                 )

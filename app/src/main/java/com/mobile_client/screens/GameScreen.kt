@@ -1,6 +1,5 @@
 package com.mobile_client.screens
 
-import com.mobile_client.components.ShakeListener
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -45,6 +44,7 @@ import com.mobile_client.components.BattleOverlay
 import com.mobile_client.components.BetweenTurnOverlay
 import com.mobile_client.components.GameBoard
 import com.mobile_client.components.ItemChoiceOverlay
+import com.mobile_client.components.ShakeListener
 import com.mobile_client.services.GameControllerService
 import com.mobile_client.services.SocketService
 import com.mobile_client.utils.ImageResources
@@ -151,8 +151,7 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
                 )
             }
             //TODO: Navigate to end game (EndGameScreen, where there is stats) after delay
-
-            navController.navigate(Screen.Home.route) {
+            navController.navigate(Screen.EndGame.route) {
                 popUpTo(0) { inclusive = true }
             }
         }
@@ -322,7 +321,7 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))
-            Column( modifier = Modifier.weight(1f)) {
+            Column( modifier = Modifier.weight(0.75f)) {
                 // Timer
                 Text(
                     if (isTimerStopped) "Temps: --" else "Temps: $timerCounter",
