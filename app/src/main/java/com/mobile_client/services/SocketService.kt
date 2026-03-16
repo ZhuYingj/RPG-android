@@ -59,20 +59,7 @@ class SocketService private constructor() {
 
     // ===================== CHAT LISTENERS =====================
 
-    fun initializeChatListeners(onChatMessage: (ChatMessage) -> Unit) {
-        socket?.on(MessageEvents.CHAT_MESSAGE) { args ->
-            if (args.isNotEmpty()) {
-                val data = args[0] as JSONObject
-                val message = ChatMessage(
-                    username = data.getString("username"),
-                    message = data.getString("message"),
-                    avatar = data.getString("avatar"),
-                    timestamp = convertUTCToLocalTime(data.getString("time")),
-                )
-                onChatMessage(message)
-            }
-        }
-
+    fun initializeChatListeners(onChatMessage: (ChatMessage, String) -> Unit) {
         socket?.on(MessageEvents.GLOBAL_CHAT_MESSAGE) { args ->
             if (args.isNotEmpty()) {
                 val data = args[0] as JSONObject
@@ -82,7 +69,20 @@ class SocketService private constructor() {
                     avatar = data.getString("avatar"),
                     timestamp = convertUTCToLocalTime(data.getString("time")),
                 )
-                onChatMessage(message)
+                onChatMessage(message, MessageEvents.GLOBAL_CHAT_MESSAGE)
+            }
+        }
+
+        socket?.on(MessageEvents.CHAT_MESSAGE) { args ->
+            if (args.isNotEmpty()) {
+                val data = args[0] as JSONObject
+                val message = ChatMessage(
+                    username = data.getString("username"),
+                    message = data.getString("message"),
+                    avatar = data.getString("avatar"),
+                    timestamp = convertUTCToLocalTime(data.getString("time")),
+                )
+                onChatMessage(message, MessageEvents.CHAT_MESSAGE)
             }
         }
     }

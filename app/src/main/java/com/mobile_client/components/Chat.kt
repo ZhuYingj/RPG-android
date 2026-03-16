@@ -83,14 +83,20 @@ fun ChatBox(modifier: Modifier = Modifier, chatViewModel: ChatViewModel, lobbyCh
     val chatMessages by activeViewModel.messages.collectAsState()
     val isKeyboardVisible = WindowInsets.isImeVisible
 
-    LaunchedEffect(activeViewModel) {
+    LaunchedEffect(chatViewModel, lobbyChatViewModel) {
         socketManager.socket?.off(MessageEvents.CHAT_MESSAGE)
         socketManager.socket?.off(MessageEvents.GLOBAL_CHAT_MESSAGE)
 
-        socketManager.initializeChatListeners { message ->
-            activeViewModel.handleChatMessage(message) {
-                friendsViewModel.blockedUsers.value.contains(it) ||
-                    friendsViewModel.blockedByUsers.value.contains(it)
+        val isBlocked: (String) -> Boolean = {
+            friendsViewModel.blockedUsers.value.contains(it) ||
+                friendsViewModel.blockedByUsers.value.contains(it)
+        }
+
+        socketManager.initializeChatListeners { message, event ->
+            if (event == MessageEvents.GLOBAL_CHAT_MESSAGE) {
+                chatViewModel.handleChatMessage(message, isBlocked)
+            } else {
+                lobbyChatViewModel?.handleChatMessage(message, isBlocked)
             }
         }
     }

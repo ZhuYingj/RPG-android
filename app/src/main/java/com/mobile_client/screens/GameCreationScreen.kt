@@ -69,7 +69,7 @@ fun GamesCreationScreen(
                     Text("Définir un frais d'entrée pour rejoindre ce lobby")
                     OutlinedTextField(
                         value = feeInput,
-                        onValueChange = { if (it.all(Char::isDigit)) feeInput = it },
+                        onValueChange = { if (it.all(Char::isDigit) && it.length <= 5) feeInput = it },
                         label = { Text("Montant") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         singleLine = true

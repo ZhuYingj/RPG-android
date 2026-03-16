@@ -10,6 +10,22 @@ import java.util.Locale
 import java.util.TimeZone
 import com.google.gson.JsonDeserializer
 
+private val booleanAdapter = object : TypeAdapter<Boolean>() {
+    override fun write(out: JsonWriter, value: Boolean?) {
+        out.value(value)
+    }
+    override fun read(`in`: JsonReader): Boolean {
+        return when (`in`.peek()) {
+            com.google.gson.stream.JsonToken.BOOLEAN -> `in`.nextBoolean()
+            com.google.gson.stream.JsonToken.NUMBER -> `in`.nextInt() != 0
+            else -> {
+                `in`.skipValue()
+                false
+            }
+        }
+    }
+}
+
 val AppGson = GsonBuilder()
     .registerTypeAdapter(PlayerTypes::class.java, object : TypeAdapter<PlayerTypes>() {
         override fun write(out: JsonWriter, value: PlayerTypes?) {
@@ -87,4 +103,6 @@ val AppGson = GsonBuilder()
             }
         }
     })
+    .registerTypeAdapter(Boolean::class.java, booleanAdapter)
+    .registerTypeAdapter(java.lang.Boolean::class.java, booleanAdapter)
     .create()
