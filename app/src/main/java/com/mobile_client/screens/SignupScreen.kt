@@ -39,6 +39,11 @@ import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import coil.compose.rememberAsyncImagePainter
+import com.mobile_client.services.AccountService
+import com.mobile_client.utils.AccountStats
+import com.mobile_client.utils.LoginResponse
+import io.ktor.client.call.body
+
 @Composable
 fun SignUpScreen(navController: NavController) {
 
@@ -104,7 +109,8 @@ fun SignUpScreen(navController: NavController) {
                     "username" to username,
                     "email" to email,
                     "password" to password,
-                    "avatar" to avatarBase64
+                    "avatar" to avatarBase64,
+                    "stats" to AccountStats()
                 )
 
                 val response: HttpResponse =
@@ -114,7 +120,19 @@ fun SignUpScreen(navController: NavController) {
 
                     HttpStatusCode.Created,
                     HttpStatusCode.OK -> {
-                        navController.navigate(Screen.Login.route)
+                        val loginBody = mapOf(
+                            "username" to username,
+                            "password" to password
+                        )
+                        val loginResponse: HttpResponse =
+                            HttpService.instance.post("$ENVIRONMENT/api/auth/login", loginBody)
+                        if (loginResponse.status == HttpStatusCode.OK) {
+                            val loginData: LoginResponse = loginResponse.body()
+                            AccountService.instance.setAccount(loginData.account, loginData.token)
+                            navController.navigate(Screen.Home.route)
+                        } else {
+                            navController.navigate(Screen.Login.route)
+                        }
                     }
 
                     HttpStatusCode.BadRequest -> {

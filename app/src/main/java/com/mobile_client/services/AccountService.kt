@@ -117,6 +117,16 @@ class AccountService private constructor() {
             false
         }
     }
+
+    suspend fun deleteAccount(): Boolean {
+        return try {
+            val response = http.delete("$ENVIRONMENT/api/user/")
+            response.status.value in 200..299
+        } catch (e: Exception) {
+            println("deleteAccount error: ${e.message}")
+            false
+        }
+    }
     fun clear() {
         token = null
         accountInfo = null

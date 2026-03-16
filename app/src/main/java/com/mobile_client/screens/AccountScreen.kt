@@ -26,6 +26,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
@@ -34,10 +35,14 @@ import com.mobile_client.utils.Validation
 import com.mobile_client.viewModels.AccountViewModel
 import kotlinx.coroutines.launch
 import androidx.core.content.FileProvider
+import androidx.navigation.NavController
+import com.mobile_client.utils.AccountStats
+import com.mobile_client.utils.Screen
 import java.io.File
 
 @Composable
 fun AccountScreen(
+    navController: NavController,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     accountViewModel: AccountViewModel = viewModel()
 ) {
@@ -50,6 +55,8 @@ fun AccountScreen(
 
     var name by remember(account) { mutableStateOf(account?.username ?: "") }
     var email by remember(account) { mutableStateOf(account?.email ?: "") }
+    val stats = account?.stats ?: AccountStats()
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     var nameError by remember { mutableStateOf<String?>(null) }
     var emailError by remember { mutableStateOf<String?>(null) }
@@ -57,9 +64,7 @@ fun AccountScreen(
     var avatarUri by remember { mutableStateOf<Uri?>(null) }
     var avatarBase64 by remember { mutableStateOf<String?>(null) }
 
-    // Track whether a default avatar was selected (not a camera photo)
     var selectedDefaultResId by remember { mutableStateOf<Int?>(null) }
-
     var showAvatarPicker by remember { mutableStateOf(false) }
     var tempPhotoUri by remember { mutableStateOf<Uri?>(null) }
 
@@ -72,22 +77,17 @@ fun AccountScreen(
     val currentAvatarBitmap = remember(account?.avatar) {
         ImageUtils.base64ToBitmap(account?.avatar)
     }
+
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
-
         if (success && tempPhotoUri != null) {
-
             avatarUri = tempPhotoUri
             selectedDefaultResId = null
-
             val bitmap = ImageUtils.uriToBitmap(context, tempPhotoUri!!)
             bitmap?.let {
-
                 val resized = ImageUtils.resizeBitmap(it, 1024)
-                val base64 = ImageUtils.bitmapToBase64(resized, 70)
-
-                avatarBase64 = base64
+                avatarBase64 = ImageUtils.bitmapToBase64(resized, 70)
             }
         }
     }
@@ -97,17 +97,11 @@ fun AccountScreen(
     ) { granted ->
         if (granted) {
             val file = File(context.cacheDir, "avatar_${System.currentTimeMillis()}.jpg")
-            val uri = FileProvider.getUriForFile(
-                context,
-                "${context.packageName}.fileprovider",
-                file
-            )
+            val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
             tempPhotoUri = uri
             cameraLauncher.launch(uri)
         } else {
-            scope.launch {
-                snackbarHostState.showSnackbar("Permission caméra refusée")
-            }
+            scope.launch { snackbarHostState.showSnackbar("Permission caméra refusée") }
         }
     }
 
@@ -123,17 +117,17 @@ fun AccountScreen(
         selectedDefaultResId = null
     }
 
+    // Single scrollable column for everything
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+            .verticalScroll(rememberScrollState())
+            .padding(vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
         Column(
             modifier = Modifier
-                .fillMaxWidth(0.5f)
+                .fillMaxWidth(0.6f)
                 .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(20.dp)
@@ -144,10 +138,7 @@ fun AccountScreen(
                     .size(110.dp)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.surfaceVariant)
-                    .border(
-                        BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
-                        CircleShape
-                    ),
+                    .border(BorderStroke(2.dp, MaterialTheme.colorScheme.primary), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 when {
@@ -184,29 +175,18 @@ fun AccountScreen(
                 }
             }
 
-            // Avatar buttons
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Button(
-                    onClick = { permissionLauncher.launch(Manifest.permission.CAMERA) }
-                ) {
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Button(onClick = { permissionLauncher.launch(Manifest.permission.CAMERA) }) {
                     Icon(Icons.Default.CameraAlt, null)
                     Spacer(modifier = Modifier.width(6.dp))
                     Text("Photo")
                 }
-
-                OutlinedButton(
-                    onClick = { showAvatarPicker = true }
-                ) {
+                OutlinedButton(onClick = { showAvatarPicker = true }) {
                     Text("Choisir un avatar")
                 }
             }
 
-            // Save / Reset avatar buttons
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedButton(
                     onClick = {
                         avatarBase64 = null
@@ -214,9 +194,7 @@ fun AccountScreen(
                         selectedDefaultResId = null
                     },
                     enabled = hasAvatarChange
-                ) {
-                    Text("Réinitialiser avatar")
-                }
+                ) { Text("Réinitialiser avatar") }
 
                 Button(
                     onClick = {
@@ -226,12 +204,23 @@ fun AccountScreen(
                         }
                     },
                     enabled = hasAvatarChange
-                ) {
-                    Text("Enregistrer avatar")
-                }
+                ) { Text("Enregistrer avatar") }
             }
 
-            // Username
+            // --- Stats Section ---
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+            Text("Statistiques", style = MaterialTheme.typography.titleMedium)
+
+            Column(modifier = Modifier.fillMaxWidth()) {
+                StatRow("Parties classiques jouées", "${stats.classicGamesPlayed}")
+                StatRow("Parties CTF jouées", "${stats.CTFGamesPlayed}")
+                StatRow("Parties gagnées", "${stats.gamesWon}")
+                StatRow("Temps moyen de partie", String.format("%.1f s", stats.averageGameTime))
+            }
+
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
             OutlinedTextField(
                 value = name,
                 onValueChange = {
@@ -246,7 +235,6 @@ fun AccountScreen(
                 singleLine = true
             )
 
-            // Email
             OutlinedTextField(
                 value = email,
                 onValueChange = {
@@ -265,7 +253,6 @@ fun AccountScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-
                 OutlinedButton(
                     onClick = {
                         name = account?.username ?: ""
@@ -274,45 +261,60 @@ fun AccountScreen(
                         emailError = null
                     },
                     modifier = Modifier.weight(1f)
-                ) {
-                    Text("Réinitialiser")
-                }
+                ) { Text("Réinitialiser") }
 
                 Button(
-                    onClick = {
-                        accountViewModel.updateAccount(name = name, email = email)
-                    },
+                    onClick = { accountViewModel.updateAccount(name = name, email = email) },
                     enabled = nameError == null && emailError == null,
                     modifier = Modifier.weight(1f)
-                ) {
-                    Text("Enregistrer")
-                }
+                ) { Text("Enregistrer") }
+            }
+
+            // --- Delete Account ---
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+            Button(
+                onClick = { showDeleteDialog = true },
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Supprimer le compte", color = Color.White)
             }
         }
     }
 
-    // Avatar picker dialog
-    if (showAvatarPicker) {
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Confirmer la suppression") },
+            text = { Text("Êtes-vous sûr de vouloir supprimer votre compte? Cette action est irréversible.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showDeleteDialog = false
+                    accountViewModel.deleteAccount {
+                        navController.navigate(Screen.Login.route) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
+                }) { Text("Supprimer", color = Color.Red) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) { Text("Annuler") }
+            }
+        )
+    }
 
+    if (showAvatarPicker) {
         AlertDialog(
             onDismissRequest = { showAvatarPicker = false },
             confirmButton = {},
             title = { Text("Choisir un avatar") },
-
             text = {
-
                 Column {
-
                     for (row in 0..1) {
-
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-
+                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             for (col in 0..3) {
-
                                 val index = row * 4 + col
-
                                 Image(
                                     painter = rememberAsyncImagePainter(avatarResources[index]),
                                     contentDescription = "Avatar",
@@ -320,19 +322,11 @@ fun AccountScreen(
                                         .size(64.dp)
                                         .clip(CircleShape)
                                         .clickable {
-
-                                            val bitmap =
-                                                BitmapFactory.decodeResource(
-                                                    context.resources,
-                                                    avatarResources[index]
-                                                )
-
-                                            val resized =
-                                                ImageUtils.resizeBitmap(bitmap, 1024)
-
-                                            avatarBase64 =
-                                                ImageUtils.bitmapToBase64(resized)
-
+                                            val bitmap = BitmapFactory.decodeResource(
+                                                context.resources, avatarResources[index]
+                                            )
+                                            val resized = ImageUtils.resizeBitmap(bitmap, 1024)
+                                            avatarBase64 = ImageUtils.bitmapToBase64(resized)
                                             avatarUri = null
                                             selectedDefaultResId = avatarResources[index]
                                             showAvatarPicker = false
@@ -341,11 +335,23 @@ fun AccountScreen(
                                 )
                             }
                         }
-
                         Spacer(modifier = Modifier.height(12.dp))
                     }
                 }
             }
         )
+    }
+}
+
+@Composable
+fun StatRow(label: String, value: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(label, style = MaterialTheme.typography.bodyMedium)
+        Text(value, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
     }
 }
