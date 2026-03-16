@@ -80,12 +80,16 @@ fun GamesCreationScreen(
                 Button(
                     enabled = feeInput != "",
                     onClick = {
+                        val fee = feeInput.toIntOrNull() ?: 0
                         showFeeDialog = false
                         gameLobbyViewModel.createLobby(
                             map = pendingMap!!,
-                            fee = feeInput.toIntOrNull() ?: 0,
+                            fee = fee,
                             onSuccess = { navController.navigate(Screen.CharacterCreation.route) },
-                            onError = { message -> gameLobbyViewModel.showMessage(message) }
+                            onError = { message ->
+                                gameLobbyViewModel.showMessage(message)
+                                pendingMap = null
+                            }
                         )
                         pendingMap = null
                     }) { Text("Confirmer") }

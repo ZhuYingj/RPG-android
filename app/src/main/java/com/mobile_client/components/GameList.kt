@@ -1,5 +1,6 @@
 package com.mobile_client.components
 
+import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -9,7 +10,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -39,11 +39,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.rememberAsyncImagePainter
 import com.mobile_client.screens.ui.theme.MobileclientTheme
 import com.mobile_client.utils.GameMap
 import com.mobile_client.utils.ImageResources
@@ -51,7 +52,18 @@ import com.mobile_client.utils.SocketCommunicationConst
 import com.mobile_client.utils.Tile
 import com.mobile_client.utils.TileConstants
 import com.mobile_client.viewModels.BaseGameListViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import androidx.compose.runtime.produceState
 
+private val bitmapCache = mutableMapOf<Int, android.graphics.Bitmap>()
+
+fun getCachedBitmap(context: android.content.Context, resId: Int, size: Int): android.graphics.Bitmap {
+    return bitmapCache.getOrPut(resId) {
+        val bmp = BitmapFactory.decodeResource(context.resources, resId)
+        android.graphics.Bitmap.createScaledBitmap(bmp, size, size, false)
+    }
+}
 @Composable
 fun GameList(
     viewModel: BaseGameListViewModel,
@@ -235,11 +247,16 @@ fun LobbyInfo(lobby: SocketCommunicationConst.SendableLobbies) {
             textColor = Color(0xFF6A1B9A)
         )
 
-        if (lobby.fee > 0) {
+        LobbyBadge(
+            label = "💰 ${lobby.fee}",
+            backgroundColor = Color(0xFFFFFDE7),
+            textColor = Color(0xFFF57F17)
+        )
+        if (lobby.hasBlockedUser) {
             LobbyBadge(
-                label = "💰 ${lobby.fee}",
-                backgroundColor = Color(0xFFFFFDE7),
-                textColor = Color(0xFFF57F17)
+                label = "⚠️ Utilisateur bloqué présent",
+                backgroundColor = Color(0xFFFFEBEE),
+                textColor = Color(0xFFC62828)
             )
         }
     }
@@ -318,37 +335,44 @@ fun MapTilesDisplay(
     tiles: List<List<Tile>>,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier) {
-        tiles.forEach { row ->
-            Row(modifier = Modifier.weight(1f)) {
-                row.forEach { tile ->
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        ImageResources.tileTypeToImage[tile.type]?.let { resId ->
-                            Image(
-                                painter = painterResource(id = resId),
-                                contentDescription = "Tile",
-                                modifier = Modifier.fillMaxSize(),
-                                contentScale = ContentScale.Crop
-                            )
-                        }
-                        if (tile.item != TileConstants.Items.None) {
-                            ImageResources.itemToImage[tile.item]?.let { resId ->
-                                Image(
-                                    painter = painterResource(id = resId),
-                                    contentDescription = "Item",
-                                    modifier = Modifier.size(18.dp),
-                                    contentScale = ContentScale.Fit
-                                )
-                            }
+    val context = LocalContext.current
+
+    val bitmap by produceState<android.graphics.Bitmap?>(initialValue = null, tiles) {
+        value = withContext(Dispatchers.IO) {
+            val tileSize = 20
+            val width = (tiles.firstOrNull()?.size ?: 1) * tileSize
+            val height = tiles.size * tileSize
+            val bmp = android.graphics.Bitmap.createBitmap(width, height, android.graphics.Bitmap.Config.ARGB_8888)
+            val canvas = android.graphics.Canvas(bmp)
+
+            tiles.forEachIndexed { rowIdx, row ->
+                row.forEachIndexed { colIdx, tile ->
+                    ImageResources.tileTypeToImage[tile.type]?.let { resId ->
+                        val tileBmp = getCachedBitmap(context, resId, tileSize)  // already scaled
+                        canvas.drawBitmap(tileBmp, (colIdx * tileSize).toFloat(), (rowIdx * tileSize).toFloat(), null)
+                    }
+                    if (tile.item != TileConstants.Items.None) {
+                        ImageResources.itemToImage[tile.item]?.let { resId ->
+                            val itemBmp = getCachedBitmap(context, resId, tileSize)  // already scaled
+                            canvas.drawBitmap(itemBmp, (colIdx * tileSize).toFloat(), (rowIdx * tileSize).toFloat(), null)
                         }
                     }
                 }
             }
+            bmp
+        }
+    }
+
+    if (bitmap != null) {
+        Image(
+            painter = rememberAsyncImagePainter(bitmap),
+            contentDescription = "Map",
+            modifier = modifier,
+            contentScale = ContentScale.Fit
+        )
+    } else {
+        Box(modifier = modifier, contentAlignment = Alignment.Center) {
+            CircularProgressIndicator(modifier = Modifier.size(24.dp))
         }
     }
 }

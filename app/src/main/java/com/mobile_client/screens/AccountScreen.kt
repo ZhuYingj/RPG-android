@@ -69,7 +69,9 @@ fun AccountScreen(
     )
 
     val hasAvatarChange = avatarBase64 != null
-
+    val currentAvatarBitmap = remember(account?.avatar) {
+        ImageUtils.base64ToBitmap(account?.avatar)
+    }
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
@@ -116,6 +118,11 @@ fun AccountScreen(
         }
     }
 
+    LaunchedEffect(account?.avatar) {
+        avatarUri = null
+        selectedDefaultResId = null
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -143,40 +150,37 @@ fun AccountScreen(
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                if (selectedDefaultResId != null) {
-                    // Showing a newly selected default avatar (not yet saved)
-                    Image(
-                        painter = rememberAsyncImagePainter(selectedDefaultResId),
-                        contentDescription = "Avatar",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
-                } else if (avatarUri != null) {
-                    // Showing a newly taken camera photo (not yet saved)
-                    Image(
-                        painter = rememberAsyncImagePainter(avatarUri),
-                        contentDescription = "Avatar",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
-                } else if (account?.avatar != null) {
-                    // Showing the saved avatar from the server
-                    val bitmap = remember(account?.avatar) {
-                        ImageUtils.base64ToBitmap(account?.avatar)
-                    }
-                    bitmap?.let {
+                when {
+                    selectedDefaultResId != null -> {
                         Image(
-                            painter = rememberAsyncImagePainter(it),
+                            painter = rememberAsyncImagePainter(selectedDefaultResId),
                             contentDescription = "Avatar",
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop
                         )
                     }
-                } else {
-                    Text(
-                        text = account?.username?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
-                        style = MaterialTheme.typography.headlineLarge
-                    )
+                    avatarUri != null -> {
+                        Image(
+                            painter = rememberAsyncImagePainter(avatarUri),
+                            contentDescription = "Avatar",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                    currentAvatarBitmap != null -> {
+                        Image(
+                            painter = rememberAsyncImagePainter(currentAvatarBitmap),
+                            contentDescription = "Avatar",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                    else -> {
+                        Text(
+                            text = account?.username?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
+                            style = MaterialTheme.typography.headlineLarge
+                        )
+                    }
                 }
             }
 
@@ -219,8 +223,6 @@ fun AccountScreen(
                         avatarBase64?.let {
                             accountViewModel.updateAccountAvatar(it)
                             avatarBase64 = null
-                            avatarUri = null
-                            selectedDefaultResId = null
                         }
                     },
                     enabled = hasAvatarChange

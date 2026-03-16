@@ -22,3 +22,4 @@ gradle/libs.versions.toml
 gradle/wrapper/gradle-wrapper.properties
 settings.gradle.kts
 gradle/gradle-daemon-jvm.properties
+idea/gradle.xml

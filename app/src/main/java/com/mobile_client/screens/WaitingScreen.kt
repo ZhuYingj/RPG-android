@@ -272,19 +272,39 @@ fun PlayerCard(player: Player, isHost: Boolean, gameLobbyViewModel: GameLobbyVie
                 if (player.playerType == PlayerTypes.Host) {
                     Text("Hôte", fontSize = 12.sp, color = Color.Gray)
                 } else if (player.isBot()) {
-                    Text("Robot", fontSize = 12.sp, color = Color.Gray)
+                    Text(
+                        if (player.playerType == PlayerTypes.BotAggressive) "Robot (Agressif)" else "Robot (Passif)",
+                        fontSize = 12.sp,
+                        color = Color.Gray
+                    )
                 }
             }
         }
 
         // Kick button (host can kick non-host players)
         if (isHost && player.playerType != PlayerTypes.Host) {
-            Button(
-                onClick = { gameLobbyViewModel.kickPlayer(player) },
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
-                shape = RoundedCornerShape(6.dp)
-            ) {
-                Text("Expulser", color = Color.White, fontSize = 12.sp)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (player.isBot()) {
+                    Button(
+                        onClick = { gameLobbyViewModel.toggleBotType(player) },
+                        colors = ButtonDefaults.buttonColors(containerColor = BotBlue),
+                        shape = RoundedCornerShape(6.dp)
+                    ) {
+                        Text(
+                            if (player.playerType == PlayerTypes.BotAggressive) "Passif" else "Agressif",
+                            color = Color.White,
+                            fontSize = 12.sp
+                        )
+                    }
+                }
+
+                Button(
+                    onClick = { gameLobbyViewModel.kickPlayer(player) },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
+                    shape = RoundedCornerShape(6.dp)
+                ) {
+                    Text("Expulser", color = Color.White, fontSize = 12.sp)
+                }
             }
         }
     }

@@ -37,9 +37,12 @@ class AccountService private constructor() {
         return try {
             val response = http.get("$ENVIRONMENT/api/user/")
             val account = AppGson.fromJson(response, Account::class.java)
+            println("fetchAccount: money=${account.money}, username=${account.username}")
             accountInfo = account
+            money.value = account.money
             true
         } catch (e: Exception) {
+            println("fetchAccount error: ${e.message}")
             false
         }
     }

@@ -50,6 +50,7 @@ import androidx.compose.ui.zIndex
 import com.mobile_client.utils.FriendsTab
 import com.mobile_client.viewModels.FriendsViewModel
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.CloseFullscreen
 
 @Composable
@@ -68,6 +69,8 @@ fun FriendsPanel(
     val allUsers by friendsViewModel.allUsers.collectAsState()
     val sentRequestUsernames by friendsViewModel.sentRequestUsernames.collectAsState()
     val receivedRequestIds by friendsViewModel.receivedRequestIds.collectAsState()
+    val blockedUsers by friendsViewModel.blockedUsers.collectAsState()
+    val pendingBlock by friendsViewModel.pendingBlock.collectAsState()
 
     LaunchedEffect(Unit) {
         friendsViewModel.initializeSocketListeners()
@@ -190,26 +193,14 @@ fun FriendsPanel(
                                     actions = {
                                         if (receivedRequestId != null) {
                                             IconButton(onClick = { friendsViewModel.acceptFriendRequest(receivedRequestId) }) {
-                                                Icon(
-                                                    Icons.Default.Check,
-                                                    contentDescription = "Accepter",
-                                                    tint = Color(0xFF4CAF50)
-                                                )
+                                                Icon(Icons.Default.Check, contentDescription = "Accepter", tint = Color(0xFF4CAF50))
                                             }
                                             IconButton(onClick = { friendsViewModel.denyFriendRequest(receivedRequestId) }) {
-                                                Icon(
-                                                    Icons.Default.Close,
-                                                    contentDescription = "Refuser",
-                                                    tint = Color(0xFFF44336)
-                                                )
+                                                Icon(Icons.Default.Close, contentDescription = "Refuser", tint = Color(0xFFF44336))
                                             }
                                         } else {
                                             IconButton(
-                                                onClick = {
-                                                    if (!alreadySent) {
-                                                        friendsViewModel.sendFriendRequest(user.username)
-                                                    }
-                                                },
+                                                onClick = { if (!alreadySent) friendsViewModel.sendFriendRequest(user.username) },
                                                 enabled = !alreadySent
                                             ) {
                                                 Icon(
@@ -218,6 +209,18 @@ fun FriendsPanel(
                                                     tint = if (alreadySent) Color.Gray else Color(0xFF4CAF50)
                                                 )
                                             }
+                                        }
+                                        val isBlocked = blockedUsers.contains(user.username)
+                                        val isPending = pendingBlock.contains(user.username)
+                                        IconButton(
+                                            onClick = { if (!isBlocked && !isPending) friendsViewModel.blockUser(user.username) },
+                                            enabled = !isBlocked && !isPending
+                                        ) {
+                                            Icon(
+                                                if (isBlocked || isPending) Icons.Default.Check else Icons.Default.Block,
+                                                contentDescription = "Bloquer",
+                                                tint = if (isBlocked || isPending) Color.Gray else Color(0xFFFF9800)
+                                            )
                                         }
                                     }
                                 )
@@ -244,10 +247,7 @@ fun FriendsPanel(
                                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                         Text(
                                             text = tab.label,
-                                            style = if (activeTab == tab)
-                                                MaterialTheme.typography.labelLarge
-                                            else
-                                                MaterialTheme.typography.labelMedium,
+                                            style = MaterialTheme.typography.labelMedium,
                                             color = if (activeTab == tab) Color.Black else Color.Gray
                                         )
                                         if (activeTab == tab) {
@@ -290,6 +290,13 @@ fun FriendsPanel(
                                         FriendItem(
                                             username = friend.username,
                                             actions = {
+                                                IconButton(onClick = { friendsViewModel.blockUser(friend.username) }) {
+                                                    Icon(
+                                                        Icons.Default.Block,
+                                                        contentDescription = "Bloquer",
+                                                        tint = Color(0xFFFF9800)
+                                                    )
+                                                }
                                                 IconButton(onClick = { friendsViewModel.removeFriend(friend.username) }) {
                                                     Icon(
                                                         Icons.Default.Close,
@@ -357,6 +364,32 @@ fun FriendsPanel(
                                                     Icon(
                                                         Icons.Default.Close,
                                                         contentDescription = "Annuler",
+                                                        tint = Color(0xFFF44336)
+                                                    )
+                                                }
+                                            }
+                                        )
+                                    }
+                                }
+                                FriendsTab.BLOCKED -> {
+                                    if (blockedUsers.isEmpty()) {
+                                        item {
+                                            Text(
+                                                "Aucun utilisateur bloqué",
+                                                modifier = Modifier.fillMaxWidth().padding(20.dp),
+                                                textAlign = TextAlign.Center,
+                                                color = Color.Gray
+                                            )
+                                        }
+                                    }
+                                    items(blockedUsers, key = { it }) { username ->
+                                        FriendItem(
+                                            username = username,
+                                            actions = {
+                                                IconButton(onClick = { friendsViewModel.blockUser(username) }) {
+                                                    Icon(
+                                                        Icons.Default.Block,
+                                                        contentDescription = "Débloquer",
                                                         tint = Color(0xFFF44336)
                                                     )
                                                 }

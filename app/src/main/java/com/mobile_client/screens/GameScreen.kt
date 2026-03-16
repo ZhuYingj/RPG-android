@@ -81,6 +81,7 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
     val isInCombat = controller.fightService.isFight.value
     val gameWinner = controller.gameWinner.value
     val lastPlayer = controller.lastPlayer.value
+    val serverMessage = controller.serverMessage.value
     var shakeCount by remember { mutableIntStateOf(0) }
 
 
@@ -141,12 +142,22 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
         }
     }
 
+    LaunchedEffect(serverMessage) {
+        if (!serverMessage.isNullOrEmpty()) {
+            snackbarHostState.showSnackbar(
+                serverMessage,
+                duration = SnackbarDuration.Short
+            )
+            controller.serverMessage.value = ""
+        }
+    }
+
     // Navigate to end game when winner is set
     LaunchedEffect(gameWinner) {
         if (gameWinner.isNotEmpty()) {
             scope.launch {
                 snackbarHostState.showSnackbar(
-                    "Partie terminée - Gagnant: $gameWinner",
+                    "Partie terminée et gagnant : $gameWinner",
                     duration = SnackbarDuration.Long
                 )
             }
@@ -201,7 +212,6 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
                     }
                 }
             )
-            Spacer(modifier = Modifier.height(8.dp))
 
             // Player stats
             Text("Mon joueur", fontWeight = FontWeight.Bold, fontSize = 14.sp)
@@ -220,7 +230,7 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
             Text("Actions: ${if (player.hasAction) 1 else 0}", fontSize = 11.sp)
             Text("Mouvements: ${player.movement}", fontSize = 11.sp)
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             // Inventory
             Text("Inventaire", fontWeight = FontWeight.Bold, fontSize = 14.sp)
@@ -286,6 +296,7 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
                                 }
                             } else {
                                 // Non-accessible tile: clear path
+                                controller.serverMessage.value = "Veuillez choisir une autre tuile, vous avez choisi une tuile invalide"
                                 path = emptyList()
                                 selectedTile = null
                             }

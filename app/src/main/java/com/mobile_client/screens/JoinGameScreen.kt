@@ -35,16 +35,21 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun JoinGameScreen(navController: NavController, snackbarHostState: SnackbarHostState, currentGameListViewModel: CurrentGamesViewModel, gameLobbyViewModel: GameLobbyViewModel) {
+fun JoinGameScreen(
+    navController: NavController,
+    snackbarHostState: SnackbarHostState,
+    currentGameListViewModel: CurrentGamesViewModel,
+    gameLobbyViewModel: GameLobbyViewModel
+) {
     var showCodeDialog by remember { mutableStateOf(false) }
     var lobbyCode by remember { mutableStateOf("") }
     val scope: CoroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         currentGameListViewModel.lobbySelected.collect { lobbyCode ->
-            gameLobbyViewModel.joinLobby(
+            gameLobbyViewModel.joinLobbyWithBlockCheck(
                 lobbyCode,
-                {navController.navigate(Screen.CharacterCreation.route)},
+                { navController.navigate(Screen.CharacterCreation.route) },
                 { message -> scope.launch { snackbarHostState.showSnackbar(message, duration = SnackbarDuration.Short) } }
             )
         }
@@ -93,9 +98,7 @@ fun JoinGameScreen(navController: NavController, snackbarHostState: SnackbarHost
 
     if (showCodeDialog) {
         AlertDialog(
-            onDismissRequest = {
-                showCodeDialog = false
-            },
+            onDismissRequest = { showCodeDialog = false },
             title = { Text("Entrer un code de lobby") },
             text = {
                 OutlinedTextField(
@@ -114,9 +117,9 @@ fun JoinGameScreen(navController: NavController, snackbarHostState: SnackbarHost
                 Button(
                     onClick = {
                         showCodeDialog = false
-                        gameLobbyViewModel.joinLobby(
+                        gameLobbyViewModel.joinLobbyWithBlockCheck(
                             lobbyCode,
-                            {navController.navigate(Screen.CharacterCreation.route)},
+                            { navController.navigate(Screen.CharacterCreation.route) },
                             { message -> scope.launch { snackbarHostState.showSnackbar(message, duration = SnackbarDuration.Short) } }
                         )
                     },
@@ -136,3 +139,4 @@ fun JoinGameScreen(navController: NavController, snackbarHostState: SnackbarHost
         )
     }
 }
+

@@ -7,6 +7,7 @@ import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -35,8 +36,12 @@ import com.mobile_client.viewModels.CurrentGamesViewModel
 import com.mobile_client.viewModels.FriendsViewModel
 import com.mobile_client.viewModels.GameListViewModel
 import com.mobile_client.viewModels.GameLobbyViewModel
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 
 class MainActivity : ComponentActivity() {
+    @OptIn(ExperimentalLayoutApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -50,6 +55,7 @@ class MainActivity : ComponentActivity() {
                 val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
                 val showChat = currentRoute != null && currentRoute !in listOf(Screen.Login.route, Screen.SignUp.route)
                 val gameLobbyViewModel: GameLobbyViewModel = viewModel()
+                val friendsViewModel: FriendsViewModel = viewModel()
                 val showLobbyTab = currentRoute in listOf(Screen.WaitingPage.route, Screen.Game.route, Screen.EndGame.route)
                 val hideBackButton = currentRoute in listOf(
                     Screen.Login.route,
@@ -57,8 +63,8 @@ class MainActivity : ComponentActivity() {
                     Screen.Home.route,
                     Screen.Game.route
                 )
-                Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = { SnackbarHost(snackbarHostState) }) { innerPadding ->
-                    Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
+                Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = { SnackbarHost(snackbarHostState) }, contentWindowInsets = WindowInsets(0)) { innerPadding ->
+                    Box(modifier = Modifier.fillMaxSize().padding(innerPadding).navigationBarsPadding().statusBarsPadding()) {
                         NavHost(
                             navController = navController,
                             startDestination = Screen.Login.route,
@@ -135,7 +141,6 @@ class MainActivity : ComponentActivity() {
 
                         val globalChatViewModel: ChatViewModel = viewModel()
                         val lobbyChatViewModel: ChatViewModel = viewModel(key = "lobbyChat")
-                        val friendsViewModel: FriendsViewModel = viewModel()
 
                         LaunchedEffect(currentRoute) {
                             if (currentRoute == Screen.Login.route || currentRoute == Screen.SignUp.route) {
@@ -145,6 +150,8 @@ class MainActivity : ComponentActivity() {
                         }
                         if (showChat) {
                             val lobbyCode = gameLobbyViewModel.lobbyCode.value
+
+
                             DisposableEffect(Unit) {
                                 globalChatViewModel.enableListeners()
                                 onDispose {
@@ -157,12 +164,19 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                             ChatBox(
-                                modifier = Modifier.align(Alignment.BottomEnd)
-                                    .padding(16.dp)
+                                modifier = Modifier
+                                    .align(Alignment.BottomEnd)
+                                    .padding(
+                                        start = 16.dp,
+                                        end = 16.dp,
+                                        top = 16.dp,
+                                        bottom = 0.dp
+                                    )
                                     .zIndex(1f),
                                 chatViewModel = globalChatViewModel,
                                 lobbyChatViewModel = if (showLobbyTab) lobbyChatViewModel else null,
-                                lobbyCode = lobbyCode
+                                lobbyCode = lobbyCode,
+                                friendsViewModel = friendsViewModel
                             )
                             FriendsPanel(
                                 modifier = Modifier.align(Alignment.BottomStart).padding(16.dp),

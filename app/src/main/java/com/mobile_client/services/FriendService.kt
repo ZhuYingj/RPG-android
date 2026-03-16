@@ -42,4 +42,12 @@ class FriendService private constructor() {
     suspend fun undoFriendRequest(id: String): HttpResponse {
         return http.delete("${baseURL}sentRequest/", mapOf("id" to id))
     }
+
+    suspend fun blockUser(username: String): HttpResponse {
+        return http.post("${baseURL}block", mapOf("username" to username))
+    }
+
+    suspend fun getBlockedUsers(): String {
+        return http.get("${baseURL}block")
+    }
 }
