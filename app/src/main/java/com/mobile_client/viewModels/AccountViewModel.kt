@@ -53,6 +53,22 @@ class AccountViewModel : ViewModel() {
         }
     }
 
+    fun deleteAccount(onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            try {
+                val deleted = accountService.deleteAccount()
+                if (deleted) {
+                    accountService.logout()
+                    onSuccess()
+                } else {
+                    _message.value = "Échec de la suppression du compte"
+                }
+            } catch (e: Exception) {
+                _message.value = "${e.message}"
+            }
+        }
+    }
+
     fun clearMessage() {
         _message.value = null
     }

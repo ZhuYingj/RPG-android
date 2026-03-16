@@ -102,6 +102,7 @@ class MainActivity : ComponentActivity() {
                             }
                             composable(Screen.Account.route) {
                                 AccountScreen(
+                                    navController = navController,
                                     snackbarHostState = snackbarHostState,
                                 )
                             }
