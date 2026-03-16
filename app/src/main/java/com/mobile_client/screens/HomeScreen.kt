@@ -1,6 +1,7 @@
 package com.mobile_client.screens
 
 import androidx.activity.compose.BackHandler
+import kotlinx.coroutines.delay
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -63,7 +64,8 @@ fun HomeScreen(navController: NavController) {
         },
     )
 
-    LaunchedEffect(navController.currentBackStackEntry) {
+    LaunchedEffect(Unit) {
+        delay(1000)
         AccountService.instance.fetchAccount()
     }
 

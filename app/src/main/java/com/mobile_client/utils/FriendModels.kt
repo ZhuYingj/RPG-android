@@ -14,5 +14,6 @@ data class SearchableUser(
 enum class FriendsTab(val label: String) {
     FRIENDS("Amis"),
     REQUESTS("Requêtes"),
-    SENT("Envoyé")
+    SENT("Envoyé"),
+    BLOCKED("Bloqués")
 }

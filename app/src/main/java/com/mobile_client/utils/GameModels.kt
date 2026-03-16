@@ -2,7 +2,7 @@ package com.mobile_client.utils
 
 data class ActionReturnObject(
     val isValid: Boolean,
-    val message: String,
+    val message: String? = null,
     val actionRemaining: Int? = null
 )
 

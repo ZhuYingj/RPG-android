@@ -41,6 +41,9 @@ class GameControllerService private constructor() {
     var gameStats = mutableStateOf(GameStats())
     var gameWinner = mutableStateOf("")
     var lastPlayer = mutableStateOf(false)
+    var serverMessage = mutableStateOf("")
+
+
 
     fun configureListeners() {
         socketManager.initializeGameListeners(this)

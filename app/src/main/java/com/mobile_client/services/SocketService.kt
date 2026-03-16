@@ -2,6 +2,7 @@ package com.mobile_client.services
 
 import com.google.gson.reflect.TypeToken
 import com.mobile_client.environment.ENVIRONMENT
+import com.mobile_client.utils.ActionReturnObject
 import com.mobile_client.utils.AppGson
 import com.mobile_client.utils.AttackResultObject
 import com.mobile_client.utils.ChatMessage
@@ -192,6 +193,27 @@ class SocketService private constructor() {
             if (args.isNotEmpty()) {
                 val player: Player = gson.fromJson((args[0] as JSONObject).toString(), Player::class.java)
                 handleMove(controller, player)
+            }
+        }
+
+        socket.on(GameEvents.IS_MOVE_VALID) { args ->
+            if (args.isNotEmpty()) {
+                val isValid = args[0] as Boolean
+                if (!isValid)
+                    controller.serverMessage.value = "Veuillez choisir une autre tuile, vous avez choisi une tuile invalide"
+            }
+        }
+
+        socket.on(GameEvents.ACTION) { args ->
+            //TODO: has actionremaining, and message, pourrait faire un snackbar pour le message
+            if (args.isNotEmpty()) {
+                val res = gson.fromJson(args[0].toString(), ActionReturnObject::class.java)
+                if (res.isValid) {
+                    controller.isAction.value = false
+                }
+                if (!res.message.isNullOrEmpty()) {
+                    controller.serverMessage.value = res.message
+                }
             }
         }
 
@@ -472,6 +494,8 @@ class SocketService private constructor() {
         socket?.off(GameEvents.LAST_PLAYER)
         socket?.off(GameEvents.TOGGLE_DOOR)
         socket?.off(GameEvents.MOVE)
+        socket?.off(GameEvents.IS_MOVE_VALID)
+        socket?.off(GameEvents.ACTION)
         socket?.off(GameEvents.DEBUG)
         socket?.off(GameEvents.NEXT_TURN)
         socket?.off(GameEvents.START_PLAYER_TURN)

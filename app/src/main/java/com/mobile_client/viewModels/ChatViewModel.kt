@@ -40,10 +40,6 @@ class ChatViewModel : ViewModel() {
         }
     }
 
-    fun handleChatMessage(message: ChatMessage) {
-        _messages.value += message
-    }
-
     fun clearList() {
         _messages.value = emptyList()
     }
@@ -51,4 +47,8 @@ class ChatViewModel : ViewModel() {
         viewModelScope.launch { SocketService.instance.sendMessage(messageContent,lobby) }
     }
 
+    fun handleChatMessage(message: ChatMessage, isBlocked: (String) -> Boolean = { false }) {
+        if (isBlocked(message.username)) return
+        _messages.value += message
+    }
 }

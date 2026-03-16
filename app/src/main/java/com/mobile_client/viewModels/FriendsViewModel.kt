@@ -36,6 +36,14 @@ class FriendsViewModel : ViewModel() {
     private val _receivedRequestIds = MutableStateFlow<Map<String, String>>(emptyMap())
     val receivedRequestIds: StateFlow<Map<String, String>> = _receivedRequestIds.asStateFlow()
 
+    private val _blockedUsers = MutableStateFlow<List<String>>(emptyList())
+    val blockedUsers: StateFlow<List<String>> = _blockedUsers.asStateFlow()
+
+    private val _blockedByUsers = MutableStateFlow<List<String>>(emptyList())
+    val blockedByUsers: StateFlow<List<String>> = _blockedByUsers.asStateFlow()
+
+    private val _pendingBlock = MutableStateFlow<Set<String>>(emptySet())
+    val pendingBlock: StateFlow<Set<String>> = _pendingBlock.asStateFlow()
     private var currentFilter = ""
 
     fun initializeSocketListeners() {
@@ -44,6 +52,7 @@ class FriendsViewModel : ViewModel() {
         socket.off(FriendEvents.NEW_FRIEND)
         socket.off(FriendEvents.NEW_REQUEST)
         socket.off(FriendEvents.NEW_SENT_REQUEST)
+        socket.off(FriendEvents.NEW_BLOCK)
 
         socket.on(FriendEvents.NEW_FRIEND) {
             loadFriends()
@@ -58,6 +67,12 @@ class FriendsViewModel : ViewModel() {
             loadSentFriendRequests()
             loadSentRequestUsernames()
         }
+
+        socket.on(FriendEvents.NEW_BLOCK) {
+            loadBlockedUsers()
+            loadFriends()
+            loadAllUsers()
+        }
     }
 
     fun loadAllUsers(filter: String = currentFilter) {
@@ -66,7 +81,8 @@ class FriendsViewModel : ViewModel() {
             try {
                 val json = friendsApi.getUsers(filter)
                 val type = object : TypeToken<List<SearchableUser>>() {}.type
-                _allUsers.value = gson.fromJson(json, type)
+                val users: List<SearchableUser> = gson.fromJson(json, type)
+                _allUsers.value = users.filter { !_blockedUsers.value.contains(it.username) }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -78,6 +94,7 @@ class FriendsViewModel : ViewModel() {
         socket.off(FriendEvents.NEW_FRIEND)
         socket.off(FriendEvents.NEW_REQUEST)
         socket.off(FriendEvents.NEW_SENT_REQUEST)
+        socket.off(FriendEvents.NEW_BLOCK)
     }
 
     fun loadFriends() {
@@ -201,10 +218,41 @@ class FriendsViewModel : ViewModel() {
         }
     }
 
+    fun loadBlockedUsers() {
+        viewModelScope.launch {
+            try {
+                val json = friendsApi.getBlockedUsers()
+                val type = object : TypeToken<Map<String, List<String>>>() {}.type
+                val data: Map<String, List<String>> = gson.fromJson(json, type)
+                _blockedUsers.value = data["blocked"] ?: emptyList()
+                _blockedByUsers.value = data["blockedBy"] ?: emptyList()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun blockUser(username: String) {
+        viewModelScope.launch {
+            try {
+                _pendingBlock.value = _pendingBlock.value + username
+                friendsApi.blockUser(username)
+                loadFriends()
+                loadBlockedUsers()
+                loadAllUsers()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                _pendingBlock.value = _pendingBlock.value - username
+            }
+        }
+    }
+
     fun loadAll() {
         loadFriends()
         loadFriendRequests()
         loadSentFriendRequests()
         loadReceivedRequestUsernames()
+        loadBlockedUsers()
     }
 }

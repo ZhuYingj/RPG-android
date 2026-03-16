@@ -6,8 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -23,6 +21,9 @@ import com.mobile_client.utils.Player
 import com.mobile_client.utils.Position
 import com.mobile_client.utils.TileConstants
 import kotlin.collections.get
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.runtime.remember
 
 @Composable
 fun GameBoard(
@@ -38,29 +39,27 @@ fun GameBoard(
     if (rows == 0) return
     val cols = tiles[0].size
 
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(cols),
-        modifier = Modifier.aspectRatio(1f),
-        userScrollEnabled = false
-    ) {
-        items(rows * cols) { index ->
-            val x = index / cols
-            val y = index % cols
-            val tile = tiles[x][y]
-            val pos = Position(x, y)
-            val isAccessible = accessibleTiles.any { it.x == x && it.y == y }
-            val isPath = path.any { it.x == x && it.y == y }
-            val playerAtTile = players.find { it.position.x == x && it.position.y == y }
-            val isSpawn = player.spawnPoint.x == x && player.spawnPoint.y == y
+    Column(modifier = Modifier.aspectRatio(1f)) {
+        for (x in 0 until rows) {
+            Row(modifier = Modifier.weight(1f)) {
+                for (y in 0 until cols) {
+                    val tile = tiles[x][y]
+                    val isAccessible = remember(accessibleTiles) { accessibleTiles.any { it.x == x && it.y == y } }
+                    val isPath = remember(path) { path.any { it.x == x && it.y == y } }
+                    val playerAtTile = remember(players) { players.find { it.position.x == x && it.position.y == y } }
 
-            TileCell(
-                tile = tile,
-                playerAtTile = playerAtTile,
-                isAccessible = isAccessible,
-                isPath = isPath,
-                isDebug = isDebug,
-                onClick = { onTileClick(pos) }
-            )
+                    Box(modifier = Modifier.weight(1f)) {
+                        TileCell(
+                            tile = tile,
+                            playerAtTile = playerAtTile,
+                            isAccessible = isAccessible,
+                            isPath = isPath,
+                            isDebug = isDebug,
+                            onClick = { onTileClick(Position(x, y)) }
+                        )
+                    }
+                }
+            }
         }
     }
 }
