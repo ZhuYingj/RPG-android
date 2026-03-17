@@ -40,7 +40,6 @@ import kotlinx.coroutines.launch
 import org.json.JSONObject
 import coil.compose.rememberAsyncImagePainter
 import com.mobile_client.services.AccountService
-import com.mobile_client.utils.AccountStats
 import com.mobile_client.utils.LoginResponse
 import io.ktor.client.call.body
 
@@ -109,8 +108,7 @@ fun SignUpScreen(navController: NavController) {
                     "username" to username,
                     "email" to email,
                     "password" to password,
-                    "avatar" to avatarBase64,
-                    "stats" to AccountStats()
+                    "avatar" to avatarBase64
                 )
 
                 val response: HttpResponse =
