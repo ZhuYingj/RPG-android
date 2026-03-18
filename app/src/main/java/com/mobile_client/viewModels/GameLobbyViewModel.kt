@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.mobile_client.services.GameLobbyService
 import com.mobile_client.services.SocketService
 import com.mobile_client.utils.GameMap
+import com.mobile_client.utils.LobbyEvents
 import com.mobile_client.utils.Player
 import com.mobile_client.utils.PlayerAvatars
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -29,6 +30,9 @@ class GameLobbyViewModel : ViewModel() {
     private val _errorMessage = MutableSharedFlow<String>()
     val errorMessage = _errorMessage.asSharedFlow()
 
+    var qrCodeDataUrl = mutableStateOf<String?>(null)
+    var showQrCode = mutableStateOf(false)
+
     init {
         availableAvatars.addAll(PlayerAvatars.entries.filter { it != PlayerAvatars.None })
     }
@@ -45,6 +49,8 @@ class GameLobbyViewModel : ViewModel() {
         isHost.value = false
         gameMap.value = null
         entryFee.value = 0
+        qrCodeDataUrl.value = null
+        showQrCode.value = false
         GameLobbyService.instance.closeLobbyListeners()
     }
 
@@ -69,8 +75,9 @@ class GameLobbyViewModel : ViewModel() {
         GameLobbyService.instance.createLobby(
             map = map,
             fee = fee,
-            onSuccess = { code ->
+            onSuccess = { code, qr ->
                 lobbyCode.value = code
+                qrCodeDataUrl.value = qr
                 onSuccess()
             },
             onError = onError
@@ -85,9 +92,10 @@ class GameLobbyViewModel : ViewModel() {
         SocketService.instance.initializeLobbyListeners(this)
         GameLobbyService.instance.joinLobby(
             code = code,
-            onSuccess = { fee ->
+            onSuccess = { fee, qr ->
                 lobbyCode.value = code
                 entryFee.value = fee
+                qrCodeDataUrl.value = qr
                 onSuccess()
             },
             onError = { message ->
@@ -96,7 +104,6 @@ class GameLobbyViewModel : ViewModel() {
             }
         )
     }
-
     fun selectAvatar(previousAvatar: PlayerAvatars, avatar: PlayerAvatars) {
         GameLobbyService.instance.selectAvatar(previousAvatar, avatar)
     }
@@ -145,4 +152,7 @@ class GameLobbyViewModel : ViewModel() {
         viewModelScope.launch { _errorMessage.emit(message) }
     }
 
+    fun toggleQrCode() {
+        SocketService.instance.socket?.emit(LobbyEvents.TOGGLE_QR_CODE)
+    }
 }
