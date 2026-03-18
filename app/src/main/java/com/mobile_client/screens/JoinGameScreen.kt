@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -33,7 +34,7 @@ import com.mobile_client.viewModels.CurrentGamesViewModel
 import com.mobile_client.viewModels.GameLobbyViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-
+import com.mobile_client.utils.launchQrScanner
 @Composable
 fun JoinGameScreen(
     navController: NavController,
@@ -44,6 +45,7 @@ fun JoinGameScreen(
     var showCodeDialog by remember { mutableStateOf(false) }
     var lobbyCode by remember { mutableStateOf("") }
     val scope: CoroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         currentGameListViewModel.lobbySelected.collect { lobbyCode ->
@@ -71,7 +73,21 @@ fun JoinGameScreen(
             modifier = Modifier.padding(horizontal = 16.dp)
         ) {
             Button(
-                onClick = { },
+                onClick = {
+                    launchQrScanner(
+                        context = context,
+                        onResult = { code ->
+                            gameLobbyViewModel.joinLobbyWithBlockCheck(
+                                code,
+                                { navController.navigate(Screen.CharacterCreation.route) },
+                                { message -> scope.launch { snackbarHostState.showSnackbar(message, duration = SnackbarDuration.Short) } }
+                            )
+                        },
+                        onError = { message ->
+                            scope.launch { snackbarHostState.showSnackbar(message, duration = SnackbarDuration.Short) }
+                        }
+                    )
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Green)
             ) {
                 Text("Scanner un code QR", color = Color.Black)

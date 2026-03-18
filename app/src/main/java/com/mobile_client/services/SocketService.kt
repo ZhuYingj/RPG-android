@@ -156,6 +156,10 @@ class SocketService private constructor() {
                 lobbyViewModel.handleAvatarSelection(usedAvatars)
             }
         }
+
+        socket.on(LobbyEvents.TOGGLE_QR_CODE) { args ->
+            lobbyViewModel.showQrCode.value = args[0] as Boolean
+        }
     }
 
     fun closeLobbyListeners() {
@@ -166,6 +170,7 @@ class SocketService private constructor() {
         socket?.off(LobbyEvents.ERROR)
         socket?.off(LobbyEvents.START_GAME)
         socket?.off(LobbyEvents.AVATAR_SELECTED)
+        socket?.off(LobbyEvents.TOGGLE_QR_CODE)
     }
 
     // ===================== GAME LISTENERS =====================

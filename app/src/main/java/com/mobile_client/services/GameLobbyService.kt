@@ -21,7 +21,7 @@ class GameLobbyService private constructor() {
     val gson = AppGson
     private val socketManager = SocketService.instance
 
-    fun joinLobby(code: String, onSuccess: (Int) -> Unit, onError: (String) -> Unit) {
+    fun joinLobby(code: String, onSuccess: (Int, String?) -> Unit, onError: (String) -> Unit) {
         val socket = socketManager.socket ?: return
 
         socket.emit(LobbyEvents.JOIN_LOBBY, code)
@@ -32,7 +32,8 @@ class GameLobbyService private constructor() {
                     val success = data.getBoolean("success")
                     if (success) {
                         val fee = data.optInt("entryFee", 0)
-                        onSuccess(fee)
+                        val qr = data.optString("qrDataUrl", "")
+                        onSuccess(fee, qr)
                     } else {
                         val message = data.optString("message", "Impossible de rejoindre")
                         onError(message)
@@ -42,7 +43,7 @@ class GameLobbyService private constructor() {
         }
     }
 
-    fun createLobby(map: GameMap, fee: Int = 0, onSuccess: (String) -> Unit, onError: (String) -> Unit) {
+    fun createLobby(map: GameMap, fee: Int = 0, onSuccess: (String, String?) -> Unit, onError: (String) -> Unit) {
         val socket = socketManager.socket ?: return
         socket.off(LobbyEvents.LOBBY_CREATED)
 
@@ -58,7 +59,8 @@ class GameLobbyService private constructor() {
                     val response = args[0] as JSONObject
                     val success = response.getBoolean("success")
                     if (success) {
-                        onSuccess(response.getString("lobbyCode"))
+                        val qr = response.optString("qrDataUrl", "")
+                        onSuccess(response.getString("lobbyCode"), qr)
                     } else {
                         onError(response.optString("message", "Impossible de créer le lobby"))
                     }

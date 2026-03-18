@@ -48,6 +48,9 @@ import com.mobile_client.utils.isBot
 import com.mobile_client.utils.toGameTiles
 import com.mobile_client.viewModels.GameLobbyViewModel
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.asImageBitmap
 
 private val BotBlue = Color(0xFF20B6E3)
 private val LockOrange = Color(0xFFD88B06)
@@ -183,6 +186,18 @@ fun WaitingPageScreen(navController: NavController, snackbarHostState: SnackbarH
                         ) {
 
                             OutlinedButton(
+                                onClick = { gameLobbyViewModel.toggleQrCode() },
+                                border = BorderStroke(2.dp, DarkText),
+                                shape = RoundedCornerShape(6.dp)
+                            ) {
+                                Text(
+                                    if (gameLobbyViewModel.showQrCode.value) "Masquer le code QR" else "Afficher le code QR",
+                                    color = DarkText,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+
+                            OutlinedButton(
                                 onClick = { gameLobbyViewModel.toggleLobbyLock() },
                                 border = BorderStroke(2.dp, LockOrange),
                                 shape = RoundedCornerShape(6.dp)
@@ -231,6 +246,27 @@ fun WaitingPageScreen(navController: NavController, snackbarHostState: SnackbarH
 
                     }
                 }
+            }
+        }
+        if (gameLobbyViewModel.showQrCode.value && gameLobbyViewModel.qrCodeDataUrl.value != null) {
+            val dataUrl = gameLobbyViewModel.qrCodeDataUrl.value!!
+            val base64 = dataUrl.substringAfter("base64,")
+            val bitmap = remember(dataUrl) {
+                val bytes = android.util.Base64.decode(base64, android.util.Base64.DEFAULT)
+                android.graphics.BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+            }
+            if (bitmap != null) {
+                Image(
+                    bitmap = bitmap.asImageBitmap(),
+                    contentDescription = "QR Code",
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(16.dp)
+                        .size(180.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color.White)
+                        .padding(8.dp)
+                )
             }
         }
     }
