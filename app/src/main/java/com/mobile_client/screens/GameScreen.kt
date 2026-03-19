@@ -227,7 +227,7 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
             Text("Rapidité: ${player.stats.speed}", fontSize = 11.sp)
             Text("Attaque: ${player.stats.attack} (D${player.attack.value})", fontSize = 11.sp)
             Text("Défense: ${player.stats.defense} (D${player.defense.value})", fontSize = 11.sp)
-            Text("Actions: ${if (player.hasAction) 1 else 0}", fontSize = 11.sp)
+            Text("Actions: ${player.hasAction}", fontSize = 11.sp)
             Text("Mouvements: ${player.movement}", fontSize = 11.sp)
 
             Spacer(modifier = Modifier.height(4.dp))
@@ -352,7 +352,7 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
 
                 Button(
                     onClick = { controller.setAction() },
-                    enabled = player.username == currentPlayer.username && player.hasAction && !isInCombat && !isBetweenTurn,
+                    enabled = player.username == currentPlayer.username && (currentPlayer.hasAction > 0) && !isInCombat && !isBetweenTurn,
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = if (isAction) ActionBlue.copy(alpha = 0.7f) else ActionBlue

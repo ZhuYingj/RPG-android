@@ -69,7 +69,7 @@ data class Player(
     val items: List<TileConstants.Items> = listOf(TileConstants.Items.None, TileConstants.Items.None),
     val currentLife: Int = stats.life,
     val movement: Int = 0,
-    val hasAction: Boolean = true,
+    var hasAction: Int = 0,
     val evasionTry: Int = 0,
     val winNumber: Int = 0,
     val spawnPoint: Position = Position(),

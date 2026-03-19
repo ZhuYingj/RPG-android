@@ -213,8 +213,10 @@ class SocketService private constructor() {
             //TODO: has actionremaining, and message, pourrait faire un snackbar pour le message
             if (args.isNotEmpty()) {
                 val res = gson.fromJson(args[0].toString(), ActionReturnObject::class.java)
-                if (res.isValid) {
+                if (res.isValid && res.actionRemaining != null) {
                     controller.isAction.value = false
+                    controller.currentPlayer.value?.hasAction = res.actionRemaining
+
                 }
                 if (!res.message.isNullOrEmpty()) {
                     controller.serverMessage.value = res.message
@@ -422,8 +424,10 @@ class SocketService private constructor() {
 
     private fun handleNextTurn(controller: GameControllerService, player: Player) {
         controller.currentPlayer.value = player
+        println("number of actions = " + player.hasAction)
         if (player.username == controller.player.value?.username) {
             controller.player.value = player
+            controller.player.value?.hasAction = player.hasAction
         }
         val players = controller.players.value.toMutableList()
         val index = players.indexOfFirst { it.username == player.username }
