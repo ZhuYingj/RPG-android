@@ -9,7 +9,15 @@ fun launchQrScanner(context: Context, onResult: (String) -> Unit, onError: (Stri
         .addOnSuccessListener { barcode ->
             barcode.rawValue?.let { onResult(it) }
         }
-        .addOnFailureListener { e ->
-            onError(e.message ?: "Erreur de scan")
+        .addOnFailureListener {
+            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                scanner.startScan()
+                    .addOnSuccessListener { barcode ->
+                        barcode.rawValue?.let { onResult(it) }
+                    }
+                    .addOnFailureListener { retryError ->
+                        onError(retryError.message ?: "Erreur de scan")
+                    }
+            }, 1000)
         }
 }
