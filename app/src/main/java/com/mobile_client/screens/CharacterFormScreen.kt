@@ -81,20 +81,21 @@ fun CharacterCreationScreen(navController: NavController, snackbarHostState: Sna
 
     val scope: CoroutineScope = rememberCoroutineScope()
 
+    LaunchedEffect(Unit) {
+        gameLobbyViewModel.errorMessage.collect { message ->
+            scope.launch { snackbarHostState.showSnackbar(message, duration = SnackbarDuration.Short) }
+        }
+    }
+
     DisposableEffect(Unit) {
         onDispose {
-            if (!gameLobbyViewModel.isSubmitted.value) {
+            if (!gameLobbyViewModel.isSubmitted.value) {  // This is now true, so leaveLobby won't fire
                 gameLobbyViewModel.selectAvatar(selectedAvatar, PlayerAvatars.None)
                 gameLobbyViewModel.leaveLobby()
             }
         }
     }
 
-    LaunchedEffect(Unit) {
-        gameLobbyViewModel.errorMessage.collect { message ->
-            scope.launch { snackbarHostState.showSnackbar(message, duration = SnackbarDuration.Short) }
-        }
-    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
@@ -294,33 +295,27 @@ fun CharacterCreationScreen(navController: NavController, snackbarHostState: Sna
                                             val player = Player(
                                                 username = AccountService.instance.username,
                                                 avatar = selectedAvatar,
-                                            playerType = if (gameLobbyViewModel.isHost.value) PlayerTypes.Host else PlayerTypes.Human,
-                                            attack = attackDice ?: Dices.D6,
-                                            defense = if (attackDice == Dices.D6) Dices.D4 else Dices.D6,
-                                            isBonusLife = isBonusLife == true,
-                                            stats = stats,
-                                            hasAction = 0
+                                                playerType = if (gameLobbyViewModel.isHost.value) PlayerTypes.Host else PlayerTypes.Human,
+                                                attack = attackDice ?: Dices.D6,
+                                                defense = if (attackDice == Dices.D6) Dices.D4 else Dices.D6,
+                                                isBonusLife = isBonusLife == true,
+                                                stats = stats,
+                                                hasAction = 0
                                             )
-                                            if (gameLobbyViewModel.isDropIn.value) {
-                                                gameLobbyViewModel.dropInGame(player) {
-                                                    Handler(Looper.getMainLooper()).post {
-                                                        val route = if (isGameStarted) Screen.Game.route else Screen.WaitingPage.route
-                                                        navController.navigate(route) {
-                                                            launchSingleTop = true
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                            else {
-                                                gameLobbyViewModel.addPlayer(player) {
-                                                    Handler(Looper.getMainLooper()).post {
-                                                        navController.navigate(Screen.WaitingPage.route) {
-                                                            launchSingleTop = true
-                                                        }
-                                                    }
-                                                }
-                                            }
 
+                                            gameLobbyViewModel.isSubmitted.value = true
+                                            gameLobbyViewModel.addPlayer(player) {
+                                                Handler(Looper.getMainLooper()).post {
+                                                    navController.navigate(Screen.WaitingPage.route) {
+                                                        launchSingleTop = true
+                                                    }
+                                                }
+                                            }
+                                            scope.launch {
+                                                navController.navigate(Screen.WaitingPage.route) {
+                                                    launchSingleTop = true
+                                                }
+                                            }
                                         },
                                         enabled = selectedAvatar != PlayerAvatars.None
                                             && isBonusLife != null

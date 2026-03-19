@@ -124,7 +124,6 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
         controller.isTimerStopped.value = false
         controller.isAction.value = false
         controller.isItemChoice.value = false
-        controller.isBetweenTurn.value = true
     }
 
     LaunchedEffect(lastPlayer) {

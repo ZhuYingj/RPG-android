@@ -110,12 +110,8 @@ class GameLobbyViewModel : ViewModel() {
         )
     }
 
-    fun dropInGame(player: Player, onJoined: () -> Unit) {
-        GameLobbyService.instance.rejoiningPlayer(player) { rejoiningPlayer ->
-            currentPlayer.value = rejoiningPlayer
-            isSubmitted.value = true
-            onJoined()
-        }
+    fun dropInGame(player: Player) {
+        GameLobbyService.instance.rejoiningPlayer(player)
     }
     fun selectAvatar(previousAvatar: PlayerAvatars, avatar: PlayerAvatars) {
         GameLobbyService.instance.selectAvatar(previousAvatar, avatar)

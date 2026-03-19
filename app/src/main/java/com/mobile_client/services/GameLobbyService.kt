@@ -99,17 +99,10 @@ class GameLobbyService private constructor() {
         socket.emit(LobbyEvents.LEAVE_LOBBY)
     }
 
-    fun rejoiningPlayer(player: Player, onJoined: (Player) -> Unit) {
+    fun rejoiningPlayer(player: Player) {
         val socket = socketManager.socket ?: return
         val playerJson = JSONObject(gson.toJson(player))
         socket.emit(GameEvents.REJOINING_PLAYER, playerJson)
-        socket.once(LobbyEvents.JOINING) { args ->
-            if (args.isNotEmpty()) {
-                val data = args[0] as JSONObject
-                val rejoiningPlayer: Player = gson.fromJson(data.toString(), Player::class.java)
-                onJoined(rejoiningPlayer)
-            }
-        }
     }
 
     fun toggleFriendOnly() {

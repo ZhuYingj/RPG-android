@@ -70,6 +70,7 @@ fun WaitingPageScreen(navController: NavController, snackbarHostState: SnackbarH
     val isFriendOnly = gameLobbyViewModel.isFriendOnly.value
 
     val scope = rememberCoroutineScope()
+    println("WaitingScreen ENTERED: lobbyCode=${gameLobbyViewModel.lobbyCode.value} isGameStarted=${gameLobbyViewModel.isGameStarted.value} isDropIn=${gameLobbyViewModel.isDropIn.value}")
 
     LaunchedEffect(Unit) {
         gameLobbyViewModel.errorMessage.collect { message ->
@@ -99,7 +100,10 @@ fun WaitingPageScreen(navController: NavController, snackbarHostState: SnackbarH
     }
 
     LaunchedEffect(gameLobbyViewModel.isGameStarted.value) {
+        println("WaitingScreen isGameStarted changed: ${gameLobbyViewModel.isGameStarted.value}")
+
         if (gameLobbyViewModel.isGameStarted.value) {
+            println("WaitingScreen navigating to Game")
             val controller = GameControllerService.instance
             controller.gameMap.value = gameLobbyViewModel.gameMap.value
             controller.gameTiles.value = gameLobbyViewModel.gameMap.value?.tiles?.toGameTiles() ?: emptyList()

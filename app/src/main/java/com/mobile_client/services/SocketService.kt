@@ -174,11 +174,31 @@ class SocketService private constructor() {
         }
 
         socket.on(GameEvents.REJOINING_PLAYER) { args ->
-            if(args.isNotEmpty()) {
+            println("REJOINING_PLAYER lobby listener fired")
+            if (args.isNotEmpty()) {
                 val res = gson.fromJson(args[0].toString(), RejoiningPlayer::class.java)
+
+                // Set up lobby VM like handleStartGame does
                 lobbyViewModel.currentPlayer.value = res.joiningPlayer
-                GameControllerService.instance.player.value = res.joiningPlayer
-                GameControllerService.instance.currentPlayer.value = res.players[res.activePlayerIndex]
+                lobbyViewModel.players.clear()
+                lobbyViewModel.players.addAll(res.players)
+                lobbyViewModel.gameMap.value = res.map
+                lobbyViewModel.isSubmitted.value = true
+
+                // Set up game controller
+                val controller = GameControllerService.instance
+                controller.gameMap.value = res.map
+                controller.gameTiles.value = res.map.tiles.toGameTiles()
+                controller.players.value = res.players
+                controller.player.value = res.joiningPlayer
+                controller.currentPlayer.value = res.players[res.activePlayerIndex]
+                controller.originalPlayers.value = res.players
+
+                // Initialize game listeners before setting isGameStarted
+                initializeGameListeners(controller)
+
+                // This triggers navigation in WaitingScreen's LaunchedEffect
+                lobbyViewModel.isGameStarted.value = true
             }
         }
 
@@ -202,9 +222,6 @@ class SocketService private constructor() {
 
     fun initializeGameListeners(controller: GameControllerService) {
         val socket = socket ?: return
-
-        //TODO idk where to put it so I put it here
-        socket.off(GameEvents.REJOINING_PLAYER)
 
         socket.on(GameEvents.ABANDON) { args ->
             if (args.isNotEmpty()) {
@@ -259,12 +276,17 @@ class SocketService private constructor() {
             }
         }
 
+        //TODO idk where to put it so I put it here
+        socket.off(GameEvents.REJOINING_PLAYER)
         socket.on(GameEvents.REJOINING_PLAYER) { args ->
             //TODO
             if (args.isNotEmpty()) {
                 val res = gson.fromJson(args[0].toString(), RejoiningPlayer::class.java)
+                // Update game state with new player list and map
                 controller.players.value = res.players
+                controller.originalPlayers.value = res.players
                 controller.gameMap.value = res.map
+                controller.gameTiles.value = res.map.tiles.toGameTiles()
             }
         }
 
