@@ -63,7 +63,7 @@ class MainActivity : ComponentActivity() {
                     Screen.Home.route,
                     Screen.Game.route
                 )
-                Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = { SnackbarHost(snackbarHostState) }, contentWindowInsets = WindowInsets(0)) { innerPadding ->
+                Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = { SnackbarHost(snackbarHostState, modifier = Modifier.navigationBarsPadding()) }, contentWindowInsets = WindowInsets(0)) { innerPadding ->
                     Box(modifier = Modifier.fillMaxSize().padding(innerPadding).navigationBarsPadding().statusBarsPadding()) {
                         NavHost(
                             navController = navController,
