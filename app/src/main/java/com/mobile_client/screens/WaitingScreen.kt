@@ -65,7 +65,10 @@ fun WaitingPageScreen(navController: NavController, snackbarHostState: SnackbarH
     val isLobbyLocked = gameLobbyViewModel.isLobbyLocked.value
     val lobbyCode = gameLobbyViewModel.lobbyCode.value
     val isHost = currentPlayer?.playerType == PlayerTypes.Host
-    val entryFee = gameLobbyViewModel.entryFee.value
+    val entryFee = gameLobbyViewModel.entryFee.intValue
+    val isDropIn = gameLobbyViewModel.isDropIn.value
+    val isFriendOnly = gameLobbyViewModel.isFriendOnly.value
+
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
@@ -211,12 +214,27 @@ fun WaitingPageScreen(navController: NavController, snackbarHostState: SnackbarH
 
                             OutlinedButton(
                                 onClick = { //TODO: implement dropIn/dropOut
+                                    gameLobbyViewModel.toogleDropIn()
                                 },
                                 border = BorderStroke(2.dp, DropInCyan),
                                 shape = RoundedCornerShape(6.dp)
                             ) {
                                 Text(
-                                    "dropIn/dropOut", //TODO: sync with feature
+                                    if (isDropIn) "dropIn active" else "dropIn desactive", //TODO: sync with feature
+                                    color = DropInCyan,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+
+                            OutlinedButton(
+                                onClick = { //TODO: implement FriendOnly
+                                    gameLobbyViewModel.toogleFriendOnly()
+                                },
+                                border = BorderStroke(2.dp, DropInCyan),
+                                shape = RoundedCornerShape(6.dp)
+                            ) {
+                                Text(
+                                    if (isFriendOnly) "FriendOnly active" else "FriendOnly desactive", //TODO: sync with feature
                                     color = DropInCyan,
                                     fontWeight = FontWeight.Bold
                                 )

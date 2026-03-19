@@ -143,7 +143,6 @@ class SocketService private constructor() {
                 val current = gamePlayers.find { it.username == lobbyViewModel.currentPlayer.value?.username }
                 if (current != null) lobbyViewModel.currentPlayer.value = current
 
-                //initializeGameListeners()
                 lobbyViewModel.isGameStarted.value = true
             }
         }
@@ -158,7 +157,19 @@ class SocketService private constructor() {
         }
 
         socket.on(LobbyEvents.TOGGLE_QR_CODE) { args ->
-            lobbyViewModel.showQrCode.value = args[0] as Boolean
+            if(args.isNotEmpty())
+                lobbyViewModel.showQrCode.value = args[0] as Boolean
+        }
+
+        //TODO toggle isFriendOnly and DropIn
+        socket.on(LobbyEvents.FRIEND_ONLY) { args ->
+            if(args.isNotEmpty())
+                lobbyViewModel.isFriendOnly.value = args[0] as Boolean
+        }
+
+        socket.on(LobbyEvents.TOGGLE_DROP_IN) { args ->
+            if(args.isNotEmpty())
+                lobbyViewModel.isDropIn.value = args[0] as Boolean
         }
     }
 
@@ -171,6 +182,9 @@ class SocketService private constructor() {
         socket?.off(LobbyEvents.START_GAME)
         socket?.off(LobbyEvents.AVATAR_SELECTED)
         socket?.off(LobbyEvents.TOGGLE_QR_CODE)
+        socket?.off(LobbyEvents.TOGGLE_BOT)
+        socket?.off(LobbyEvents.FRIEND_ONLY)
+        socket?.off(LobbyEvents.TOGGLE_DROP_IN)
     }
 
     // ===================== GAME LISTENERS =====================
@@ -229,6 +243,10 @@ class SocketService private constructor() {
             if (args.isNotEmpty()) {
                 controller.isDebug.value = args[0] as Boolean
             }
+        }
+
+        socket.on(GameEvents.REJOINING_PLAYER) {
+            //TODO
         }
 
         initializeTurnListeners(controller)
@@ -298,8 +316,6 @@ class SocketService private constructor() {
             if (args.isNotEmpty()) {
                 val data: InitFightObject = gson.fromJson((args[0] as JSONObject).toString(), InitFightObject::class.java)
                 initializeFightListeners(controller)
-                //TODO: print socket and socket id
-                println("socket: $socket")
                 val p = controller.player.value ?: return@on
                 if (p.username == data.players[0].username) {
                     fightService.initFight(data.players[0], data.players[1], data.playerTurn)
@@ -520,6 +536,7 @@ class SocketService private constructor() {
         socket?.off(FightEvents.WIN_FIGHT)
         socket?.off(FightEvents.EVADE_RESULT)
         socket?.off(FightEvents.WATER_CAN_USED)
+        socket?.off(GameEvents.REJOINING_PLAYER)
     }
 
     fun convertUTCToLocalTime(utcString: String): String {

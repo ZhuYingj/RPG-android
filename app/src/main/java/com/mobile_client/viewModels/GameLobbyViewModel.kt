@@ -1,5 +1,6 @@
 package com.mobile_client.viewModels
 
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -25,8 +26,9 @@ class GameLobbyViewModel : ViewModel() {
     var lobbyCode = mutableStateOf("")
     var isHost = mutableStateOf(false)
     var gameMap = mutableStateOf<GameMap?>(null)
-
-    var entryFee = mutableStateOf(0)
+    var isFriendOnly = mutableStateOf(false)
+    var isDropIn = mutableStateOf(false)
+    var entryFee = mutableIntStateOf(0)
     private val _errorMessage = MutableSharedFlow<String>()
     val errorMessage = _errorMessage.asSharedFlow()
 
@@ -48,9 +50,12 @@ class GameLobbyViewModel : ViewModel() {
         isSubmitted.value = false
         isHost.value = false
         gameMap.value = null
-        entryFee.value = 0
+        entryFee.intValue = 0
         qrCodeDataUrl.value = null
         showQrCode.value = false
+        isFriendOnly.value = false
+        isDropIn.value = false
+
         GameLobbyService.instance.closeLobbyListeners()
     }
 
@@ -123,6 +128,14 @@ class GameLobbyViewModel : ViewModel() {
 
     fun toggleLobbyLock() {
         GameLobbyService.instance.toggleLobbyLock()
+    }
+
+    fun toogleFriendOnly() {
+        GameLobbyService.instance.toogleFriendOnly()
+    }
+
+    fun toogleDropIn() {
+        GameLobbyService.instance.toogleDropIn()
     }
 
     fun startGame() {

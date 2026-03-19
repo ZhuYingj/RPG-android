@@ -98,6 +98,16 @@ class GameLobbyService private constructor() {
         socket.emit(LobbyEvents.LEAVE_LOBBY)
     }
 
+    fun toogleFriendOnly() {
+        val socket = socketManager.socket ?: return
+        socket.emit(LobbyEvents.FRIEND_ONLY)
+    }
+
+    fun toogleDropIn() {
+        val socket = socketManager.socket ?: return
+        socket.emit(LobbyEvents.TOGGLE_DROP_IN)
+    }
+
     fun toggleLobbyLock() {
         val socket = socketManager.socket ?: return
         socket.emit(LobbyEvents.TOGGLE_LOCK)

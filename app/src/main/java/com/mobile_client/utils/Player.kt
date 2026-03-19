@@ -1,5 +1,7 @@
 package com.mobile_client.utils
 
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.StrokeJoin
 import com.google.gson.annotations.SerializedName
 
 enum class PlayerAvatars {
@@ -80,3 +82,9 @@ fun Player.isBot(): Boolean {
     return playerType == PlayerTypes.BotAggressive || playerType == PlayerTypes.BotPassive
 }
 
+data class RejoiningPlayer(
+    val map: GameMap,
+    val players: List<Player>,
+    val joiningPlayer: Player,
+    val activePlayerIndex: Int
+)
