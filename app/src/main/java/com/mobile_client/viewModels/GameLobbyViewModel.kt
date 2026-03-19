@@ -76,7 +76,7 @@ class GameLobbyViewModel : ViewModel() {
         clear()
         SocketService.instance.initializeLobbyListeners(this)
         isHost.value = true
-        entryFee.value = fee
+        entryFee.intValue = fee
         GameLobbyService.instance.createLobby(
             map = map,
             fee = fee,
@@ -99,7 +99,7 @@ class GameLobbyViewModel : ViewModel() {
             code = code,
             onSuccess = { fee, qr ->
                 lobbyCode.value = code
-                entryFee.value = fee
+                entryFee.intValue = fee
                 qrCodeDataUrl.value = qr
                 onSuccess()
             },
@@ -108,6 +108,14 @@ class GameLobbyViewModel : ViewModel() {
                 onError(message)
             }
         )
+    }
+
+    fun dropInGame(player: Player, onJoined: () -> Unit) {
+        GameLobbyService.instance.rejoiningPlayer(player) { rejoiningPlayer ->
+            currentPlayer.value = rejoiningPlayer
+            isSubmitted.value = true
+            onJoined()
+        }
     }
     fun selectAvatar(previousAvatar: PlayerAvatars, avatar: PlayerAvatars) {
         GameLobbyService.instance.selectAvatar(previousAvatar, avatar)
@@ -131,11 +139,11 @@ class GameLobbyViewModel : ViewModel() {
     }
 
     fun toogleFriendOnly() {
-        GameLobbyService.instance.toogleFriendOnly()
+        GameLobbyService.instance.toggleFriendOnly()
     }
 
     fun toogleDropIn() {
-        GameLobbyService.instance.toogleDropIn()
+        GameLobbyService.instance.toggleDropIn()
     }
 
     fun startGame() {

@@ -13,6 +13,7 @@ import com.mobile_client.utils.PlayerTypes
 import com.mobile_client.utils.Stats
 import org.json.JSONObject
 import com.mobile_client.utils.AppGson
+import com.mobile_client.utils.GameEvents
 
 class GameLobbyService private constructor() {
     companion object {
@@ -98,12 +99,25 @@ class GameLobbyService private constructor() {
         socket.emit(LobbyEvents.LEAVE_LOBBY)
     }
 
-    fun toogleFriendOnly() {
+    fun rejoiningPlayer(player: Player, onJoined: (Player) -> Unit) {
+        val socket = socketManager.socket ?: return
+        val playerJson = JSONObject(gson.toJson(player))
+        socket.emit(GameEvents.REJOINING_PLAYER, playerJson)
+        socket.once(LobbyEvents.JOINING) { args ->
+            if (args.isNotEmpty()) {
+                val data = args[0] as JSONObject
+                val rejoiningPlayer: Player = gson.fromJson(data.toString(), Player::class.java)
+                onJoined(rejoiningPlayer)
+            }
+        }
+    }
+
+    fun toggleFriendOnly() {
         val socket = socketManager.socket ?: return
         socket.emit(LobbyEvents.FRIEND_ONLY)
     }
 
-    fun toogleDropIn() {
+    fun toggleDropIn() {
         val socket = socketManager.socket ?: return
         socket.emit(LobbyEvents.TOGGLE_DROP_IN)
     }

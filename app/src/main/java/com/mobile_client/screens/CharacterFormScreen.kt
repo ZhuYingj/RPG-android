@@ -68,6 +68,7 @@ private val SelectedGreen = Color(0xFF4CAF50)
 @Composable
 fun CharacterCreationScreen(navController: NavController, snackbarHostState: SnackbarHostState, gameLobbyViewModel: GameLobbyViewModel) {
     val availableAvatars = gameLobbyViewModel.availableAvatars
+    val isGameStarted = gameLobbyViewModel.isGameStarted.value
     val allAvatars = PlayerAvatars.entries.filter { it != PlayerAvatars.None }
 
     var selectedAvatar by remember { mutableStateOf(PlayerAvatars.None) }
@@ -293,20 +294,33 @@ fun CharacterCreationScreen(navController: NavController, snackbarHostState: Sna
                                             val player = Player(
                                                 username = AccountService.instance.username,
                                                 avatar = selectedAvatar,
-                                                playerType = if (gameLobbyViewModel.isHost.value) PlayerTypes.Host else PlayerTypes.Human,
-                                                attack = attackDice ?: Dices.D6,
-                                                defense = if (attackDice == Dices.D6) Dices.D4 else Dices.D6,
-                                                isBonusLife = isBonusLife == true,
-                                                stats = stats,
-                                                hasAction = 0
+                                            playerType = if (gameLobbyViewModel.isHost.value) PlayerTypes.Host else PlayerTypes.Human,
+                                            attack = attackDice ?: Dices.D6,
+                                            defense = if (attackDice == Dices.D6) Dices.D4 else Dices.D6,
+                                            isBonusLife = isBonusLife == true,
+                                            stats = stats,
+                                            hasAction = 0
                                             )
-                                            gameLobbyViewModel.addPlayer(player) {
-                                                Handler(Looper.getMainLooper()).post {
-                                                    navController.navigate(Screen.WaitingPage.route) {
-                                                        launchSingleTop = true
+                                            if (gameLobbyViewModel.isDropIn.value) {
+                                                gameLobbyViewModel.dropInGame(player) {
+                                                    Handler(Looper.getMainLooper()).post {
+                                                        val route = if (isGameStarted) Screen.Game.route else Screen.WaitingPage.route
+                                                        navController.navigate(route) {
+                                                            launchSingleTop = true
+                                                        }
                                                     }
                                                 }
                                             }
+                                            else {
+                                                gameLobbyViewModel.addPlayer(player) {
+                                                    Handler(Looper.getMainLooper()).post {
+                                                        navController.navigate(Screen.WaitingPage.route) {
+                                                            launchSingleTop = true
+                                                        }
+                                                    }
+                                                }
+                                            }
+
                                         },
                                         enabled = selectedAvatar != PlayerAvatars.None
                                             && isBonusLife != null

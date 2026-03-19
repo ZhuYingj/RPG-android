@@ -17,6 +17,7 @@ import com.mobile_client.utils.LobbyEvents
 import com.mobile_client.utils.MessageEvents
 import com.mobile_client.utils.Player
 import com.mobile_client.utils.PlayerAvatars
+import com.mobile_client.utils.RejoiningPlayer
 import com.mobile_client.utils.TileConstants
 import com.mobile_client.utils.WinFightObject
 import com.mobile_client.utils.toGameTiles
@@ -171,6 +172,16 @@ class SocketService private constructor() {
             if(args.isNotEmpty())
                 lobbyViewModel.isDropIn.value = args[0] as Boolean
         }
+
+        socket.on(GameEvents.REJOINING_PLAYER) { args ->
+            if(args.isNotEmpty()) {
+                val res = gson.fromJson(args[0].toString(), RejoiningPlayer::class.java)
+                lobbyViewModel.currentPlayer.value = res.joiningPlayer
+                GameControllerService.instance.player.value = res.joiningPlayer
+                GameControllerService.instance.currentPlayer.value = res.players[res.activePlayerIndex]
+            }
+        }
+
     }
 
     fun closeLobbyListeners() {
@@ -191,6 +202,9 @@ class SocketService private constructor() {
 
     fun initializeGameListeners(controller: GameControllerService) {
         val socket = socket ?: return
+
+        //TODO idk where to put it so I put it here
+        socket.off(GameEvents.REJOINING_PLAYER)
 
         socket.on(GameEvents.ABANDON) { args ->
             if (args.isNotEmpty()) {
@@ -245,8 +259,13 @@ class SocketService private constructor() {
             }
         }
 
-        socket.on(GameEvents.REJOINING_PLAYER) {
+        socket.on(GameEvents.REJOINING_PLAYER) { args ->
             //TODO
+            if (args.isNotEmpty()) {
+                val res = gson.fromJson(args[0].toString(), RejoiningPlayer::class.java)
+                controller.players.value = res.players
+                controller.gameMap.value = res.map
+            }
         }
 
         initializeTurnListeners(controller)

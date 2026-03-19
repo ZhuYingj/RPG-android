@@ -75,7 +75,7 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
     val isAction = controller.isAction.value
     val isBetweenTurn = controller.isBetweenTurn.value
     val isItemChoice = controller.isItemChoice.value
-    val timerCounter = controller.timerCounter.value
+    val timerCounter = controller.timerCounter.intValue
     val isTimerStopped = controller.isTimerStopped.value
     val isDebug = controller.isDebug.value
     val isInCombat = controller.fightService.isFight.value
@@ -321,7 +321,7 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                items(originalPlayers) { p ->
+                items(players) { p ->
                     PlayerList(
                         player = p,
                         isActive = currentPlayer.username == p.username,

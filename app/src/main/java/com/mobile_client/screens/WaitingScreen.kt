@@ -77,18 +77,18 @@ fun WaitingPageScreen(navController: NavController, snackbarHostState: SnackbarH
         }
     }
 
-    LaunchedEffect(gameLobbyViewModel.lobbyCode.value, players.size) {
-        if (gameLobbyViewModel.lobbyCode.value.isEmpty() && !gameLobbyViewModel.isGameStarted.value) {
+    // Reroute to Home if lobby code is cleared (e.g. kicked or lobby closed)
+    LaunchedEffect(lobbyCode, gameLobbyViewModel.isGameStarted.value) {
+        if (lobbyCode.isEmpty() && !gameLobbyViewModel.isGameStarted.value) {
             navController.navigate(Screen.Home.route) {
-                popUpTo(0) { inclusive = true }
+                popUpTo(Screen.Home.route) { inclusive = true }
             }
         }
     }
 
     DisposableEffect(Unit) {
         onDispose {
-//            println("WaitingScreen onDispose: isGameStarted=${gameLobbyViewModel.isGameStarted.value}")
-            if (!gameLobbyViewModel.isGameStarted.value) {
+            if (!gameLobbyViewModel.isGameStarted.value && gameLobbyViewModel.lobbyCode.value.isNotEmpty()) {
                 gameLobbyViewModel.selectAvatar(
                     currentPlayer?.avatar ?: PlayerAvatars.None,
                     PlayerAvatars.None
@@ -123,168 +123,170 @@ fun WaitingPageScreen(navController: NavController, snackbarHostState: SnackbarH
             contentScale = ContentScale.Crop
         )
 
-        Column(modifier = Modifier.fillMaxSize()) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    "Salle d'attente $lobbyCode",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = DarkText
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    "Statut de la salle d'attente: ${if (isLobbyLocked) "Verrouillée" else "Déverrouillée"}",
-                    fontSize = 18.sp,
-                    color = DarkText
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text(
-                    "Frais d'entrée : $entryFee$",
-                    fontSize = 18.sp,
-                    color = DarkText
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Main layout: Players on left, Chat on right
-                Row(
-                    modifier = Modifier.width(800.dp).fillMaxHeight(),
-                    horizontalArrangement = Arrangement.spacedBy(20.dp)
+        if (lobbyCode.isNotEmpty()) { // Only render content if we are still in a lobby
+            Column(modifier = Modifier.fillMaxSize()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                    Text(
+                        "Salle d'attente $lobbyCode",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = DarkText
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        "Statut de la salle d'attente: ${if (isLobbyLocked) "Verrouillée" else "Déverrouillée"}",
+                        fontSize = 18.sp,
+                        color = DarkText
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        "Frais d'entrée : $entryFee$",
+                        fontSize = 18.sp,
+                        color = DarkText
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Main layout: Players on left, Chat on right
+                    Row(
+                        modifier = Modifier.width(800.dp).fillMaxHeight(),
+                        horizontalArrangement = Arrangement.spacedBy(20.dp)
                     ) {
-                        // Player list
-                        LazyColumn(
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(Color.White.copy(alpha = 0.3f))
-                                .padding(10.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            items(players) { player ->
-                                PlayerCard(player, isHost, gameLobbyViewModel)
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(12.dp))
-                    }
-
-                    // === RIGHT: Start game ===
-                    if (isHost) {
                         Column(
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                            modifier = Modifier.weight(1f),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-
-                            OutlinedButton(
-                                onClick = { gameLobbyViewModel.toggleQrCode() },
-                                border = BorderStroke(2.dp, DarkText),
-                                shape = RoundedCornerShape(6.dp)
+                            // Player list
+                            LazyColumn(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(Color.White.copy(alpha = 0.3f))
+                                    .padding(10.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                Text(
-                                    if (gameLobbyViewModel.showQrCode.value) "Masquer le code QR" else "Afficher le code QR",
-                                    color = DarkText,
-                                    fontWeight = FontWeight.Bold
-                                )
+                                items(players) { player ->
+                                    PlayerCard(player, isHost, gameLobbyViewModel)
+                                }
                             }
 
-                            OutlinedButton(
-                                onClick = { gameLobbyViewModel.toggleLobbyLock() },
-                                border = BorderStroke(2.dp, LockOrange),
-                                shape = RoundedCornerShape(6.dp)
-                            ) {
-                                Text(
-                                    if (isLobbyLocked) "Déverrouiller" else "Verrouiller",
-                                    color = LockOrange,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-
-                            OutlinedButton(
-                                onClick = { //TODO: implement dropIn/dropOut
-                                    gameLobbyViewModel.toogleDropIn()
-                                },
-                                border = BorderStroke(2.dp, DropInCyan),
-                                shape = RoundedCornerShape(6.dp)
-                            ) {
-                                Text(
-                                    if (isDropIn) "dropIn active" else "dropIn desactive", //TODO: sync with feature
-                                    color = DropInCyan,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-
-                            OutlinedButton(
-                                onClick = { //TODO: implement FriendOnly
-                                    gameLobbyViewModel.toogleFriendOnly()
-                                },
-                                border = BorderStroke(2.dp, DropInCyan),
-                                shape = RoundedCornerShape(6.dp)
-                            ) {
-                                Text(
-                                    if (isFriendOnly) "FriendOnly active" else "FriendOnly desactive", //TODO: sync with feature
-                                    color = DropInCyan,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-
-                            OutlinedButton(
-                                onClick = { gameLobbyViewModel.createBotPlayer() },
-                                border = BorderStroke(2.dp, BotBlue),
-                                shape = RoundedCornerShape(6.dp)
-                            ) {
-                                Text("+ Ajouter un JV", color = BotBlue, fontWeight = FontWeight.Bold)
-                            }
-
-                            OutlinedButton(
-                                onClick = { gameLobbyViewModel.startGame() },
-                                border = BorderStroke(2.dp, StartGreen),
-                                shape = RoundedCornerShape(6.dp)
-                            ) {
-                                Text(
-                                    "Commencer la partie",
-                                    color = StartGreen,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 18.sp
-                                )
-                            }
+                            Spacer(modifier = Modifier.height(12.dp))
                         }
 
+                        // === RIGHT: Start game ===
+                        if (isHost) {
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+
+                                OutlinedButton(
+                                    onClick = { gameLobbyViewModel.toggleQrCode() },
+                                    border = BorderStroke(2.dp, DarkText),
+                                    shape = RoundedCornerShape(6.dp)
+                                ) {
+                                    Text(
+                                        if (gameLobbyViewModel.showQrCode.value) "Masquer le code QR" else "Afficher le code QR",
+                                        color = DarkText,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+
+                                OutlinedButton(
+                                    onClick = { gameLobbyViewModel.toggleLobbyLock() },
+                                    border = BorderStroke(2.dp, LockOrange),
+                                    shape = RoundedCornerShape(6.dp)
+                                ) {
+                                    Text(
+                                        if (isLobbyLocked) "Déverrouiller" else "Verrouiller",
+                                        color = LockOrange,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+
+                                OutlinedButton(
+                                    onClick = {
+                                        gameLobbyViewModel.toogleDropIn()
+                                    },
+                                    border = BorderStroke(2.dp, DropInCyan),
+                                    shape = RoundedCornerShape(6.dp)
+                                ) {
+                                    Text(
+                                        if (isDropIn) "dropIn active" else "dropIn desactive",
+                                        color = DropInCyan,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+
+                                OutlinedButton(
+                                    onClick = {
+                                        gameLobbyViewModel.toogleFriendOnly()
+                                    },
+                                    border = BorderStroke(2.dp, DropInCyan),
+                                    shape = RoundedCornerShape(6.dp)
+                                ) {
+                                    Text(
+                                        if (isFriendOnly) "FriendOnly active" else "FriendOnly desactive",
+                                        color = DropInCyan,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+
+                                OutlinedButton(
+                                    onClick = { gameLobbyViewModel.createBotPlayer() },
+                                    border = BorderStroke(2.dp, BotBlue),
+                                    shape = RoundedCornerShape(6.dp)
+                                ) {
+                                    Text("+ Ajouter un JV", color = BotBlue, fontWeight = FontWeight.Bold)
+                                }
+
+                                OutlinedButton(
+                                    onClick = { gameLobbyViewModel.startGame() },
+                                    border = BorderStroke(2.dp, StartGreen),
+                                    shape = RoundedCornerShape(6.dp)
+                                ) {
+                                    Text(
+                                        "Commencer la partie",
+                                        color = StartGreen,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 18.sp
+                                    )
+                                }
+                            }
+
+                        }
                     }
                 }
             }
-        }
-        if (gameLobbyViewModel.showQrCode.value && gameLobbyViewModel.qrCodeDataUrl.value != null) {
-            val dataUrl = gameLobbyViewModel.qrCodeDataUrl.value!!
-            val base64 = dataUrl.substringAfter("base64,")
-            val bitmap = remember(dataUrl) {
-                val bytes = android.util.Base64.decode(base64, android.util.Base64.DEFAULT)
-                android.graphics.BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-            }
-            if (bitmap != null) {
-                Image(
-                    bitmap = bitmap.asImageBitmap(),
-                    contentDescription = "QR Code",
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(16.dp)
-                        .size(180.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(Color.White)
-                        .padding(8.dp)
-                )
+            if (gameLobbyViewModel.showQrCode.value && gameLobbyViewModel.qrCodeDataUrl.value != null) {
+                val dataUrl = gameLobbyViewModel.qrCodeDataUrl.value!!
+                val base64 = dataUrl.substringAfter("base64,")
+                val bitmap = remember(dataUrl) {
+                    val bytes = android.util.Base64.decode(base64, android.util.Base64.DEFAULT)
+                    android.graphics.BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                }
+                if (bitmap != null) {
+                    Image(
+                        bitmap = bitmap.asImageBitmap(),
+                        contentDescription = "QR Code",
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(16.dp)
+                            .size(180.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Color.White)
+                            .padding(8.dp)
+                    )
+                }
             }
         }
     }
