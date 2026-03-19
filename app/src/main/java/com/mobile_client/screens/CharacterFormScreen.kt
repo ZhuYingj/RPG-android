@@ -297,7 +297,8 @@ fun CharacterCreationScreen(navController: NavController, snackbarHostState: Sna
                                                 attack = attackDice ?: Dices.D6,
                                                 defense = if (attackDice == Dices.D6) Dices.D4 else Dices.D6,
                                                 isBonusLife = isBonusLife == true,
-                                                stats = stats
+                                                stats = stats,
+                                                hasAction = 0
                                             )
                                             gameLobbyViewModel.addPlayer(player) {
                                                 Handler(Looper.getMainLooper()).post {

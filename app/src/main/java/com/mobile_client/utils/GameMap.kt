@@ -10,5 +10,6 @@ data class GameMap(
     val tiles: List<List<Tile>>,
     val isCaptureTheFlag: Boolean,
     val isVisible: Boolean,
-    val lastModified: String
+    val lastModified: String,
+    val actionNumber: Int,
 )
