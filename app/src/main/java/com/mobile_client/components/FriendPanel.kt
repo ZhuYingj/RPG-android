@@ -1,4 +1,5 @@
 package com.mobile_client.components
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -14,15 +15,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.CloseFullscreen
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PersonAdd
+import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
@@ -31,6 +36,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -39,24 +46,26 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.mobile_client.utils.FriendsTab
+import com.mobile_client.utils.launchQrScanner
 import com.mobile_client.viewModels.FriendsViewModel
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.filled.Block
-import androidx.compose.material.icons.filled.CloseFullscreen
+import kotlinx.coroutines.launch
 
 @Composable
 fun FriendsPanel(
     modifier: Modifier = Modifier,
-    friendsViewModel: FriendsViewModel
+    friendsViewModel: FriendsViewModel,
+    snackbarHostState: SnackbarHostState,
 ) {
     var isOpen by remember { mutableStateOf(false) }
     var activeTab by remember { mutableStateOf(FriendsTab.FRIENDS) }
@@ -71,11 +80,23 @@ fun FriendsPanel(
     val receivedRequestIds by friendsViewModel.receivedRequestIds.collectAsState()
     val blockedUsers by friendsViewModel.blockedUsers.collectAsState()
     val pendingBlock by friendsViewModel.pendingBlock.collectAsState()
+    val snackbarMessage by friendsViewModel.snackbarMessage.collectAsState()
+
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         friendsViewModel.initializeSocketListeners()
         friendsViewModel.loadAll()
     }
+
+    LaunchedEffect(snackbarMessage) {
+        snackbarMessage?.let { message ->
+            snackbarHostState.showSnackbar(message, duration = SnackbarDuration.Short)
+            friendsViewModel.clearSnackbarMessage()
+        }
+    }
+
 
     DisposableEffect(Unit) {
         onDispose {
@@ -376,7 +397,9 @@ fun FriendsPanel(
                                         item {
                                             Text(
                                                 "Aucun utilisateur bloqué",
-                                                modifier = Modifier.fillMaxWidth().padding(20.dp),
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(20.dp),
                                                 textAlign = TextAlign.Center,
                                                 color = Color.Gray
                                             )
@@ -402,30 +425,68 @@ fun FriendsPanel(
 
                         HorizontalDivider()
 
-                        // Add Friend button
-                        Box(
+                        // Add Friend + QR Scan buttons
+                        Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable {
-                                    isAddingFriend = true
-                                    friendsViewModel.loadAllUsers()
-                                    friendsViewModel.loadSentRequestUsernames()
-                                    friendsViewModel.loadReceivedRequestUsernames()
-                                }
-                                .padding(14.dp),
-                            contentAlignment = Alignment.Center
+                                .padding(horizontal = 8.dp, vertical = 4.dp),
+                            horizontalArrangement = Arrangement.SpaceEvenly,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    Icons.Default.PersonAdd,
-                                    contentDescription = null,
-                                    tint = Color(0xFF4CAF50)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    "Ajouter un ami",
-                                    style = MaterialTheme.typography.labelLarge
-                                )
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clickable {
+                                        isAddingFriend = true
+                                        friendsViewModel.loadAllUsers()
+                                        friendsViewModel.loadSentRequestUsernames()
+                                        friendsViewModel.loadReceivedRequestUsernames()
+                                    }
+                                    .padding(14.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        Icons.Default.PersonAdd,
+                                        contentDescription = null,
+                                        tint = Color(0xFF4CAF50)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        "Ajouter un ami",
+                                        style = MaterialTheme.typography.labelLarge
+                                    )
+                                }
+                            }
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clickable {
+                                        launchQrScanner(
+                                            context = context,
+                                            onResult = { scannedUsername ->
+                                                friendsViewModel.sendFriendRequest(scannedUsername.trim())
+                                            },
+                                            onError = { message ->
+                                                scope.launch { snackbarHostState.showSnackbar(message, duration = SnackbarDuration.Short) }
+                                            }
+                                        )
+                                    }
+                                    .padding(14.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        Icons.Default.QrCodeScanner,
+                                        contentDescription = null,
+                                        tint = Color(0xFF4CAF50)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        "Scanner QR",
+                                        style = MaterialTheme.typography.labelLarge
+                                    )
+                                }
                             }
                         }
                     }

@@ -9,6 +9,7 @@ import com.mobile_client.services.SocketService
 import com.mobile_client.utils.FriendEvents
 import com.mobile_client.utils.FriendRequest
 import com.mobile_client.utils.SearchableUser
+import io.ktor.client.statement.bodyAsText
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -45,6 +46,13 @@ class FriendsViewModel : ViewModel() {
     private val _pendingBlock = MutableStateFlow<Set<String>>(emptySet())
     val pendingBlock: StateFlow<Set<String>> = _pendingBlock.asStateFlow()
     private var currentFilter = ""
+
+    private val _snackbarMessage = MutableStateFlow<String?>(null)
+    val snackbarMessage: StateFlow<String?> = _snackbarMessage.asStateFlow()
+
+    fun clearSnackbarMessage() {
+        _snackbarMessage.value = null
+    }
 
     fun initializeSocketListeners() {
         val socket = SocketService.instance.socket ?: return
@@ -149,10 +157,22 @@ class FriendsViewModel : ViewModel() {
     fun sendFriendRequest(username: String) {
         viewModelScope.launch {
             try {
-                friendsApi.sendFriendRequest(username)
-                _sentRequestUsernames.value = _sentRequestUsernames.value + username
-                loadSentFriendRequests()
+                val response = friendsApi.sendFriendRequest(username)
+                if (response.status.value in 200..299) {
+                    _sentRequestUsernames.value = _sentRequestUsernames.value + username
+                    loadSentFriendRequests()
+                    _snackbarMessage.value = "Demande d'ami envoyée à $username"
+                } else {
+                    val body = response.bodyAsText()
+                    val errorMsg = try {
+                        gson.fromJson(body, Map::class.java)["message"]?.toString() ?: "Erreur inconnue"
+                    } catch (e: Exception) {
+                        body
+                    }
+                    _snackbarMessage.value = errorMsg
+                }
             } catch (e: Exception) {
+                _snackbarMessage.value = e.message ?: "Erreur réseau"
                 e.printStackTrace()
             }
         }

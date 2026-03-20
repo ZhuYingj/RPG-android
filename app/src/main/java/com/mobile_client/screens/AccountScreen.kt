@@ -14,6 +14,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Email
@@ -39,6 +40,8 @@ import androidx.navigation.NavController
 import com.mobile_client.utils.AccountStats
 import com.mobile_client.utils.Screen
 import java.io.File
+import androidx.compose.material.icons.filled.QrCode
+import androidx.compose.ui.graphics.asImageBitmap
 
 @Composable
 fun AccountScreen(
@@ -49,6 +52,8 @@ fun AccountScreen(
 
     val account by accountViewModel.account.collectAsState()
     val snackbarMessage by accountViewModel.message.collectAsState()
+    val showQrCode by accountViewModel.showQrCode.collectAsState()
+    val qrBitmap by accountViewModel.qrBitmap.collectAsState()
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -117,169 +122,189 @@ fun AccountScreen(
         selectedDefaultResId = null
     }
 
-    // Single scrollable column for everything
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(vertical = 24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        // Single scrollable column for everything
         Column(
             modifier = Modifier
-                .fillMaxWidth(0.6f)
-                .padding(horizontal = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(vertical = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Avatar display
-            Box(
+            Column(
                 modifier = Modifier
-                    .size(110.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
-                    .border(BorderStroke(2.dp, MaterialTheme.colorScheme.primary), CircleShape),
-                contentAlignment = Alignment.Center
+                    .fillMaxWidth(0.6f)
+                    .padding(horizontal = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
-                when {
-                    selectedDefaultResId != null -> {
-                        Image(
-                            painter = rememberAsyncImagePainter(selectedDefaultResId),
-                            contentDescription = "Avatar",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
-                        )
-                    }
-                    avatarUri != null -> {
-                        Image(
-                            painter = rememberAsyncImagePainter(avatarUri),
-                            contentDescription = "Avatar",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
-                        )
-                    }
-                    currentAvatarBitmap != null -> {
-                        Image(
-                            painter = rememberAsyncImagePainter(currentAvatarBitmap),
-                            contentDescription = "Avatar",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
-                        )
-                    }
-                    else -> {
-                        Text(
-                            text = account?.username?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
-                            style = MaterialTheme.typography.headlineLarge
-                        )
-                    }
-                }
-            }
-
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Button(onClick = { permissionLauncher.launch(Manifest.permission.CAMERA) }) {
-                    Icon(Icons.Default.CameraAlt, null)
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text("Photo")
-                }
-                OutlinedButton(onClick = { showAvatarPicker = true }) {
-                    Text("Choisir un avatar")
-                }
-            }
-
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedButton(
-                    onClick = {
-                        avatarBase64 = null
-                        avatarUri = null
-                        selectedDefaultResId = null
-                    },
-                    enabled = hasAvatarChange
-                ) { Text("Réinitialiser avatar") }
-
-                Button(
-                    onClick = {
-                        avatarBase64?.let {
-                            accountViewModel.updateAccountAvatar(it)
-                            avatarBase64 = null
+                // Avatar display
+                Box(
+                    modifier = Modifier
+                        .size(110.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .border(BorderStroke(2.dp, MaterialTheme.colorScheme.primary), CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    when {
+                        selectedDefaultResId != null -> {
+                            Image(
+                                painter = rememberAsyncImagePainter(selectedDefaultResId),
+                                contentDescription = "Avatar",
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
+                            )
                         }
+                        avatarUri != null -> {
+                            Image(
+                                painter = rememberAsyncImagePainter(avatarUri),
+                                contentDescription = "Avatar",
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
+                            )
+                        }
+                        currentAvatarBitmap != null -> {
+                            Image(
+                                painter = rememberAsyncImagePainter(currentAvatarBitmap),
+                                contentDescription = "Avatar",
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
+                            )
+                        }
+                        else -> {
+                            Text(
+                                text = account?.username?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
+                                style = MaterialTheme.typography.headlineLarge
+                            )
+                        }
+                    }
+                }
+
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Button(onClick = { permissionLauncher.launch(Manifest.permission.CAMERA) }) {
+                        Icon(Icons.Default.CameraAlt, null)
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("Photo")
+                    }
+                    OutlinedButton(onClick = { showAvatarPicker = true }) {
+                        Text("Choisir un avatar")
+                    }
+                    OutlinedButton(onClick = { accountViewModel.toggleQrCode() }, modifier = Modifier.width(170.dp)) {
+                        Icon(Icons.Default.QrCode, null)
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(if (showQrCode) "Masquer QR" else "Montrer QR")
+                    }
+                }
+
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    OutlinedButton(
+                        onClick = {
+                            avatarBase64 = null
+                            avatarUri = null
+                            selectedDefaultResId = null
+                        },
+                        enabled = hasAvatarChange
+                    ) { Text("Réinitialiser avatar") }
+
+                    Button(
+                        onClick = {
+                            avatarBase64?.let {
+                                accountViewModel.updateAccountAvatar(it)
+                                avatarBase64 = null
+                            }
+                        },
+                        enabled = hasAvatarChange
+                    ) { Text("Enregistrer avatar") }
+                }
+
+                // --- Stats Section ---
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+                Text("Statistiques", style = MaterialTheme.typography.titleMedium)
+
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    StatRow("Parties classiques jouées", "${stats.classicGamesPlayed}")
+                    StatRow("Parties CTF jouées", "${stats.CTFGamesPlayed}")
+                    StatRow("Parties gagnées", "${stats.gamesWon}")
+                    StatRow("Temps moyen de partie", String.format("%.1f s", stats.averageGameTime))
+                }
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = {
+                        if (it.length <= Validation.MAX_USERNAME_LENGTH) name = it
+                        nameError = Validation.validateUsername(name)
                     },
-                    enabled = hasAvatarChange
-                ) { Text("Enregistrer avatar") }
-            }
+                    label = { Text("Nom") },
+                    leadingIcon = { Icon(Icons.Default.Person, null) },
+                    isError = nameError != null,
+                    supportingText = { nameError?.let { Text(it, color = Color.Red) } },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
 
-            // --- Stats Section ---
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-            Text("Statistiques", style = MaterialTheme.typography.titleMedium)
-
-            Column(modifier = Modifier.fillMaxWidth()) {
-                StatRow("Parties classiques jouées", "${stats.classicGamesPlayed}")
-                StatRow("Parties CTF jouées", "${stats.CTFGamesPlayed}")
-                StatRow("Parties gagnées", "${stats.gamesWon}")
-                StatRow("Temps moyen de partie", String.format("%.1f s", stats.averageGameTime))
-            }
-
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-            OutlinedTextField(
-                value = name,
-                onValueChange = {
-                    if (it.length <= Validation.MAX_USERNAME_LENGTH) name = it
-                    nameError = Validation.validateUsername(name)
-                },
-                label = { Text("Nom") },
-                leadingIcon = { Icon(Icons.Default.Person, null) },
-                isError = nameError != null,
-                supportingText = { nameError?.let { Text(it, color = Color.Red) } },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
-
-            OutlinedTextField(
-                value = email,
-                onValueChange = {
-                    if (it.length <= Validation.MAX_EMAIL_LENGTH) email = it
-                    emailError = Validation.validateEmail(email)
-                },
-                label = { Text("Email") },
-                leadingIcon = { Icon(Icons.Default.Email, null) },
-                isError = emailError != null,
-                supportingText = { emailError?.let { Text(it, color = Color.Red) } },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                OutlinedButton(
-                    onClick = {
-                        name = account?.username ?: ""
-                        email = account?.email ?: ""
-                        nameError = null
-                        emailError = null
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = {
+                        if (it.length <= Validation.MAX_EMAIL_LENGTH) email = it
+                        emailError = Validation.validateEmail(email)
                     },
-                    modifier = Modifier.weight(1f)
-                ) { Text("Réinitialiser") }
+                    label = { Text("Email") },
+                    leadingIcon = { Icon(Icons.Default.Email, null) },
+                    isError = emailError != null,
+                    supportingText = { emailError?.let { Text(it, color = Color.Red) } },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    OutlinedButton(
+                        onClick = {
+                            name = account?.username ?: ""
+                            email = account?.email ?: ""
+                            nameError = null
+                            emailError = null
+                        },
+                        modifier = Modifier.weight(1f)
+                    ) { Text("Réinitialiser") }
+
+                    Button(
+                        onClick = { accountViewModel.updateAccount(name = name, email = email) },
+                        enabled = nameError == null && emailError == null,
+                        modifier = Modifier.weight(1f)
+                    ) { Text("Enregistrer") }
+                }
+
+                // --- Delete Account ---
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
                 Button(
-                    onClick = { accountViewModel.updateAccount(name = name, email = email) },
-                    enabled = nameError == null && emailError == null,
-                    modifier = Modifier.weight(1f)
-                ) { Text("Enregistrer") }
+                    onClick = { showDeleteDialog = true },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Supprimer le compte", color = Color.White)
+                }
             }
-
-            // --- Delete Account ---
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-            Button(
-                onClick = { showDeleteDialog = true },
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Supprimer le compte", color = Color.White)
-            }
+        }
+        if (showQrCode && qrBitmap != null) {
+            Image(
+                bitmap = qrBitmap!!.asImageBitmap(),
+                contentDescription = "QR Code",
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(16.dp)
+                    .size(180.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Color.White)
+                    .padding(8.dp)
+            )
         }
     }
 
