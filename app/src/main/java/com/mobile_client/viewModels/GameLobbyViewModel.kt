@@ -11,10 +11,10 @@ import com.mobile_client.utils.GameMap
 import com.mobile_client.utils.LobbyEvents
 import com.mobile_client.utils.Player
 import com.mobile_client.utils.PlayerAvatars
+import com.mobile_client.utils.PlayerTypes
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-import com.mobile_client.utils.PlayerTypes
 
 class GameLobbyViewModel : ViewModel() {
     var isLobbyLocked = mutableStateOf(false)
@@ -55,8 +55,6 @@ class GameLobbyViewModel : ViewModel() {
         showQrCode.value = false
         isFriendOnly.value = false
         isDropIn.value = false
-
-        GameLobbyService.instance.closeLobbyListeners()
     }
 
     fun toggleBotType(player: Player) {
@@ -118,9 +116,13 @@ class GameLobbyViewModel : ViewModel() {
     }
 
     fun addPlayer(player: Player, onJoined: () -> Unit) {
+        println("in add player gamelobbyviewmodel.lobby = " + lobbyCode.value)
+        println("in add player gamelobbyviewmodel.isSubmitted = " + isSubmitted.value)
         GameLobbyService.instance.addPlayer(player) { joiningPlayer ->
             currentPlayer.value = joiningPlayer
             isSubmitted.value = true
+            println("2   in add player gamelobbyviewmodel.lobby = " + lobbyCode.value)
+            println("2   in add player gamelobbyviewmodel.isSubmitted = " + isSubmitted.value)
             onJoined()
         }
     }
@@ -134,11 +136,11 @@ class GameLobbyViewModel : ViewModel() {
         GameLobbyService.instance.toggleLobbyLock()
     }
 
-    fun toogleFriendOnly() {
+    fun toggleFriendOnly() {
         GameLobbyService.instance.toggleFriendOnly()
     }
 
-    fun toogleDropIn() {
+    fun toggleDropIn() {
         GameLobbyService.instance.toggleDropIn()
     }
 

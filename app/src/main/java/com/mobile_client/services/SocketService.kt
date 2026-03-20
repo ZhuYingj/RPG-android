@@ -113,11 +113,14 @@ class SocketService private constructor() {
             val message = if (args.isNotEmpty()) args[0] as String else "Lobby fermé"
             lobbyViewModel.showMessage(message)
             lobbyViewModel.clear()
+            closeLobbyListeners()
         }
 
         socket.on(LobbyEvents.KICKED) {
+            println("kicked")
             lobbyViewModel.showMessage("Vous avez été enlevé de la partie")
             lobbyViewModel.clear()
+            closeLobbyListeners()
         }
 
         socket.on(LobbyEvents.ERROR) { args ->

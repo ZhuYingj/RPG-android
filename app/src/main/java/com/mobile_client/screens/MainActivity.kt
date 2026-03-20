@@ -8,8 +8,11 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -36,9 +39,6 @@ import com.mobile_client.viewModels.CurrentGamesViewModel
 import com.mobile_client.viewModels.FriendsViewModel
 import com.mobile_client.viewModels.GameListViewModel
 import com.mobile_client.viewModels.GameLobbyViewModel
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.statusBarsPadding
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalLayoutApi::class)
@@ -80,9 +80,7 @@ class MainActivity : ComponentActivity() {
                                 SignUpScreen(navController = navController)
                             }
                             composable(Screen.Home.route) {
-                                HomeScreen(
-                                    navController = navController,
-                                )
+                                HomeScreen(navController = navController)
                             }
                             composable(Screen.GameCreation.route) {
                                 GamesCreationScreen(
@@ -124,6 +122,7 @@ class MainActivity : ComponentActivity() {
                                 GameScreen(
                                     navController = navController,
                                     snackbarHostState = snackbarHostState,
+                                    gameLobbyViewModel = gameLobbyViewModel
                                 )
                             }
                             composable(Screen.EndGame.route) {

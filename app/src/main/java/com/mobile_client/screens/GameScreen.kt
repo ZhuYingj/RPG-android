@@ -54,6 +54,7 @@ import com.mobile_client.utils.Position
 import com.mobile_client.utils.Screen
 import com.mobile_client.utils.TileConstants
 import com.mobile_client.utils.isBot
+import com.mobile_client.viewModels.GameLobbyViewModel
 import kotlinx.coroutines.launch
 
 private val DarkText = Color(0xFF1A1A1A)
@@ -62,7 +63,7 @@ private val ActionBlue = Color(0xFF2196F3)
 private val AbandonRed = Color(0xFFE53935)
 
 @Composable
-fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostState) {
+fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostState, gameLobbyViewModel: GameLobbyViewModel) {
     val controller = GameControllerService.instance
     val scope = rememberCoroutineScope()
 
@@ -142,7 +143,7 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
     }
 
     LaunchedEffect(serverMessage) {
-        if (!serverMessage.isNullOrEmpty()) {
+        if (serverMessage.isNotEmpty()) {
             snackbarHostState.showSnackbar(
                 serverMessage,
                 duration = SnackbarDuration.Short
@@ -172,6 +173,7 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
             if (controller.gameWinner.value.isEmpty()) {
                 controller.abandon {}
             }
+        gameLobbyViewModel.clear()
         }
     }
 

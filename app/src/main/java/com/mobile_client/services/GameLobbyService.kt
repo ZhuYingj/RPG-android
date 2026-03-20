@@ -2,8 +2,10 @@ package com.mobile_client.services
 
 import android.os.Handler
 import android.os.Looper
+import com.mobile_client.utils.AppGson
 import com.mobile_client.utils.BASE_STAT_VALUE
 import com.mobile_client.utils.Dices
+import com.mobile_client.utils.GameEvents
 import com.mobile_client.utils.GameMap
 import com.mobile_client.utils.LobbyConstants.BOT_NAMES
 import com.mobile_client.utils.LobbyEvents
@@ -12,8 +14,6 @@ import com.mobile_client.utils.PlayerAvatars
 import com.mobile_client.utils.PlayerTypes
 import com.mobile_client.utils.Stats
 import org.json.JSONObject
-import com.mobile_client.utils.AppGson
-import com.mobile_client.utils.GameEvents
 
 class GameLobbyService private constructor() {
     companion object {
@@ -97,6 +97,7 @@ class GameLobbyService private constructor() {
     fun leaveLobby() {
         val socket = socketManager.socket ?: return
         socket.emit(LobbyEvents.LEAVE_LOBBY)
+        socketManager.closeLobbyListeners()
     }
 
     fun rejoiningPlayer(player: Player) {

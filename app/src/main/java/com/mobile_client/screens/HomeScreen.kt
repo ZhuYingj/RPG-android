@@ -1,7 +1,6 @@
 package com.mobile_client.screens
 
 import androidx.activity.compose.BackHandler
-import kotlinx.coroutines.delay
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -36,13 +35,13 @@ import coil.compose.rememberAsyncImagePainter
 import com.mobile_client.services.AccountService
 import com.mobile_client.utils.ImageUtils
 import com.mobile_client.utils.Screen
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 data class HomeButton(val label: String, val action: () -> Unit)
 
 @Composable
 fun HomeScreen(navController: NavController) {
-
     BackHandler() { }
 
     val account = AccountService.instance.accountInfo
