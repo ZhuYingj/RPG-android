@@ -115,10 +115,10 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
 //        controller.currentPlayer.value = player
 //        controller.configureListeners()
 
-        //print for debug
-//        SocketService.instance.socket?.onAnyIncoming { args ->
-//            val eventName = if (args.isNotEmpty()) args[0].toString() else "unknown"
-//            println("INCOMING EVENT: $eventName")}
+        //TODO print for debug also its never closed so its stacks every game
+        SocketService.instance.socket?.onAnyIncoming { args ->
+            val eventName = if (args.isNotEmpty()) args[0].toString() else "unknown"
+            println("INCOMING EVENT: $eventName")}
 
         controller.lastPlayer.value = false
         controller.fightService.isFight.value = false
