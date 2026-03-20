@@ -1,5 +1,6 @@
 package com.mobile_client.viewModels
 
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -10,10 +11,10 @@ import com.mobile_client.utils.GameMap
 import com.mobile_client.utils.LobbyEvents
 import com.mobile_client.utils.Player
 import com.mobile_client.utils.PlayerAvatars
+import com.mobile_client.utils.PlayerTypes
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-import com.mobile_client.utils.PlayerTypes
 
 class GameLobbyViewModel : ViewModel() {
     var isLobbyLocked = mutableStateOf(false)
@@ -25,8 +26,9 @@ class GameLobbyViewModel : ViewModel() {
     var lobbyCode = mutableStateOf("")
     var isHost = mutableStateOf(false)
     var gameMap = mutableStateOf<GameMap?>(null)
-
-    var entryFee = mutableStateOf(0)
+    var isFriendOnly = mutableStateOf(false)
+    var isDropIn = mutableStateOf(false)
+    var entryFee = mutableIntStateOf(0)
     private val _errorMessage = MutableSharedFlow<String>()
     val errorMessage = _errorMessage.asSharedFlow()
 
@@ -48,10 +50,11 @@ class GameLobbyViewModel : ViewModel() {
         isSubmitted.value = false
         isHost.value = false
         gameMap.value = null
-        entryFee.value = 0
+        entryFee.intValue = 0
         qrCodeDataUrl.value = null
         showQrCode.value = false
-        GameLobbyService.instance.closeLobbyListeners()
+        isFriendOnly.value = false
+        isDropIn.value = false
     }
 
     fun toggleBotType(player: Player) {
@@ -71,7 +74,7 @@ class GameLobbyViewModel : ViewModel() {
         clear()
         SocketService.instance.initializeLobbyListeners(this)
         isHost.value = true
-        entryFee.value = fee
+        entryFee.intValue = fee
         GameLobbyService.instance.createLobby(
             map = map,
             fee = fee,
@@ -94,7 +97,7 @@ class GameLobbyViewModel : ViewModel() {
             code = code,
             onSuccess = { fee, qr ->
                 lobbyCode.value = code
-                entryFee.value = fee
+                entryFee.intValue = fee
                 qrCodeDataUrl.value = qr
                 onSuccess()
             },
@@ -104,14 +107,22 @@ class GameLobbyViewModel : ViewModel() {
             }
         )
     }
+
+    fun dropInGame(player: Player) {
+        GameLobbyService.instance.rejoiningPlayer(player)
+    }
     fun selectAvatar(previousAvatar: PlayerAvatars, avatar: PlayerAvatars) {
         GameLobbyService.instance.selectAvatar(previousAvatar, avatar)
     }
 
     fun addPlayer(player: Player, onJoined: () -> Unit) {
+        println("in add player gamelobbyviewmodel.lobby = " + lobbyCode.value)
+        println("in add player gamelobbyviewmodel.isSubmitted = " + isSubmitted.value)
         GameLobbyService.instance.addPlayer(player) { joiningPlayer ->
             currentPlayer.value = joiningPlayer
             isSubmitted.value = true
+            println("2   in add player gamelobbyviewmodel.lobby = " + lobbyCode.value)
+            println("2   in add player gamelobbyviewmodel.isSubmitted = " + isSubmitted.value)
             onJoined()
         }
     }
@@ -123,6 +134,14 @@ class GameLobbyViewModel : ViewModel() {
 
     fun toggleLobbyLock() {
         GameLobbyService.instance.toggleLobbyLock()
+    }
+
+    fun toggleFriendOnly() {
+        GameLobbyService.instance.toggleFriendOnly()
+    }
+
+    fun toggleDropIn() {
+        GameLobbyService.instance.toggleDropIn()
     }
 
     fun startGame() {

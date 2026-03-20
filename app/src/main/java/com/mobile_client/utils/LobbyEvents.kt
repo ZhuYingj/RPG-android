@@ -18,4 +18,6 @@ object LobbyEvents {
     const val AVATAR_SELECTED = "avatar-selected"
     const val TOGGLE_BOT = "toggle-bot"
     const val TOGGLE_QR_CODE = "toggle-qrcode"
+    const val TOGGLE_DROP_IN = "set-drop-in"
+    const val FRIEND_ONLY = "set-friends-only"
 }

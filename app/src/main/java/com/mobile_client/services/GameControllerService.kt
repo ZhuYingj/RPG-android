@@ -2,6 +2,7 @@ package com.mobile_client.services
 
 import android.os.Handler
 import android.os.Looper
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import com.mobile_client.utils.AppGson
 import com.mobile_client.utils.GameEvents
@@ -32,7 +33,7 @@ class GameControllerService private constructor() {
     var player = mutableStateOf<Player?>(null)
     var isAction = mutableStateOf(false)
     var isBetweenTurn = mutableStateOf(false)
-    var timerCounter = mutableStateOf(0)
+    var timerCounter = mutableIntStateOf(0)
     var isTimerStopped = mutableStateOf(false)
     var isDebug = mutableStateOf(false)
     var isItemChoice = mutableStateOf(false)
@@ -42,8 +43,6 @@ class GameControllerService private constructor() {
     var gameWinner = mutableStateOf("")
     var lastPlayer = mutableStateOf(false)
     var serverMessage = mutableStateOf("")
-
-
 
     fun configureListeners() {
         socketManager.initializeGameListeners(this)
@@ -191,7 +190,7 @@ class GameControllerService private constructor() {
         player.value = null
         isAction.value = false
         isBetweenTurn.value = false
-        timerCounter.value = 0
+        timerCounter.intValue = 0
         isTimerStopped.value = false
         isDebug.value = false
         isItemChoice.value = false

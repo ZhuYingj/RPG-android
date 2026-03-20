@@ -68,6 +68,7 @@ private val SelectedGreen = Color(0xFF4CAF50)
 @Composable
 fun CharacterCreationScreen(navController: NavController, snackbarHostState: SnackbarHostState, gameLobbyViewModel: GameLobbyViewModel) {
     val availableAvatars = gameLobbyViewModel.availableAvatars
+
     val allAvatars = PlayerAvatars.entries.filter { it != PlayerAvatars.None }
 
     var selectedAvatar by remember { mutableStateOf(PlayerAvatars.None) }
@@ -80,20 +81,30 @@ fun CharacterCreationScreen(navController: NavController, snackbarHostState: Sna
 
     val scope: CoroutineScope = rememberCoroutineScope()
 
-    DisposableEffect(Unit) {
-        onDispose {
-            if (!gameLobbyViewModel.isSubmitted.value) {
-                gameLobbyViewModel.selectAvatar(selectedAvatar, PlayerAvatars.None)
-                gameLobbyViewModel.leaveLobby()
-            }
-        }
-    }
-
     LaunchedEffect(Unit) {
         gameLobbyViewModel.errorMessage.collect { message ->
             scope.launch { snackbarHostState.showSnackbar(message, duration = SnackbarDuration.Short) }
         }
     }
+
+    LaunchedEffect(gameLobbyViewModel.isGameStarted.value) {
+        if (gameLobbyViewModel.isGameStarted.value) {
+            navController.navigate(Screen.Game.route) {
+                popUpTo(0) { inclusive = true }
+            }
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            if (!gameLobbyViewModel.isSubmitted.value) {  // This is now true, so leaveLobby won't fire
+                gameLobbyViewModel.selectAvatar(selectedAvatar, PlayerAvatars.None)
+                println("hhhhhhhhhhhhhhhhhhhhh")
+                gameLobbyViewModel.leaveLobby()
+            }
+        }
+    }
+
 
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
@@ -300,6 +311,7 @@ fun CharacterCreationScreen(navController: NavController, snackbarHostState: Sna
                                                 stats = stats,
                                                 hasAction = 0
                                             )
+
                                             gameLobbyViewModel.addPlayer(player) {
                                                 Handler(Looper.getMainLooper()).post {
                                                     navController.navigate(Screen.WaitingPage.route) {
@@ -307,6 +319,11 @@ fun CharacterCreationScreen(navController: NavController, snackbarHostState: Sna
                                                     }
                                                 }
                                             }
+//                                            scope.launch {
+//                                                navController.navigate(Screen.WaitingPage.route) {
+//                                                    launchSingleTop = true
+//                                                }
+//                                            }
                                         },
                                         enabled = selectedAvatar != PlayerAvatars.None
                                             && isBonusLife != null

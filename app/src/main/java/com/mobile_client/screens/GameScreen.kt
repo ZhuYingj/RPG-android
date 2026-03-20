@@ -54,6 +54,7 @@ import com.mobile_client.utils.Position
 import com.mobile_client.utils.Screen
 import com.mobile_client.utils.TileConstants
 import com.mobile_client.utils.isBot
+import com.mobile_client.viewModels.GameLobbyViewModel
 import kotlinx.coroutines.launch
 
 private val DarkText = Color(0xFF1A1A1A)
@@ -62,7 +63,7 @@ private val ActionBlue = Color(0xFF2196F3)
 private val AbandonRed = Color(0xFFE53935)
 
 @Composable
-fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostState) {
+fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostState, gameLobbyViewModel: GameLobbyViewModel) {
     val controller = GameControllerService.instance
     val scope = rememberCoroutineScope()
 
@@ -75,7 +76,7 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
     val isAction = controller.isAction.value
     val isBetweenTurn = controller.isBetweenTurn.value
     val isItemChoice = controller.isItemChoice.value
-    val timerCounter = controller.timerCounter.value
+    val timerCounter = controller.timerCounter.intValue
     val isTimerStopped = controller.isTimerStopped.value
     val isDebug = controller.isDebug.value
     val isInCombat = controller.fightService.isFight.value
@@ -115,16 +116,16 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
 //        controller.configureListeners()
 
         //print for debug
-        SocketService.instance.socket?.onAnyIncoming { args ->
-            val eventName = if (args.isNotEmpty()) args[0].toString() else "unknown"
-            println("INCOMING EVENT: $eventName")}
+//        SocketService.instance.socket?.onAnyIncoming { args ->
+//            val eventName = if (args.isNotEmpty()) args[0].toString() else "unknown"
+//            println("INCOMING EVENT: $eventName")}
+
         controller.lastPlayer.value = false
         controller.fightService.isFight.value = false
         controller.isDebug.value = false
         controller.isTimerStopped.value = false
         controller.isAction.value = false
         controller.isItemChoice.value = false
-        controller.isBetweenTurn.value = true
     }
 
     LaunchedEffect(lastPlayer) {
@@ -143,7 +144,7 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
     }
 
     LaunchedEffect(serverMessage) {
-        if (!serverMessage.isNullOrEmpty()) {
+        if (serverMessage.isNotEmpty()) {
             snackbarHostState.showSnackbar(
                 serverMessage,
                 duration = SnackbarDuration.Short
@@ -173,6 +174,7 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
             if (controller.gameWinner.value.isEmpty()) {
                 controller.abandon {}
             }
+            SocketService.instance.closeGameListeners()
         }
     }
 
@@ -321,7 +323,7 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                items(originalPlayers) { p ->
+                items(players) { p ->
                     PlayerList(
                         player = p,
                         isActive = currentPlayer.username == p.username,
@@ -363,6 +365,7 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
 
                 Button(
                     onClick = { controller.abandon {
+                        gameLobbyViewModel.leaveLobby()
                         navController.navigate(Screen.Home.route) {
                             popUpTo(0) { inclusive = true }
                         }

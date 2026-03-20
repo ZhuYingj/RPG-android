@@ -1,7 +1,6 @@
 package com.mobile_client.screens
 
 import androidx.activity.compose.BackHandler
-import kotlinx.coroutines.delay
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -32,18 +31,30 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.rememberAsyncImagePainter
 import com.mobile_client.services.AccountService
+import com.mobile_client.services.SocketService
 import com.mobile_client.utils.ImageUtils
 import com.mobile_client.utils.Screen
+import com.mobile_client.viewModels.GameLobbyViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 data class HomeButton(val label: String, val action: () -> Unit)
 
 @Composable
-fun HomeScreen(navController: NavController) {
-
+fun HomeScreen(navController: NavController, gameLobbyViewModel: GameLobbyViewModel) {
     BackHandler() { }
+    val navBackStackEntry = navController.currentBackStackEntryAsState().value
+
+    LaunchedEffect(navBackStackEntry) {
+        println("cleaned sockets")
+        SocketService.instance.closeLobbyListeners()
+        SocketService.instance.closeGameListeners()
+        gameLobbyViewModel.isGameStarted.value = false
+        gameLobbyViewModel.isSubmitted.value = false
+    }
 
     val account = AccountService.instance.accountInfo
     val avatarBitmap = ImageUtils.base64ToBitmap(account?.avatar)

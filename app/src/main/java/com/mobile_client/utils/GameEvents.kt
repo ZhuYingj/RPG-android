@@ -19,6 +19,7 @@ object GameEvents {
     const val ITEM_DROP = "item-drop"
     const val END_FIGHT = "end-fight"
     const val RESTART_TIMER = "restart-timer"
+    const val REJOINING_PLAYER = "rejoining-player"
     const val END_GAME = "end-game"
     const val END_GAME_LEAVE = "end-game-leave"
 }

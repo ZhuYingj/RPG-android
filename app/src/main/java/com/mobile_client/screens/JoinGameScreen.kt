@@ -30,11 +30,12 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mobile_client.components.GameList
 import com.mobile_client.utils.Screen
+import com.mobile_client.utils.launchQrScanner
 import com.mobile_client.viewModels.CurrentGamesViewModel
 import com.mobile_client.viewModels.GameLobbyViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import com.mobile_client.utils.launchQrScanner
+
 @Composable
 fun JoinGameScreen(
     navController: NavController,
@@ -46,6 +47,14 @@ fun JoinGameScreen(
     var lobbyCode by remember { mutableStateOf("") }
     val scope: CoroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
+
+    LaunchedEffect(gameLobbyViewModel.isGameStarted.value) {
+        if (gameLobbyViewModel.isGameStarted.value) {
+            navController.navigate(Screen.Game.route) {
+                popUpTo(0) { inclusive = true }
+            }
+        }
+    }
 
     LaunchedEffect(Unit) {
         currentGameListViewModel.lobbySelected.collect { lobbyCode ->

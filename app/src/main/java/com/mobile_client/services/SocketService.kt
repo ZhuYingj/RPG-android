@@ -17,6 +17,7 @@ import com.mobile_client.utils.LobbyEvents
 import com.mobile_client.utils.MessageEvents
 import com.mobile_client.utils.Player
 import com.mobile_client.utils.PlayerAvatars
+import com.mobile_client.utils.RejoiningPlayer
 import com.mobile_client.utils.TileConstants
 import com.mobile_client.utils.WinFightObject
 import com.mobile_client.utils.toGameTiles
@@ -91,6 +92,7 @@ class SocketService private constructor() {
 
     fun initializeLobbyListeners(lobbyViewModel: GameLobbyViewModel) {
         val socket = socket ?: return
+        closeLobbyListeners()
 
         socket.on(LobbyEvents.PLAYERS) { args ->
             if (args.isNotEmpty()) {
@@ -112,11 +114,14 @@ class SocketService private constructor() {
             val message = if (args.isNotEmpty()) args[0] as String else "Lobby fermé"
             lobbyViewModel.showMessage(message)
             lobbyViewModel.clear()
+            closeLobbyListeners()
         }
 
         socket.on(LobbyEvents.KICKED) {
+            println("kicked")
             lobbyViewModel.showMessage("Vous avez été enlevé de la partie")
             lobbyViewModel.clear()
+            closeLobbyListeners()
         }
 
         socket.on(LobbyEvents.ERROR) { args ->
@@ -143,7 +148,6 @@ class SocketService private constructor() {
                 val current = gamePlayers.find { it.username == lobbyViewModel.currentPlayer.value?.username }
                 if (current != null) lobbyViewModel.currentPlayer.value = current
 
-                //initializeGameListeners()
                 lobbyViewModel.isGameStarted.value = true
             }
         }
@@ -158,8 +162,50 @@ class SocketService private constructor() {
         }
 
         socket.on(LobbyEvents.TOGGLE_QR_CODE) { args ->
-            lobbyViewModel.showQrCode.value = args[0] as Boolean
+            if(args.isNotEmpty())
+                lobbyViewModel.showQrCode.value = args[0] as Boolean
         }
+
+        //TODO toggle isFriendOnly and DropIn
+        socket.on(LobbyEvents.FRIEND_ONLY) { args ->
+            if(args.isNotEmpty())
+                lobbyViewModel.isFriendOnly.value = args[0] as Boolean
+        }
+
+        socket.on(LobbyEvents.TOGGLE_DROP_IN) { args ->
+            if(args.isNotEmpty())
+                lobbyViewModel.isDropIn.value = args[0] as Boolean
+        }
+
+        socket.on(GameEvents.REJOINING_PLAYER) { args ->
+            println("REJOINING_PLAYER lobby listener fired")
+            if (args.isNotEmpty()) {
+                val res = gson.fromJson(args[0].toString(), RejoiningPlayer::class.java)
+
+                // Set up lobby VM like handleStartGame does
+                lobbyViewModel.currentPlayer.value = res.joiningPlayer
+                lobbyViewModel.players.clear()
+                lobbyViewModel.players.addAll(res.players)
+                lobbyViewModel.gameMap.value = res.map
+                lobbyViewModel.isSubmitted.value = true
+
+                // Set up game controller
+                val controller = GameControllerService.instance
+                controller.gameMap.value = res.map
+                controller.gameTiles.value = res.map.tiles.toGameTiles()
+                controller.players.value = res.players
+                controller.player.value = res.joiningPlayer
+                controller.currentPlayer.value = res.players[res.activePlayerIndex]
+                controller.originalPlayers.value = res.players
+
+                // Initialize game listeners before setting isGameStarted
+                initializeGameListeners(controller)
+
+                // This triggers navigation in WaitingScreen's LaunchedEffect
+                lobbyViewModel.isGameStarted.value = true
+            }
+        }
+
     }
 
     fun closeLobbyListeners() {
@@ -171,13 +217,17 @@ class SocketService private constructor() {
         socket?.off(LobbyEvents.START_GAME)
         socket?.off(LobbyEvents.AVATAR_SELECTED)
         socket?.off(LobbyEvents.TOGGLE_QR_CODE)
+        socket?.off(LobbyEvents.TOGGLE_BOT)
+        socket?.off(LobbyEvents.FRIEND_ONLY)
+        socket?.off(LobbyEvents.TOGGLE_DROP_IN)
+        socket?.off(GameEvents.REJOINING_PLAYER)
     }
 
     // ===================== GAME LISTENERS =====================
 
     fun initializeGameListeners(controller: GameControllerService) {
         val socket = socket ?: return
-
+        closeGameListeners()
         socket.on(GameEvents.ABANDON) { args ->
             if (args.isNotEmpty()) {
                 val type = object : TypeToken<List<Player>>() {}.type
@@ -228,6 +278,20 @@ class SocketService private constructor() {
             println("DEBUG fired")
             if (args.isNotEmpty()) {
                 controller.isDebug.value = args[0] as Boolean
+            }
+        }
+
+        //TODO idk where to put it so I put it here
+        socket.off(GameEvents.REJOINING_PLAYER)
+        socket.on(GameEvents.REJOINING_PLAYER) { args ->
+            //TODO
+            if (args.isNotEmpty()) {
+                val res = gson.fromJson(args[0].toString(), RejoiningPlayer::class.java)
+                // Update game state with new player list and map
+                controller.players.value = res.players
+                controller.originalPlayers.value = res.players
+                controller.gameMap.value = res.map
+                controller.gameTiles.value = res.map.tiles.toGameTiles()
             }
         }
 
@@ -298,8 +362,6 @@ class SocketService private constructor() {
             if (args.isNotEmpty()) {
                 val data: InitFightObject = gson.fromJson((args[0] as JSONObject).toString(), InitFightObject::class.java)
                 initializeFightListeners(controller)
-                //TODO: print socket and socket id
-                println("socket: $socket")
                 val p = controller.player.value ?: return@on
                 if (p.username == data.players[0].username) {
                     fightService.initFight(data.players[0], data.players[1], data.playerTurn)
@@ -520,6 +582,7 @@ class SocketService private constructor() {
         socket?.off(FightEvents.WIN_FIGHT)
         socket?.off(FightEvents.EVADE_RESULT)
         socket?.off(FightEvents.WATER_CAN_USED)
+        socket?.off(GameEvents.REJOINING_PLAYER)
     }
 
     fun convertUTCToLocalTime(utcString: String): String {
