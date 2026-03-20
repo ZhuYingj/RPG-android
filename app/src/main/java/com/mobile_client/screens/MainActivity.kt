@@ -68,7 +68,7 @@ class MainActivity : ComponentActivity() {
                         NavHost(
                             navController = navController,
                             startDestination = Screen.Login.route,
-                            modifier = Modifier.fillMaxSize()
+                            modifier = Modifier.fillMaxSize().zIndex(0f)
                         ) {
                             composable(Screen.Login.route) {
                                 LoginScreen(
@@ -181,9 +181,16 @@ class MainActivity : ComponentActivity() {
                             )
                             FriendsPanel(
                                 modifier = Modifier.align(Alignment.BottomStart).padding(16.dp),
-                                friendsViewModel = friendsViewModel
+                                friendsViewModel = friendsViewModel,
+                                snackbarHostState = snackbarHostState
                             )
                         }
+                        SnackbarHost(
+                            hostState = snackbarHostState,
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .zIndex(99f)
+                        )
                     }
                 }
             }

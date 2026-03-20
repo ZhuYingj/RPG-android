@@ -7,6 +7,7 @@ import com.mobile_client.utils.Account
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import android.graphics.Bitmap
 
 class AccountViewModel : ViewModel() {
 
@@ -18,8 +19,15 @@ class AccountViewModel : ViewModel() {
 
     private val accountService = AccountService.instance
 
+    private val _qrBitmap = MutableStateFlow<Bitmap?>(null)
+    val qrBitmap: StateFlow<Bitmap?> = _qrBitmap
+
+    private val _showQrCode = MutableStateFlow(false)
+    val showQrCode: StateFlow<Boolean> = _showQrCode
+
     init {
         _account.value = accountService.accountInfo
+        generateQrCode()
     }
 
     fun updateAccount(name: String, email: String) {
@@ -67,6 +75,25 @@ class AccountViewModel : ViewModel() {
                 _message.value = "${e.message}"
             }
         }
+    }
+
+    private fun generateQrCode() {
+        val username = accountService.accountInfo?.username ?: return
+        val writer = com.google.zxing.qrcode.QRCodeWriter()
+        val bitMatrix = writer.encode(username, com.google.zxing.BarcodeFormat.QR_CODE, 300, 300)
+        val w = bitMatrix.width
+        val h = bitMatrix.height
+        val bmp = Bitmap.createBitmap(w, h, Bitmap.Config.RGB_565)
+        for (x in 0 until w) {
+            for (y in 0 until h) {
+                bmp.setPixel(x, y, if (bitMatrix[x, y]) android.graphics.Color.BLACK else android.graphics.Color.WHITE)
+            }
+        }
+        _qrBitmap.value = bmp
+    }
+
+    fun toggleQrCode() {
+        _showQrCode.value = !_showQrCode.value
     }
 
     fun clearMessage() {
