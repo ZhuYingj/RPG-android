@@ -92,6 +92,7 @@ class SocketService private constructor() {
 
     fun initializeLobbyListeners(lobbyViewModel: GameLobbyViewModel) {
         val socket = socket ?: return
+        closeLobbyListeners()
 
         socket.on(LobbyEvents.PLAYERS) { args ->
             if (args.isNotEmpty()) {
@@ -219,13 +220,14 @@ class SocketService private constructor() {
         socket?.off(LobbyEvents.TOGGLE_BOT)
         socket?.off(LobbyEvents.FRIEND_ONLY)
         socket?.off(LobbyEvents.TOGGLE_DROP_IN)
+        socket?.off(GameEvents.REJOINING_PLAYER)
     }
 
     // ===================== GAME LISTENERS =====================
 
     fun initializeGameListeners(controller: GameControllerService) {
         val socket = socket ?: return
-
+        closeGameListeners()
         socket.on(GameEvents.ABANDON) { args ->
             if (args.isNotEmpty()) {
                 val type = object : TypeToken<List<Player>>() {}.type

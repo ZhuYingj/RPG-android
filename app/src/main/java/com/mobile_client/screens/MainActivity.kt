@@ -80,7 +80,7 @@ class MainActivity : ComponentActivity() {
                                 SignUpScreen(navController = navController)
                             }
                             composable(Screen.Home.route) {
-                                HomeScreen(navController = navController)
+                                HomeScreen(navController = navController, gameLobbyViewModel = gameLobbyViewModel)
                             }
                             composable(Screen.GameCreation.route) {
                                 GamesCreationScreen(

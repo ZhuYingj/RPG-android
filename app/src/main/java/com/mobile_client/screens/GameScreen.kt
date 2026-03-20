@@ -116,9 +116,10 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
 //        controller.configureListeners()
 
         //print for debug
-        SocketService.instance.socket?.onAnyIncoming { args ->
-            val eventName = if (args.isNotEmpty()) args[0].toString() else "unknown"
-            println("INCOMING EVENT: $eventName")}
+//        SocketService.instance.socket?.onAnyIncoming { args ->
+//            val eventName = if (args.isNotEmpty()) args[0].toString() else "unknown"
+//            println("INCOMING EVENT: $eventName")}
+
         controller.lastPlayer.value = false
         controller.fightService.isFight.value = false
         controller.isDebug.value = false
@@ -173,7 +174,7 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
             if (controller.gameWinner.value.isEmpty()) {
                 controller.abandon {}
             }
-        gameLobbyViewModel.clear()
+            SocketService.instance.closeGameListeners()
         }
     }
 
@@ -364,6 +365,7 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
 
                 Button(
                     onClick = { controller.abandon {
+                        gameLobbyViewModel.leaveLobby()
                         navController.navigate(Screen.Home.route) {
                             popUpTo(0) { inclusive = true }
                         }
