@@ -9,7 +9,17 @@ data class GameMap(
     val size: TileConstants.MapSize,
     val tiles: List<List<Tile>>,
     val isCaptureTheFlag: Boolean,
-    val isVisible: Boolean,
+    val property: GameProperty,
+    val owner: String,
     val lastModified: String,
     val actionNumber: Int,
 )
+
+enum class GameProperty {
+    @SerializedName("public")
+    Public,
+    @SerializedName("private")
+    Private,
+    @SerializedName("private-shared")
+    PrivateShared
+}

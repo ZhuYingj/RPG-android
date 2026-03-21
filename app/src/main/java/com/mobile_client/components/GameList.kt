@@ -55,13 +55,15 @@ import com.mobile_client.viewModels.BaseGameListViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import androidx.compose.runtime.produceState
+import androidx.core.graphics.scale
 
 private val bitmapCache = mutableMapOf<Int, android.graphics.Bitmap>()
 
 fun getCachedBitmap(context: android.content.Context, resId: Int, size: Int): android.graphics.Bitmap {
     return bitmapCache.getOrPut(resId) {
         val bmp = BitmapFactory.decodeResource(context.resources, resId)
-        android.graphics.Bitmap.createScaledBitmap(bmp, size, size, false)
+        bmp.scale(size, size, false)
+        //android.graphics.Bitmap.createScaledBitmap(bmp, size, size, false)
     }
 }
 @Composable

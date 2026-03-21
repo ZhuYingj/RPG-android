@@ -1,5 +1,6 @@
 package com.mobile_client.services
 
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import com.mobile_client.environment.ENVIRONMENT
 import com.mobile_client.utils.Account
@@ -21,7 +22,7 @@ class AccountService private constructor() {
     var accountInfo: Account? = null
         private set
 
-    var money = mutableStateOf(0)
+    var money = mutableIntStateOf(0)
         private set
 
     val username: String
@@ -29,7 +30,7 @@ class AccountService private constructor() {
 
     fun setAccount(account: Account, token: String) {
         this.accountInfo = account
-        this.money.value = account.money
+        this.money.intValue = account.money
         this.token = token
     }
 
