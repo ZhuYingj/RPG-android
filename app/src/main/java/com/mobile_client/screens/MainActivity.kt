@@ -35,7 +35,7 @@ import com.mobile_client.components.HomeButton
 import com.mobile_client.screens.ui.theme.MobileclientTheme
 import com.mobile_client.utils.Screen
 import com.mobile_client.viewModels.ChatViewModel
-import com.mobile_client.viewModels.CurrentGamesViewModel
+import com.mobile_client.viewModels.CurrentGamesListViewModel
 import com.mobile_client.viewModels.FriendsViewModel
 import com.mobile_client.viewModels.GameListViewModel
 import com.mobile_client.viewModels.GameLobbyViewModel
@@ -51,7 +51,7 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 val snackbarHostState = remember { SnackbarHostState() }
                 val gameListViewModel: GameListViewModel = viewModel()
-                val currentGamesViewModel: CurrentGamesViewModel = viewModel()
+                val currentGamesViewModel: CurrentGamesListViewModel = viewModel()
                 val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
                 val showChat = currentRoute != null && currentRoute !in listOf(Screen.Login.route, Screen.SignUp.route)
                 val gameLobbyViewModel: GameLobbyViewModel = viewModel()

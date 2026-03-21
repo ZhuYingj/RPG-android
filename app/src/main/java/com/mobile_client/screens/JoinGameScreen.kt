@@ -31,7 +31,7 @@ import androidx.navigation.NavController
 import com.mobile_client.components.GameList
 import com.mobile_client.utils.Screen
 import com.mobile_client.utils.launchQrScanner
-import com.mobile_client.viewModels.CurrentGamesViewModel
+import com.mobile_client.viewModels.CurrentGamesListViewModel
 import com.mobile_client.viewModels.GameLobbyViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -40,7 +40,7 @@ import kotlinx.coroutines.launch
 fun JoinGameScreen(
     navController: NavController,
     snackbarHostState: SnackbarHostState,
-    currentGameListViewModel: CurrentGamesViewModel,
+    currentGameListViewModel: CurrentGamesListViewModel,
     gameLobbyViewModel: GameLobbyViewModel
 ) {
     var showCodeDialog by remember { mutableStateOf(false) }

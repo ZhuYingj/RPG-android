@@ -17,7 +17,7 @@ class GameListViewModel : BaseGameListViewModel() {
             _isLoading.value = true
             _error.value = null
             try {
-                val fetchedMaps = GameListService.instance.getAllMaps(isVisible)
+                val fetchedMaps = GameListService.instance.getAllMaps()
                 _maps.value = fetchedMaps
 
                 println("Loaded ${fetchedMaps.size} maps")

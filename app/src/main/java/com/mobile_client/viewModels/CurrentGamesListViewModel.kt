@@ -1,13 +1,13 @@
 package com.mobile_client.viewModels
 
 import androidx.lifecycle.viewModelScope
-import com.mobile_client.services.CurrentGameListService
+import com.mobile_client.services.GameListService
 import com.mobile_client.utils.GameMap
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 
-class CurrentGamesViewModel: BaseGameListViewModel() {
+class CurrentGamesListViewModel: BaseGameListViewModel() {
     override val isLobbyMode: Boolean = true
     private val _lobbySelected = MutableSharedFlow<String>()
     val lobbySelected = _lobbySelected.asSharedFlow()
@@ -17,7 +17,7 @@ class CurrentGamesViewModel: BaseGameListViewModel() {
             _isLoading.value = true
             _error.value = null
             try {
-                val fetchedCurrentGames = CurrentGameListService.instance.getCurrentGames()
+                val fetchedCurrentGames = GameListService.instance.getCurrentGames()
                 _maps.value = fetchedCurrentGames.map { it.map as GameMap }
                 _currentGames.value = fetchedCurrentGames // keep full lobbies if needed later
             } catch (e: Exception) {
