@@ -56,6 +56,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import androidx.compose.runtime.produceState
 import androidx.core.graphics.scale
+import androidx.core.graphics.createBitmap
 
 private val bitmapCache = mutableMapOf<Int, android.graphics.Bitmap>()
 
@@ -344,7 +345,7 @@ fun MapTilesDisplay(
             val tileSize = 20
             val width = (tiles.firstOrNull()?.size ?: 1) * tileSize
             val height = tiles.size * tileSize
-            val bmp = android.graphics.Bitmap.createBitmap(width, height, android.graphics.Bitmap.Config.ARGB_8888)
+            val bmp = createBitmap(width, height)
             val canvas = android.graphics.Canvas(bmp)
 
             tiles.forEachIndexed { rowIdx, row ->

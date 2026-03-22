@@ -69,7 +69,7 @@ class GameLobbyViewModel : ViewModel() {
 
         GameLobbyService.instance.updateBotType(player.username, newType)
     }
-    fun createLobby(map: GameMap, fee: Int = 0, onSuccess: () -> Unit, onError: (String) -> Unit) {
+    fun createLobby(map: GameMap, fee: Int = 0, isRapid: Boolean = false, onSuccess: () -> Unit, onError: (String) -> Unit) {
         GameLobbyService.instance.leaveLobby()
         clear()
         SocketService.instance.initializeLobbyListeners(this)
@@ -78,6 +78,7 @@ class GameLobbyViewModel : ViewModel() {
         GameLobbyService.instance.createLobby(
             map = map,
             fee = fee,
+            isRapid = isRapid,
             onSuccess = { code, qr ->
                 lobbyCode.value = code
                 qrCodeDataUrl.value = qr
