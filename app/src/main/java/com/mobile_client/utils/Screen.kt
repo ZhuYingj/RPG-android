@@ -14,4 +14,6 @@ sealed class Screen(val route: String) {
 
     object Game : Screen("game")
     object EndGame : Screen("end_game")
+    object Inventory : Screen("inventory")
+    object Shop : Screen("shop")
 }

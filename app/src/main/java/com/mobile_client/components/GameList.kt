@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -41,6 +42,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -56,6 +58,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import androidx.compose.runtime.produceState
 import androidx.core.graphics.scale
+import com.mobile_client.viewModels.ThemeViewModel
 import androidx.core.graphics.createBitmap
 
 private val bitmapCache = mutableMapOf<Int, android.graphics.Bitmap>()
@@ -70,7 +73,8 @@ fun getCachedBitmap(context: android.content.Context, resId: Int, size: Int): an
 @Composable
 fun GameList(
     viewModel: BaseGameListViewModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    themeViewModel: ThemeViewModel
 ) {
     val maps by viewModel.maps.collectAsState()
     val currentGames by viewModel.currentGames.collectAsState()
@@ -79,12 +83,20 @@ fun GameList(
 
     var descriptionId by remember { mutableStateOf<String?>(null) }
     val listState = rememberLazyListState()
+    val assets = themeViewModel.assets
 
     LaunchedEffect(Unit) {
         viewModel.loadMaps()
     }
 
-    Column(modifier = modifier.fillMaxSize().padding(20.dp)) {
+    val isEmpty = (maps.isEmpty() && !viewModel.isLobbyMode) || (currentGames.isEmpty() && viewModel.isLobbyMode)
+    val columnModifier = if (isEmpty) {
+        modifier.fillMaxWidth().wrapContentHeight().padding(20.dp)
+    } else {
+        modifier.fillMaxSize().padding(20.dp)
+    }
+
+    Column(modifier = columnModifier) {
         when {
             isLoading -> {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -101,20 +113,34 @@ fun GameList(
                 }
             }
             maps.isEmpty() && !viewModel.isLobbyMode -> {
-                Text(
-                    text = "Aucun jeu disponible présentement.",
-                    modifier = Modifier.padding(16.dp),
-                    fontSize = 19.sp,
-                    color = Color(0xFF555555)
-                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 32.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Aucun jeu disponible présentement.",
+                        fontSize = 19.sp,
+                        color = assets.mainPageTextColor,
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
             currentGames.isEmpty() && viewModel.isLobbyMode -> {
-                Text(
-                    text = "Aucune partie en cours présentement.",
-                    modifier = Modifier.padding(16.dp),
-                    fontSize = 19.sp,
-                    color = Color(0xFF555555)
-                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 32.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Aucune partie en cours présentement.",
+                        fontSize = 19.sp,
+                        color = assets.mainPageTextColor,
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
             else -> {
                 if (viewModel.isLobbyMode) {

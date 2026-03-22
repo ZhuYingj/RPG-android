@@ -12,11 +12,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -58,18 +60,23 @@ import com.mobile_client.utils.PlayerTypes
 import com.mobile_client.utils.Screen
 import com.mobile_client.utils.Stats
 import com.mobile_client.viewModels.GameLobbyViewModel
+import com.mobile_client.viewModels.ThemeViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-private val DarkBrown = Color(0xFF3E2723)
 private val IconDark = Color(0xFF3E2723)
 private val SelectedGreen = Color(0xFF4CAF50)
 
 @Composable
-fun CharacterCreationScreen(navController: NavController, snackbarHostState: SnackbarHostState, gameLobbyViewModel: GameLobbyViewModel) {
+fun CharacterCreationScreen(
+    navController: NavController,
+    snackbarHostState: SnackbarHostState,
+    gameLobbyViewModel: GameLobbyViewModel,
+    themeViewModel: ThemeViewModel,
+) {
     val availableAvatars = gameLobbyViewModel.availableAvatars
-
     val allAvatars = PlayerAvatars.entries.filter { it != PlayerAvatars.None }
+    val assets = themeViewModel.assets
 
     var selectedAvatar by remember { mutableStateOf(PlayerAvatars.None) }
     var previousAvatar by remember { mutableStateOf(PlayerAvatars.None) }
@@ -97,53 +104,60 @@ fun CharacterCreationScreen(navController: NavController, snackbarHostState: Sna
 
     DisposableEffect(Unit) {
         onDispose {
-            if (!gameLobbyViewModel.isSubmitted.value) {  // This is now true, so leaveLobby won't fire
+            if (!gameLobbyViewModel.isSubmitted.value) {
                 gameLobbyViewModel.selectAvatar(selectedAvatar, PlayerAvatars.None)
-                println("hhhhhhhhhhhhhhhhhhhhh")
                 gameLobbyViewModel.leaveLobby()
             }
         }
     }
 
-
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
-            painter = painterResource(R.drawable.grass_backround),
+            painter = painterResource(assets.backgroundCharacterPage),
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
+            contentScale = ContentScale.Crop,
+            alignment = Alignment.TopCenter
         )
 
         Column(modifier = Modifier.fillMaxSize()) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(24.dp),
+                    .padding(horizontal = 80.dp, vertical = 4.dp)
+                    .padding(top = 50.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                Spacer(modifier = Modifier.height(8.dp))
+
                 Text(
                     "CRÉATION DU PERSONNAGE",
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
-                    color = DarkBrown
+                    color = assets.mainPageTextColor
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
                 OutlinedTextField(
                     value = AccountService.instance.username,
                     onValueChange = {},
                     singleLine = true,
                     enabled = false,
-                    modifier = Modifier.width(300.dp)
+                    modifier = Modifier
+                        .width(300.dp)
+                        .background(Color.White.copy(alpha = 0.5f), RoundedCornerShape(4.dp))
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 4.dp),
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
+                    // Left column - Avatar selection
                     Column(
                         modifier = Modifier.weight(1f),
                         horizontalAlignment = Alignment.CenterHorizontally
@@ -152,35 +166,40 @@ fun CharacterCreationScreen(navController: NavController, snackbarHostState: Sna
                             "Choisissez un avatar",
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp,
-                            color = DarkBrown
+                            color = assets.mainPageTextColor
                         )
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(4.dp))
                         Box(
                             modifier = Modifier
+                                .fillMaxWidth()
+                                .height(380.dp)
                                 .clip(RoundedCornerShape(12.dp))
                         ) {
                             Image(
                                 painter = painterResource(R.drawable.vector_cartoon),
                                 contentDescription = null,
-                                modifier = Modifier.matchParentSize(),
+                                modifier = Modifier.fillMaxSize(),
                                 contentScale = ContentScale.Crop
                             )
                             Box(
                                 modifier = Modifier
-                                    .padding(20.dp)
+                                    .padding(8.dp)
+                                    .fillMaxSize()
                                     .clip(RoundedCornerShape(8.dp))
                             ) {
                                 Image(
                                     painter = painterResource(R.drawable.brown_soil),
                                     contentDescription = null,
-                                    modifier = Modifier.matchParentSize(),
+                                    modifier = Modifier.fillMaxSize(),
                                     contentScale = ContentScale.Crop
                                 )
                                 LazyVerticalGrid(
                                     columns = GridCells.Fixed(4),
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                                    modifier = Modifier.padding(16.dp)
+                                    horizontalArrangement = Arrangement.spacedBy(2.dp),
+                                    verticalArrangement = Arrangement.spacedBy(2.dp),
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(4.dp),
                                 ) {
                                     items(allAvatars.size) { index ->
                                         val avatar = allAvatars[index]
@@ -188,13 +207,9 @@ fun CharacterCreationScreen(navController: NavController, snackbarHostState: Sna
                                         val isAvailable = availableAvatars.contains(avatar)
                                         Box(
                                             modifier = Modifier
-                                                .size(80.dp)
-                                                .clip(RoundedCornerShape(8.dp))
-                                                .border(
-                                                    if (isSelected) 3.dp else 1.dp,
-                                                    if (isSelected) SelectedGreen else Color.Transparent,
-                                                    RoundedCornerShape(8.dp)
-                                                )
+                                                .sizeIn(maxHeight = 110.dp, maxWidth = 110.dp)
+                                                .aspectRatio(1f)
+                                                .clip(RoundedCornerShape(6.dp))
                                                 .alpha(if (isAvailable) 1f else 0.3f)
                                                 .clickable(enabled = isAvailable) {
                                                     previousAvatar = selectedAvatar
@@ -206,12 +221,24 @@ fun CharacterCreationScreen(navController: NavController, snackbarHostState: Sna
                                                 },
                                             contentAlignment = Alignment.Center
                                         ) {
-                                            ImageResources.avatarToImage[avatar]?.let {
-                                                Image(
-                                                    painter = painterResource(id = it),
-                                                    contentDescription = avatar.name,
-                                                    modifier = Modifier.size(60.dp)
-                                                )
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(110.dp)
+                                                    .clip(RoundedCornerShape(6.dp))
+                                                    .border(
+                                                        if (isSelected) 2.dp else 0.dp,
+                                                        if (isSelected) SelectedGreen else Color.Transparent,
+                                                        RoundedCornerShape(6.dp)
+                                                    ),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                ImageResources.avatarToImage[avatar]?.let {
+                                                    Image(
+                                                        painter = painterResource(id = it),
+                                                        contentDescription = avatar.name,
+                                                        modifier = Modifier.size(90.dp)
+                                                    )
+                                                }
                                             }
                                         }
                                     }
@@ -220,6 +247,7 @@ fun CharacterCreationScreen(navController: NavController, snackbarHostState: Sna
                         }
                     }
 
+                    // Right column - Stats
                     Column(
                         modifier = Modifier.weight(1f),
                         horizontalAlignment = Alignment.CenterHorizontally
@@ -228,66 +256,70 @@ fun CharacterCreationScreen(navController: NavController, snackbarHostState: Sna
                             "Choisissez un bonus et assignez vos dés",
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp,
-                            color = DarkBrown
+                            color = assets.mainPageTextColor
                         )
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(4.dp))
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .height(380.dp)
                                 .clip(RoundedCornerShape(12.dp))
                         ) {
                             Image(
                                 painter = painterResource(R.drawable.brown_soil),
                                 contentDescription = null,
-                                modifier = Modifier.matchParentSize(),
+                                modifier = Modifier.fillMaxSize(),
                                 contentScale = ContentScale.Crop
                             )
                             Column(
-                                modifier = Modifier.padding(16.dp)
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(12.dp),
+                                verticalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text("Attributs :", fontWeight = FontWeight.Bold, color = IconDark, fontSize = 16.sp)
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-                                    StatIcon(R.drawable.heart, hp)
-                                    StatIcon(R.drawable.bolt, speed)
-                                    StatIcon(R.drawable.swords, BASE_STAT_VALUE)
-                                    StatIcon(R.drawable.shield, BASE_STAT_VALUE)
+                                Column {
+                                    Text("Attributs :", fontWeight = FontWeight.Bold, color = assets.mainPageTextColor, fontSize = 16.sp)
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+                                        StatIcon(R.drawable.heart, hp)
+                                        StatIcon(R.drawable.bolt, speed)
+                                        StatIcon(R.drawable.swords, BASE_STAT_VALUE)
+                                        StatIcon(R.drawable.shield, BASE_STAT_VALUE)
+                                    }
+
+                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                    Text("Choisissez un bonus +2 :", fontWeight = FontWeight.Bold, color = assets.mainPageTextColor, fontSize = 16.sp)
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                        SelectableStatIcon(R.drawable.heart, isBonusLife == true) { isBonusLife = true }
+                                        SelectableStatIcon(R.drawable.bolt, isBonusLife == false) { isBonusLife = false }
+                                    }
+
+                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                    Text("D6 assigné à :", fontWeight = FontWeight.Bold, color = assets.mainPageTextColor, fontSize = 16.sp)
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                        SelectableStatIcon(R.drawable.swords, attackDice == Dices.D6) { attackDice = Dices.D6 }
+                                        SelectableStatIcon(R.drawable.shield, attackDice == Dices.D4) { attackDice = Dices.D4 }
+                                    }
+
+                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                    Text("D4 est assigné à :", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = assets.mainPageTextColor)
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    if (attackDice != null) {
+                                        Icon(
+                                            painter = painterResource(
+                                                if (attackDice == Dices.D6) R.drawable.shield else R.drawable.swords
+                                            ),
+                                            contentDescription = null,
+                                            tint = IconDark,
+                                            modifier = Modifier.size(32.dp)
+                                        )
+                                    }
                                 }
-
-                                Spacer(modifier = Modifier.height(16.dp))
-
-                                Text("Choisissez un bonus +2 :", fontWeight = FontWeight.Bold, color = IconDark, fontSize = 16.sp)
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    SelectableStatIcon(R.drawable.heart, isBonusLife == true) { isBonusLife = true }
-                                    SelectableStatIcon(R.drawable.bolt, isBonusLife == false) { isBonusLife = false }
-                                }
-
-                                Spacer(modifier = Modifier.height(16.dp))
-
-                                Text("D6 assigné à :", fontWeight = FontWeight.Bold, color = IconDark, fontSize = 16.sp)
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    SelectableStatIcon(R.drawable.swords, attackDice == Dices.D6) { attackDice = Dices.D6 }
-                                    SelectableStatIcon(R.drawable.shield, attackDice == Dices.D4) { attackDice = Dices.D4 }
-                                }
-
-                                Spacer(modifier = Modifier.height(16.dp))
-
-                                Text("D4 est assigné à :", fontWeight = FontWeight.Bold, color = IconDark, fontSize = 16.sp)
-                                Spacer(modifier = Modifier.height(4.dp))
-                                if (attackDice != null) {
-                                    Icon(
-                                        painter = painterResource(
-                                            if (attackDice == Dices.D6) R.drawable.shield else R.drawable.swords
-                                        ),
-                                        contentDescription = null,
-                                        tint = IconDark,
-                                        modifier = Modifier.size(32.dp)
-                                    )
-                                }
-
-                                Spacer(modifier = Modifier.height(16.dp))
 
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
@@ -320,11 +352,6 @@ fun CharacterCreationScreen(navController: NavController, snackbarHostState: Sna
                                                     }
                                                 }
                                             }
-//                                            scope.launch {
-//                                                navController.navigate(Screen.WaitingPage.route) {
-//                                                    launchSingleTop = true
-//                                                }
-//                                            }
                                         },
                                         enabled = selectedAvatar != PlayerAvatars.None
                                             && isBonusLife != null

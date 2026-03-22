@@ -56,4 +56,19 @@ object ImageResources {
         PlayerAvatars.Celery to R.drawable.avatar11,
         PlayerAvatars.Tomato to R.drawable.avatar12,
     )
+
+    val cosmeticToImage = mapOf(
+        "cosmetics/hats/wizard.png" to R.drawable.wizard,
+        "cosmetics/hats/baseball_cap.png" to R.drawable.baseball_cap,
+        "cosmetics/hats/cowboyhat.png" to R.drawable.cowboyhat,
+        "cosmetics/hats/tuque.png" to R.drawable.tuque,
+        "cosmetics/weapons/pitchfork.png" to R.drawable.pitchfork,
+        "cosmetics/weapons/hoe.png" to R.drawable.hoe,
+        "cosmetics/weapons/spade.png" to R.drawable.spade,
+        "cosmetics/weapons/sickle.png" to R.drawable.sickle,
+        "avatars/avatar13.png" to R.drawable.avatar13,
+        "avatars/avatar14.png" to R.drawable.avatar14,
+        "avatars/avatar15.png" to R.drawable.avatar15,
+        "avatars/avatar16.png" to R.drawable.avatar16,
+    )
 }

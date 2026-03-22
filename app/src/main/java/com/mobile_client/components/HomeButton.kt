@@ -11,17 +11,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mobile_client.utils.Screen
+import com.mobile_client.viewModels.ThemeViewModel
 
 @Composable
-fun HomeButton(navController: NavController, modifier: Modifier = Modifier) {
+fun HomeButton(navController: NavController, modifier: Modifier = Modifier, themeViewModel: ThemeViewModel) {
+    val assets = themeViewModel.assets
     OutlinedButton(
         onClick = { navController.navigate(Screen.Home.route) { launchSingleTop = true } },
         modifier = modifier,
         colors = ButtonDefaults.outlinedButtonColors(
             containerColor = Color.White.copy(alpha = 0.85f),
-            contentColor = Color(0xFFD291BC)
+            contentColor = assets.backButtonColor
         ),
-        border = BorderStroke(1.dp, Color(0xFFD291BC)),
+        border = BorderStroke(1.dp, assets.backButtonColor),
         shape = RoundedCornerShape(8.dp)
     ) {
         Text("Retour à l'accueil")

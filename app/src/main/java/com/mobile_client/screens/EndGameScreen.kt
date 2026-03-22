@@ -38,6 +38,7 @@ import com.mobile_client.utils.Player
 import com.mobile_client.utils.PlayerStat
 import com.mobile_client.utils.Screen
 import com.mobile_client.utils.isBot
+import com.mobile_client.viewModels.ThemeViewModel
 import java.util.Locale
 
 private val HeaderGreen = Color(0xFFBBF471)
@@ -46,7 +47,8 @@ private val Team1Red = Color.Red
 private val Team2Blue = Color.Blue
 
 @Composable
-fun EndGameScreen(navController: NavController) {
+fun EndGameScreen(navController: NavController, themeViewModel: ThemeViewModel) {
+    val assets = themeViewModel.assets
     val controller = GameControllerService.instance
     val gameMap = controller.gameMap.value
 //    val players = controller.players.value
@@ -170,7 +172,7 @@ fun EndGameScreen(navController: NavController) {
     Box(modifier = Modifier.fillMaxSize()) {
         // Background
         Image(
-            painter = painterResource(R.drawable.grass_backround),
+            painter = painterResource(assets.backgroundCharacterPage),
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
@@ -191,12 +193,12 @@ fun EndGameScreen(navController: NavController) {
                         "Fin de la partie",
                         fontSize = 32.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF333333)
+                        color = assets.mainPageTextColor
                     )
                     Text(
                         "$winner a gagné",
                         fontSize = 24.sp,
-                        color = Color(0xFF333333)
+                        color = assets.mainPageTextColor
                     )
                 }
             }

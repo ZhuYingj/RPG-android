@@ -39,6 +39,7 @@ import com.mobile_client.viewModels.CurrentGamesListViewModel
 import com.mobile_client.viewModels.FriendsViewModel
 import com.mobile_client.viewModels.GameListViewModel
 import com.mobile_client.viewModels.GameLobbyViewModel
+import com.mobile_client.viewModels.ThemeViewModel
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalLayoutApi::class)
@@ -48,6 +49,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             MobileclientTheme {
                 LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
+                val themeViewModel: ThemeViewModel = viewModel()
                 val navController = rememberNavController()
                 val snackbarHostState = remember { SnackbarHostState() }
                 val gameListViewModel: GameListViewModel = viewModel()
@@ -80,14 +82,15 @@ class MainActivity : ComponentActivity() {
                                 SignUpScreen(navController = navController)
                             }
                             composable(Screen.Home.route) {
-                                HomeScreen(navController = navController, gameLobbyViewModel = gameLobbyViewModel)
+                                HomeScreen(navController = navController, gameLobbyViewModel = gameLobbyViewModel, themeViewModel = themeViewModel)
                             }
                             composable(Screen.GameCreation.route) {
                                 GamesCreationScreen(
                                     navController = navController,
                                     snackbarHostState = snackbarHostState,
                                     gameListViewModel = gameListViewModel,
-                                    gameLobbyViewModel = gameLobbyViewModel
+                                    gameLobbyViewModel = gameLobbyViewModel,
+                                    themeViewModel = themeViewModel,
                                 )
                             }
                             composable(Screen.JoinGame.route) {
@@ -95,27 +98,31 @@ class MainActivity : ComponentActivity() {
                                     navController = navController,
                                     snackbarHostState = snackbarHostState,
                                     currentGameListViewModel = currentGamesViewModel,
-                                    gameLobbyViewModel = gameLobbyViewModel
+                                    gameLobbyViewModel = gameLobbyViewModel,
+                                    themeViewModel = themeViewModel,
                                 )
                             }
                             composable(Screen.Account.route) {
                                 AccountScreen(
                                     navController = navController,
                                     snackbarHostState = snackbarHostState,
+                                    themeViewModel = themeViewModel
                                 )
                             }
                             composable(Screen.CharacterCreation.route) {
                                 CharacterCreationScreen(
                                     navController = navController,
                                     snackbarHostState = snackbarHostState,
-                                    gameLobbyViewModel = gameLobbyViewModel
+                                    gameLobbyViewModel = gameLobbyViewModel,
+                                    themeViewModel = themeViewModel,
                                 )
                             }
                             composable(Screen.WaitingPage.route) {
                                 WaitingPageScreen(
                                     navController = navController,
                                     snackbarHostState = snackbarHostState,
-                                    gameLobbyViewModel = gameLobbyViewModel
+                                    gameLobbyViewModel = gameLobbyViewModel,
+                                    themeViewModel = themeViewModel,
                                 )
                             }
                             composable(Screen.Game.route) {
@@ -126,12 +133,28 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
                             composable(Screen.EndGame.route) {
-                                EndGameScreen(navController = navController)
+                                EndGameScreen(
+                                    navController = navController,
+                                    themeViewModel = themeViewModel
+                                )
+                            }
+                            composable(Screen.Inventory.route) {
+                                InventoryScreen(
+                                    themeViewModel = themeViewModel
+                                )
+                            }
+                            composable(Screen.Shop.route) {
+                                ShopScreen(
+                                    navController = navController,
+                                    snackbarHostState = snackbarHostState,
+                                    themeViewModel = themeViewModel
+                                )
                             }
                         }
                         if (!hideBackButton) {
                             HomeButton(
                                 navController = navController,
+                                themeViewModel = themeViewModel,
                                 modifier = Modifier
                                     .align(Alignment.TopStart)
                                     .padding(8.dp)
@@ -146,6 +169,7 @@ class MainActivity : ComponentActivity() {
                             if (currentRoute == Screen.Login.route || currentRoute == Screen.SignUp.route) {
                                 globalChatViewModel.clearList()
                                 lobbyChatViewModel.clearList()
+                                themeViewModel.resetTheme()
                             }
                         }
                         if (showChat) {
