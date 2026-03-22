@@ -50,6 +50,7 @@ import com.mobile_client.utils.Screen
 import com.mobile_client.utils.isBot
 import com.mobile_client.utils.toGameTiles
 import com.mobile_client.viewModels.GameLobbyViewModel
+import com.mobile_client.viewModels.ThemeViewModel
 import kotlinx.coroutines.launch
 
 private val BotBlue = Color(0xFF20B6E3)
@@ -59,7 +60,13 @@ private val StartGreen = Color(0xFF109E1F)
 private val DarkText = Color(0xFF1A1A1A)
 
 @Composable
-fun WaitingPageScreen(navController: NavController, snackbarHostState: SnackbarHostState, gameLobbyViewModel: GameLobbyViewModel) {
+fun WaitingPageScreen(
+    navController: NavController,
+    snackbarHostState: SnackbarHostState,
+    gameLobbyViewModel: GameLobbyViewModel,
+    themeViewModel: ThemeViewModel,
+) {
+    val assets = themeViewModel.assets
     val players = gameLobbyViewModel.players
     val currentPlayer = gameLobbyViewModel.currentPlayer.value
     val isLobbyLocked = gameLobbyViewModel.isLobbyLocked.value
@@ -120,15 +127,14 @@ fun WaitingPageScreen(navController: NavController, snackbarHostState: SnackbarH
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        // Background
         Image(
-            painter = painterResource(R.drawable.grass_backround),
+            painter = painterResource(assets.backgroundWaitingPage),
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
         )
 
-        if (lobbyCode.isNotEmpty()) { // Only render content if we are still in a lobby
+        if (lobbyCode.isNotEmpty()) {
             Column(modifier = Modifier.fillMaxSize()) {
                 Column(
                     modifier = Modifier
@@ -140,7 +146,7 @@ fun WaitingPageScreen(navController: NavController, snackbarHostState: SnackbarH
                         "Salle d'attente $lobbyCode",
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold,
-                        color = DarkText
+                        color = assets.mainPageTextColor
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
@@ -148,7 +154,7 @@ fun WaitingPageScreen(navController: NavController, snackbarHostState: SnackbarH
                     Text(
                         "Statut de la salle d'attente: ${if (isLobbyLocked) "Verrouillée" else "Déverrouillée"}",
                         fontSize = 18.sp,
-                        color = DarkText
+                        color = assets.mainPageTextColor
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -156,7 +162,7 @@ fun WaitingPageScreen(navController: NavController, snackbarHostState: SnackbarH
                     Text(
                         "Frais d'entrée : $entryFee$",
                         fontSize = 18.sp,
-                        color = DarkText
+                        color = assets.mainPageTextColor
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -176,12 +182,18 @@ fun WaitingPageScreen(navController: NavController, snackbarHostState: SnackbarH
                                     .weight(1f)
                                     .fillMaxWidth()
                                     .clip(RoundedCornerShape(8.dp))
-                                    .background(Color.White.copy(alpha = 0.3f))
+                                    .background(assets.userListBackgroundColor)
                                     .padding(10.dp),
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 items(players) { player ->
-                                    PlayerCard(player, isHost, gameLobbyViewModel)
+                                    PlayerCard(
+                                        player,
+                                        isHost,
+                                        gameLobbyViewModel,
+                                        textColor = Color.Black,
+                                        bgColor = assets.userBackgroundColor
+                                    )
                                 }
                             }
 
@@ -298,12 +310,12 @@ fun WaitingPageScreen(navController: NavController, snackbarHostState: SnackbarH
 }
 
 @Composable
-fun PlayerCard(player: Player, isHost: Boolean, gameLobbyViewModel: GameLobbyViewModel) {
+fun PlayerCard(player: Player, isHost: Boolean, gameLobbyViewModel: GameLobbyViewModel, textColor: Color = Color(0xFF1A1A1A), bgColor: Color = Color.White) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
-            .background(Color.White.copy(alpha = 0.7f))
+            .background(bgColor.copy(alpha = 0.7f))
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
@@ -328,15 +340,15 @@ fun PlayerCard(player: Player, isHost: Boolean, gameLobbyViewModel: GameLobbyVie
                 Text(
                     player.username,
                     fontWeight = FontWeight.Bold,
-                    color = DarkText
+                    color = textColor
                 )
                 if (player.playerType == PlayerTypes.Host) {
-                    Text("Hôte", fontSize = 12.sp, color = Color.Gray)
+                    Text("Hôte", fontSize = 12.sp, color = Color.Red)
                 } else if (player.isBot()) {
                     Text(
                         if (player.playerType == PlayerTypes.BotAggressive) "Robot (Agressif)" else "Robot (Passif)",
                         fontSize = 12.sp,
-                        color = Color.Gray
+                        color = Color.Blue
                     )
                 }
             }

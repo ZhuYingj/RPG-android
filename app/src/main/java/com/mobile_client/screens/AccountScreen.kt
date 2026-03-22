@@ -42,14 +42,18 @@ import com.mobile_client.utils.Screen
 import java.io.File
 import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.res.painterResource
+import com.mobile_client.components.ThemeSelector
+import com.mobile_client.viewModels.ThemeViewModel
 
 @Composable
 fun AccountScreen(
     navController: NavController,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    accountViewModel: AccountViewModel = viewModel()
+    accountViewModel: AccountViewModel = viewModel(),
+    themeViewModel: ThemeViewModel,
 ) {
-
+    val assets = themeViewModel.assets
     val account by accountViewModel.account.collectAsState()
     val snackbarMessage by accountViewModel.message.collectAsState()
     val showQrCode by accountViewModel.showQrCode.collectAsState()
@@ -123,6 +127,13 @@ fun AccountScreen(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
+        Image(
+            painter = painterResource(themeViewModel.assets.backgroundMainPage),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
+
         // Single scrollable column for everything
         Column(
             modifier = Modifier
@@ -134,7 +145,10 @@ fun AccountScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth(0.6f)
-                    .padding(horizontal = 24.dp),
+                    .padding(horizontal = 24.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color.Black.copy(alpha = 0.3f))
+                    .padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
@@ -185,15 +199,15 @@ fun AccountScreen(
                     Button(onClick = { permissionLauncher.launch(Manifest.permission.CAMERA) }) {
                         Icon(Icons.Default.CameraAlt, null)
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("Photo")
+                        Text("Photo", color = Color.White)
                     }
                     OutlinedButton(onClick = { showAvatarPicker = true }) {
-                        Text("Choisir un avatar")
+                        Text("Choisir un avatar", color = Color.White)
                     }
                     OutlinedButton(onClick = { accountViewModel.toggleQrCode() }, modifier = Modifier.width(170.dp)) {
-                        Icon(Icons.Default.QrCode, null)
+                        Icon(Icons.Default.QrCode, null, tint = Color.White)
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text(if (showQrCode) "Masquer QR" else "Montrer QR")
+                        Text(if (showQrCode) "Masquer QR" else "Montrer QR", color = Color.White)
                     }
                 }
 
@@ -205,7 +219,7 @@ fun AccountScreen(
                             selectedDefaultResId = null
                         },
                         enabled = hasAvatarChange
-                    ) { Text("Réinitialiser avatar") }
+                    ) { Text("Réinitialiser avatar", color = Color.White) }
 
                     Button(
                         onClick = {
@@ -215,22 +229,38 @@ fun AccountScreen(
                             }
                         },
                         enabled = hasAvatarChange
-                    ) { Text("Enregistrer avatar") }
+                    ) { Text("Enregistrer avatar", color = Color.White) }
                 }
 
                 // --- Stats Section ---
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-                Text("Statistiques", style = MaterialTheme.typography.titleMedium)
+                Text("Statistiques", style = MaterialTheme.typography.titleMedium, color = Color.White)
 
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    StatRow("Parties classiques jouées", "${stats.classicGamesPlayed}")
-                    StatRow("Parties CTF jouées", "${stats.CTFGamesPlayed}")
-                    StatRow("Parties gagnées", "${stats.gamesWon}")
-                    StatRow("Temps moyen de partie", String.format("%.1f s", stats.averageGameTime))
+                    StatRow("Parties classiques jouées", "${stats.classicGamesPlayed}", Color.White)
+                    StatRow("Parties CTF jouées", "${stats.CTFGamesPlayed}", Color.White)
+                    StatRow("Parties gagnées", "${stats.gamesWon}", Color.White)
+                    StatRow("Temps moyen de partie", String.format("%.1f s", stats.averageGameTime), Color.White)
                 }
 
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+                Text("Thème visuel", style = MaterialTheme.typography.titleMedium, color = Color.White)
+
+                ThemeSelector(themeViewModel = themeViewModel)
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+                val textFieldColors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                    focusedBorderColor = Color.White,
+                    unfocusedBorderColor = Color.White.copy(alpha = 0.5f),
+                    cursorColor = Color.White,
+                    focusedLabelColor = Color.White,
+                    unfocusedLabelColor = Color.White.copy(alpha = 0.7f),
+                )
 
                 OutlinedTextField(
                     value = name,
@@ -239,11 +269,12 @@ fun AccountScreen(
                         nameError = Validation.validateUsername(name)
                     },
                     label = { Text("Nom") },
-                    leadingIcon = { Icon(Icons.Default.Person, null) },
+                    leadingIcon = { Icon(Icons.Default.Person, null, tint = Color.White) },
                     isError = nameError != null,
                     supportingText = { nameError?.let { Text(it, color = Color.Red) } },
                     modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+                    singleLine = true,
+                    colors = textFieldColors,
                 )
 
                 OutlinedTextField(
@@ -253,11 +284,12 @@ fun AccountScreen(
                         emailError = Validation.validateEmail(email)
                     },
                     label = { Text("Email") },
-                    leadingIcon = { Icon(Icons.Default.Email, null) },
+                    leadingIcon = { Icon(Icons.Default.Email, null, tint = Color.White) },
                     isError = emailError != null,
                     supportingText = { emailError?.let { Text(it, color = Color.Red) } },
                     modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+                    singleLine = true,
+                    colors = textFieldColors,
                 )
 
                 Row(
@@ -272,13 +304,13 @@ fun AccountScreen(
                             emailError = null
                         },
                         modifier = Modifier.weight(1f)
-                    ) { Text("Réinitialiser") }
+                    ) { Text("Réinitialiser", color = Color.White) }
 
                     Button(
                         onClick = { accountViewModel.updateAccount(name = name, email = email) },
                         enabled = nameError == null && emailError == null,
                         modifier = Modifier.weight(1f)
-                    ) { Text("Enregistrer") }
+                    ) { Text("Enregistrer", color = Color.White) }
                 }
 
                 // --- Delete Account ---
@@ -369,14 +401,14 @@ fun AccountScreen(
 }
 
 @Composable
-fun StatRow(label: String, value: String) {
+fun StatRow(label: String, value: String, textColor: Color = Color.Black) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(label, style = MaterialTheme.typography.bodyMedium)
-        Text(value, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
+        Text(label, style = MaterialTheme.typography.bodyMedium, color = textColor)
+        Text(value, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, color = textColor)
     }
 }
