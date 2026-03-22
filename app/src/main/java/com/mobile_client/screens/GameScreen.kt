@@ -34,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -406,13 +407,26 @@ fun PlayerList(
             .fillMaxWidth()
             .clip(RoundedCornerShape(4.dp))
             .background(if (isInGame) Color.White else Color.Gray.copy(alpha = 0.3f))
-            .padding(6.dp),
+            .padding(6.dp)
+            .then(
+                if (player.isObserver) {
+                    Modifier.drawWithContent {
+                        drawContent()
+                        drawLine(
+                            color = Color.Black, // or Color.White depending on background
+                            start = androidx.compose.ui.geometry.Offset(0f, size.height / 2),
+                            end = androidx.compose.ui.geometry.Offset(size.width, size.height / 2),
+                            strokeWidth = 3f
+                        )
+                    }
+                } else Modifier
+            ),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        if (isActive) {
-            Text("▶", color = ActiveGreen, fontSize = 12.sp)
-        }
+
+        Text(if (isActive) "▶" else "", color = ActiveGreen, fontSize = 12.sp)
+
         ImageResources.avatarToImage[player.avatar]?.let {
             Image(
                 painter = painterResource(id = it),

@@ -309,7 +309,8 @@ fun CharacterCreationScreen(navController: NavController, snackbarHostState: Sna
                                                 defense = if (attackDice == Dices.D6) Dices.D4 else Dices.D6,
                                                 isBonusLife = isBonusLife == true,
                                                 stats = stats,
-                                                hasAction = 0
+                                                hasAction = 0,
+                                                isObserver = false
                                             )
 
                                             gameLobbyViewModel.addPlayer(player) {

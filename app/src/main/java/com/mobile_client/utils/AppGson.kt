@@ -68,16 +68,16 @@ val AppGson = GsonBuilder()
     })
     .registerTypeAdapter(TileConstants.Items::class.java, object : TypeAdapter<TileConstants.Items>() {
         private val valueMap = mapOf(
-            6 to TileConstants.Items.None,
-            7 to TileConstants.Items.Object1,
-            8 to TileConstants.Items.Object2,
-            9 to TileConstants.Items.Object3,
-            10 to TileConstants.Items.Object4,
-            11 to TileConstants.Items.Object5,
-            12 to TileConstants.Items.Object6,
-            13 to TileConstants.Items.ObjectRandom,
-            14 to TileConstants.Items.Spawn,
-            16 to TileConstants.Items.Flag
+            10 to TileConstants.Items.None,
+            11 to TileConstants.Items.Object1,
+            12 to TileConstants.Items.Object2,
+            13 to TileConstants.Items.Object3,
+            14 to TileConstants.Items.Object4,
+            15 to TileConstants.Items.Object5,
+            16 to TileConstants.Items.Object6,
+            17 to TileConstants.Items.ObjectRandom,
+            18 to TileConstants.Items.Spawn,
+            19 to TileConstants.Items.Flag
         )
         private val writeMap = valueMap.entries.associate { (k, v) -> v to k }
 

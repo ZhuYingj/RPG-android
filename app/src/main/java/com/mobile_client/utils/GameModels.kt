@@ -11,7 +11,8 @@ data class AttackResultObject(
     val heal: Int? = null,
     val attackDice: Int,
     val defenseDice: Int,
-    val playerTurn: Player
+    val playerTurn: Player,
+    val attacker: Player,
 )
 
 data class EvadeReturnObject(

@@ -9,7 +9,12 @@ object ImageResources {
         TileConstants.Types.Water to R.drawable.eau,
         TileConstants.Types.Wall to R.drawable.mur,
         TileConstants.Types.OpenDoor to R.drawable.porte_ouverte,
-        TileConstants.Types.ClosedDoor to R.drawable.porte
+        TileConstants.Types.ClosedDoor to R.drawable.porte,
+        TileConstants.Types.OpenAutoDoor to R.drawable.open_autodoor,
+        TileConstants.Types.ClosedAutoDoor to R.drawable.closed_autodoor,
+        TileConstants.Types.Bush to R.drawable.bush_close,
+        TileConstants.Types.OpenedBush to R.drawable.bush_open,
+        TileConstants.Types.Flower to R.drawable.hp_flower,
     )
 
     val itemToImage = mapOf(

@@ -44,13 +44,14 @@ class GameLobbyService private constructor() {
         }
     }
 
-    fun createLobby(map: GameMap, fee: Int = 0, onSuccess: (String, String?) -> Unit, onError: (String) -> Unit) {
+    fun createLobby(map: GameMap, fee: Int = 0, isRapid: Boolean = false, onSuccess: (String, String?) -> Unit, onError: (String) -> Unit) {
         val socket = socketManager.socket ?: return
         socket.off(LobbyEvents.LOBBY_CREATED)
 
         val data = JSONObject().apply {
             put("map", JSONObject(gson.toJson(map)))
             put("entryFee", fee)
+            put("isRapidElimination", isRapid)
         }
 
         socket.emit(LobbyEvents.CREATE_LOBBY, data)
@@ -167,8 +168,10 @@ class GameLobbyService private constructor() {
                 life = if (statsRandom) BASE_STAT_VALUE + 2 else BASE_STAT_VALUE,
                 speed = if (statsRandom) BASE_STAT_VALUE else BASE_STAT_VALUE + 2,
                 attack = BASE_STAT_VALUE,
-                defense = BASE_STAT_VALUE
-            )
+                defense = BASE_STAT_VALUE,
+            ),
+            hasAction = 0,
+            isObserver = false
         )
         addPlayer(bot, onJoined)
     }

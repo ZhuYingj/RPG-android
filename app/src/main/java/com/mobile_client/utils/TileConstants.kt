@@ -11,7 +11,7 @@ object TileConstants {
 
     enum class Types {
         @SerializedName("0")
-        Ice,           // Changed order!
+        Ice,
         @SerializedName("1")
         Normal,
         @SerializedName("2")
@@ -21,29 +21,39 @@ object TileConstants {
         @SerializedName("4")
         OpenDoor,
         @SerializedName("5")
-        ClosedDoor
+        ClosedDoor,
+        @SerializedName("6")
+        OpenAutoDoor,
+        @SerializedName("7")
+        ClosedAutoDoor,
+        @SerializedName("8")
+        Bush,
+        @SerializedName("9")
+        Flower,
+        @SerializedName("20") //new type
+        OpenedBush
     }
 
     enum class Items {
-        @SerializedName("6")
-        None,
-        @SerializedName("7")
-        Object1,
-        @SerializedName("8")
-        Object2,
-        @SerializedName("9")
-        Object3,
         @SerializedName("10")
-        Object4,
+        None,
         @SerializedName("11")
-        Object5,
+        Object1,
         @SerializedName("12")
-        Object6,
+        Object2,
         @SerializedName("13")
+        Object3,
+        @SerializedName("14") // was 10
+        Object4,
+        @SerializedName("15")
+        Object5,
+        @SerializedName("16")
+        Object6,
+        @SerializedName("17")
         ObjectRandom,
-        @SerializedName("14")
+        @SerializedName("18")
         Spawn,
-        @SerializedName("16")   // Note: skips 15?
+        @SerializedName("19")
         Flag
     }
 }
