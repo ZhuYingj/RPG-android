@@ -57,18 +57,4 @@ class InventoryViewModel : ViewModel() {
             }
         }
     }
-
-    fun giftItem(item: InventoryCosmetic, targetUserId: String) {
-        viewModelScope.launch {
-            val success = cosmeticService.giftItem(item.cosmeticId, targetUserId)
-            if (success) {
-                val dto = cosmeticService.loadInventory()
-                _inventory.value = dto.inventory
-                _equipped.value = dto.equipped
-                _message.value = "Cadeau envoyé!"
-            } else {
-                _message.value = "Échec de l'envoi du cadeau"
-            }
-        }
-    }
 }

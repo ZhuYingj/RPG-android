@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -32,6 +33,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import com.mobile_client.services.GameControllerService
 import com.mobile_client.services.GameFightService
 import com.mobile_client.utils.ImageResources
@@ -152,13 +154,38 @@ private fun FighterColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.width(140.dp)
     ) {
-        ImageResources.avatarToImage[fighter.avatar]?.let {
-            Image(
-                painterResource(id = it),
-                contentDescription = null,
-                modifier = Modifier.size(48.dp),
-                alpha = avatarAlpha
-            )
+        Box {
+            ImageResources.avatarToImage[fighter.avatar]?.let {
+                Image(
+                    painterResource(id = it),
+                    contentDescription = null,
+                    modifier = Modifier.size(48.dp),
+                    alpha = avatarAlpha
+                )
+            }
+            for (cos in fighter.equippedItems) {
+                ImageResources.cosmeticToImage[cos.filePath]?.let { resId ->
+                    if(cos.type == 1) {
+                        Image(
+                            painter = painterResource(id = resId),
+                            contentDescription = "cosmétique",
+                            modifier = Modifier
+                                .size(48.dp)
+                                .offset(y = (-17).dp)
+                                .zIndex(2f)
+                        )
+                    } else if (cos.type == 2) {
+                        Image(
+                            painter = painterResource(id = resId),
+                            contentDescription = "cosmétique",
+                            modifier = Modifier
+                                .size(48.dp)
+                                .offset(x = (17).dp)
+                                .zIndex(2f)
+                        )
+                    }
+                }
+            }
         }
         Text(label, fontWeight = FontWeight.Bold, fontSize = 13.sp)
         Text("Vie: ${fighter.currentLife}", fontSize = 12.sp)

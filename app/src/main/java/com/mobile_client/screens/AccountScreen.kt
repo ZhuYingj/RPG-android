@@ -82,6 +82,8 @@ fun AccountScreen(
         R.drawable.default5, R.drawable.default6, R.drawable.default7, R.drawable.default8
     )
 
+    val ownedAvatarCosmetics by accountViewModel.ownedAvatarCosmetics.collectAsState()
+
     val hasAvatarChange = avatarBase64 != null
     val currentAvatarBitmap = remember(account?.avatar) {
         ImageUtils.base64ToBitmap(account?.avatar)
@@ -128,7 +130,7 @@ fun AccountScreen(
 
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
-            painter = painterResource(themeViewModel.assets.backgroundMainPage),
+            painter = painterResource(assets.backgroundMainPage),
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
@@ -368,6 +370,7 @@ fun AccountScreen(
             title = { Text("Choisir un avatar") },
             text = {
                 Column {
+                    // Default avatars
                     for (row in 0..1) {
                         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             for (col in 0..3) {
@@ -393,6 +396,43 @@ fun AccountScreen(
                             }
                         }
                         Spacer(modifier = Modifier.height(12.dp))
+                    }
+
+                    // Owned cosmetic avatars
+                    if (ownedAvatarCosmetics.isNotEmpty()) {
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                        Text("Cosmétiques", style = MaterialTheme.typography.labelMedium)
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        val cosmeticRows = ownedAvatarCosmetics.chunked(4)
+                        for (rowItems in cosmeticRows) {
+                            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                for (cosmetic in rowItems) {
+                                    val resId = com.mobile_client.utils.ImageResources.cosmeticToImage[cosmetic.filePath]
+                                    if (resId != null) {
+                                        Image(
+                                            painter = rememberAsyncImagePainter(resId),
+                                            contentDescription = cosmetic.name,
+                                            modifier = Modifier
+                                                .size(64.dp)
+                                                .clip(CircleShape)
+                                                .clickable {
+                                                    val bitmap = BitmapFactory.decodeResource(
+                                                        context.resources, resId
+                                                    )
+                                                    val resized = ImageUtils.resizeBitmap(bitmap, 1024)
+                                                    avatarBase64 = ImageUtils.bitmapToBase64(resized)
+                                                    avatarUri = null
+                                                    selectedDefaultResId = resId
+                                                    showAvatarPicker = false
+                                                },
+                                            contentScale = ContentScale.Crop
+                                        )
+                                    }
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(12.dp))
+                        }
                     }
                 }
             }

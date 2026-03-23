@@ -76,7 +76,8 @@ data class Player(
     val winNumber: Int = 0,
     val spawnPoint: Position = Position(),
     val team: Int = 0,
-    val isObserver: Boolean
+    val isObserver: Boolean,
+    val equippedItems: List<Cosmetic>
 )
 
 fun Player.isBot(): Boolean {

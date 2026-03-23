@@ -171,7 +171,8 @@ class GameLobbyService private constructor() {
                 defense = BASE_STAT_VALUE,
             ),
             hasAction = 0,
-            isObserver = false
+            isObserver = false,
+            equippedItems = listOf()
         )
         addPlayer(bot, onJoined)
     }

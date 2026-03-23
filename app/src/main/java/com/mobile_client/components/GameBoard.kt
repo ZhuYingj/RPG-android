@@ -23,7 +23,9 @@ import com.mobile_client.utils.TileConstants
 import kotlin.collections.get
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.remember
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 
 @Composable
@@ -97,7 +99,7 @@ fun TileCell(
                 contentDescription = "Tile",
                 modifier = Modifier
                     .fillMaxSize()
-                    .then(if (tile.type == TileConstants.Types.Bush && !isVisibleBush && !isDebug) Modifier.zIndex(2f) else Modifier),
+                    .then(if (tile.type == TileConstants.Types.Bush && !isVisibleBush && !isDebug) Modifier.zIndex(3f) else Modifier),
                 contentScale = ContentScale.Crop
             )
         }
@@ -123,6 +125,17 @@ fun TileCell(
                     modifier = Modifier.fillMaxSize(0.7f).zIndex(1f)
                 )
             }
+            for (cos in p.equippedItems) {
+                ImageResources.cosmeticToImage[cos.filePath]?.let { resId ->
+                    if(cos.type == 1) {
+                        Image(
+                            painter = painterResource(id = resId),
+                            contentDescription = "cosmétique",
+                            modifier = Modifier.fillMaxSize(0.7f).zIndex(2f).offset(y = (-17).dp)
+                        )
+                    }
+                }
+            }
         }
 
         // Accessible tile indicator
@@ -133,7 +146,7 @@ fun TileCell(
                     .background(
                         if (isPath) Color.Blue.copy(alpha = 0.3f)
                         else Color.Green.copy(alpha = 0.2f)
-                    ).zIndex(3f)
+                    ).zIndex(4f)
             )
         }
 

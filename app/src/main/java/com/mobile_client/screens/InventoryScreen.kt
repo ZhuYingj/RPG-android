@@ -39,13 +39,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.mobile_client.utils.ImageResources
+import com.mobile_client.utils.Screen
 import com.mobile_client.viewModels.InventoryViewModel
 import com.mobile_client.viewModels.ThemeViewModel
 import kotlinx.coroutines.launch
 
 @Composable
 fun InventoryScreen(
+    navController: NavController,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     inventoryViewModel: InventoryViewModel = viewModel(),
     themeViewModel: ThemeViewModel,
@@ -182,32 +185,32 @@ fun InventoryScreen(
                                 Spacer(modifier = Modifier.height(8.dp))
 
                                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                                    if (cosmetic?.type != 0) {
-                                        Button(
-                                            onClick = { inventoryViewModel.equipItem(item) },
-                                            enabled = !isEquipped,
-                                            colors = ButtonDefaults.buttonColors(
-                                                containerColor = Color(0xFF4CAF50),
-                                                disabledContainerColor = Color(0xFF759D77)
-                                            ),
-                                            shape = RoundedCornerShape(6.dp),
-                                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
-                                        ) {
-                                            Text(
-                                                text = if (isEquipped) "Équipé" else "Équipper",
-                                                color = Color.White,
-                                                fontSize = 13.sp
-                                            )
-                                        }
-                                    }
-
                                     Button(
-                                        onClick = { /* TODO: gift dialog */ },
-                                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
+                                        onClick = {
+                                            if (cosmetic?.type !=0)
+                                                inventoryViewModel.equipItem(item)
+                                            else
+                                                navController.navigate(Screen.Account.route) {
+                                                    popUpTo(0) { inclusive = true }
+                                            }
+                                        },
+                                        enabled = !isEquipped,
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = Color(0xFF4CAF50),
+                                            disabledContainerColor = Color(0xFF759D77)
+                                        ),
                                         shape = RoundedCornerShape(6.dp),
                                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
                                     ) {
-                                        Text("Cadeau", color = Color.White, fontSize = 13.sp)
+                                        Text(
+                                            text = if (cosmetic?.type == 0) {
+                                                "Compte"
+                                            } else {
+                                                if (isEquipped) "Équipé" else "Équipper"
+                                            },
+                                            color = Color.White,
+                                            fontSize = 13.sp
+                                        )
                                     }
                                 }
                             }

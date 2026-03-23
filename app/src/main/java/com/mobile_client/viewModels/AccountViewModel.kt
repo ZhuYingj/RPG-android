@@ -8,6 +8,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import android.graphics.Bitmap
+import com.mobile_client.services.CosmeticService
+import com.mobile_client.utils.Cosmetic
 
 class AccountViewModel : ViewModel() {
 
@@ -25,9 +27,14 @@ class AccountViewModel : ViewModel() {
     private val _showQrCode = MutableStateFlow(false)
     val showQrCode: StateFlow<Boolean> = _showQrCode
 
+    private val cosmeticService = CosmeticService.instance
+    private val _ownedAvatarCosmetics = MutableStateFlow<List<Cosmetic>>(emptyList())
+    val ownedAvatarCosmetics: StateFlow<List<Cosmetic>> = _ownedAvatarCosmetics
+
     init {
         _account.value = accountService.accountInfo
         generateQrCode()
+        loadOwnedAvatarCosmetics()
     }
 
     fun updateAccount(name: String, email: String) {
@@ -98,5 +105,21 @@ class AccountViewModel : ViewModel() {
 
     fun clearMessage() {
         _message.value = null
+    }
+
+    private fun loadOwnedAvatarCosmetics() {
+        viewModelScope.launch {
+            try {
+                val shop = cosmeticService.loadShop()
+                val inventoryDTO = cosmeticService.loadInventory()
+                val ownedIds = inventoryDTO.inventory.map { it.cosmeticId }.toSet()
+                _ownedAvatarCosmetics.value = shop.filter { cosmetic ->
+                    cosmetic.filePath.startsWith("avatars/") &&
+                        ownedIds.contains(cosmetic._id)
+                }
+            } catch (e: Exception) {
+                println("loadOwnedAvatarCosmetics error: ${e.message}")
+            }
+        }
     }
 }
