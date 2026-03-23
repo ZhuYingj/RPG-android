@@ -45,6 +45,9 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.painterResource
 import com.mobile_client.components.ThemeSelector
 import com.mobile_client.viewModels.ThemeViewModel
+import java.text.SimpleDateFormat
+import java.util.Locale
+import kotlin.math.roundToInt
 
 @Composable
 fun AccountScreen(
@@ -76,6 +79,10 @@ fun AccountScreen(
     var selectedDefaultResId by remember { mutableStateOf<Int?>(null) }
     var showAvatarPicker by remember { mutableStateOf(false) }
     var tempPhotoUri by remember { mutableStateOf<Uri?>(null) }
+
+    val dateFormat = remember {
+        SimpleDateFormat("dd MMM yyyy, HH:mm:ss", Locale.getDefault())
+    }
 
     val avatarResources = listOf(
         R.drawable.default1, R.drawable.default2, R.drawable.default3, R.drawable.default4,
@@ -243,7 +250,98 @@ fun AccountScreen(
                     StatRow("Parties classiques jouées", "${stats.classicGamesPlayed}", Color.White)
                     StatRow("Parties CTF jouées", "${stats.CTFGamesPlayed}", Color.White)
                     StatRow("Parties gagnées", "${stats.gamesWon}", Color.White)
-                    StatRow("Temps moyen de partie", String.format("%.1f s", stats.averageGameTime), Color.White)
+                    StatRow("Temps moyen de partie", "${stats.averageGameTime.roundToInt()} s", Color.White)
+                }
+
+                // --- Action History Section ---
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+                Text("Historique d'actions", style = MaterialTheme.typography.titleMedium, color = Color.White)
+
+                val actionHistory = account?.actionHistory ?: emptyList()
+                if (actionHistory.isEmpty()) {
+                    Text(
+                        "Aucune action enregistrée",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.White.copy(alpha = 0.7f)
+                    )
+                } else {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        for (log in actionHistory.sortedByDescending { it.timestamp }) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    log.action.label,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = Color.White
+                                )
+                                Text(
+                                    dateFormat.format(log.timestamp),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = Color.White.copy(alpha = 0.7f)
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // --- Match History Section ---
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+                Text("Historique des parties", style = MaterialTheme.typography.titleMedium, color = Color.White)
+
+                val matchHistory = account?.matchHistory ?: emptyList()
+                if (matchHistory.isEmpty()) {
+                    Text(
+                        "Aucune partie enregistrée",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.White.copy(alpha = 0.7f)
+                    )
+                } else {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        for (match in matchHistory.sortedByDescending { it.startTime }) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 6.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column {
+                                    Text(
+                                        match.gameType.label,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White
+                                    )
+                                    Text(
+                                        dateFormat.format(match.startTime),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = Color.White.copy(alpha = 0.7f)
+                                    )
+                                }
+                                Text(
+                                    text = when {
+                                        match.hasLeft -> "Quitté"
+                                        match.gameWon -> "Victoire"
+                                        else -> "Défaite"
+                                    },
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = when {
+                                        match.hasLeft -> Color.Gray
+                                        match.gameWon -> Color(0xFF4CAF50)
+                                        else -> Color(0xFFEF5350)
+                                    }
+                                )
+                            }
+                        }
+                    }
                 }
 
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))

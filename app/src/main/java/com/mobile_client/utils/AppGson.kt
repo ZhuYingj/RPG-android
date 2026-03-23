@@ -88,6 +88,26 @@ val AppGson = GsonBuilder()
             return valueMap[`in`.nextInt()] ?: TileConstants.Items.None
         }
     })
+    .registerTypeAdapter(UserAction::class.java, object : TypeAdapter<UserAction>() {
+        override fun write(out: JsonWriter, value: UserAction?) {
+            out.value(value?.label)
+        }
+        override fun read(`in`: JsonReader): UserAction {
+            val raw = `in`.nextString()
+            return UserAction.entries.firstOrNull { it.label == raw }
+                ?: UserAction.Connection
+        }
+    })
+    .registerTypeAdapter(GameTypes::class.java, object : TypeAdapter<GameTypes>() {
+        override fun write(out: JsonWriter, value: GameTypes?) {
+            out.value(value?.name)
+        }
+        override fun read(`in`: JsonReader): GameTypes {
+            val raw = `in`.nextString()
+            return GameTypes.entries.firstOrNull { it.name.equals(raw, ignoreCase = true) }
+                ?: GameTypes.Classic
+        }
+    })
     .registerTypeAdapter(Date::class.java, JsonDeserializer { json, _, _ ->
         try {
             val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US)
