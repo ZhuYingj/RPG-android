@@ -24,6 +24,7 @@ import kotlin.collections.get
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.remember
+import androidx.compose.ui.zIndex
 
 @Composable
 fun GameBoard(
@@ -31,6 +32,7 @@ fun GameBoard(
     players: List<Player>,
     player: Player,
     accessibleTiles: List<Position>,
+    visibleBushTiles: List<Position>,
     path: List<Position>,
     isDebug: Boolean,
     onTileClick: (Position) -> Unit,
@@ -45,6 +47,7 @@ fun GameBoard(
                 for (y in 0 until cols) {
                     val tile = tiles[x][y]
                     val isAccessible = remember(accessibleTiles) { accessibleTiles.any { it.x == x && it.y == y } }
+                    val isVisibleBush = remember(visibleBushTiles) { visibleBushTiles.any { it.x == x && it.y == y } }
                     val isPath = remember(path) { path.any { it.x == x && it.y == y } }
                     val playerAtTile = remember(players) { players.find { it.position.x == x && it.position.y == y } }
 
@@ -53,6 +56,7 @@ fun GameBoard(
                             tile = tile,
                             playerAtTile = playerAtTile,
                             isAccessible = isAccessible,
+                            isVisibleBush = isVisibleBush,
                             isPath = isPath,
                             isDebug = isDebug,
                             onClick = { onTileClick(Position(x, y)) }
@@ -69,6 +73,7 @@ fun TileCell(
     tile: GameTile,
     playerAtTile: Player?,
     isAccessible: Boolean,
+    isVisibleBush: Boolean,
     isPath: Boolean,
     isDebug: Boolean,
     onClick: () -> Unit,
@@ -80,11 +85,19 @@ fun TileCell(
         contentAlignment = Alignment.Center
     ) {
         // Tile background
-        ImageResources.tileTypeToImage[tile.type]?.let { resId ->
+        val typeToDraw = if ((tile.type == TileConstants.Types.Bush && isVisibleBush) || isDebug ) {
+            TileConstants.Types.OpenedBush
+        } else {
+            tile.type
+        }
+
+        ImageResources.tileTypeToImage[typeToDraw]?.let { resId ->
             Image(
                 painter = painterResource(id = resId),
                 contentDescription = "Tile",
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .then(if (tile.type == TileConstants.Types.Bush && !isVisibleBush && !isDebug) Modifier.zIndex(2f) else Modifier),
                 contentScale = ContentScale.Crop
             )
         }
@@ -101,12 +114,13 @@ fun TileCell(
         }
 
         // Player on tile
+        //TODO add cosmetic here, player.equipments = Cosmetics[]
         playerAtTile?.let { p ->
             ImageResources.avatarToImage[p.avatar]?.let { resId ->
                 Image(
                     painter = painterResource(id = resId),
                     contentDescription = p.username,
-                    modifier = Modifier.fillMaxSize(0.7f)
+                    modifier = Modifier.fillMaxSize(0.7f).zIndex(1f)
                 )
             }
         }
@@ -119,7 +133,7 @@ fun TileCell(
                     .background(
                         if (isPath) Color.Blue.copy(alpha = 0.3f)
                         else Color.Green.copy(alpha = 0.2f)
-                    )
+                    ).zIndex(3f)
             )
         }
 
