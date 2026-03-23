@@ -72,7 +72,7 @@ fun ChatBox(modifier: Modifier = Modifier, chatViewModel: ChatViewModel, lobbyCh
     val connectionStatus by chatViewModel.connectionStatus.collectAsState()
     var newMessage by remember { mutableStateOf("") }
     var mostRecentMessage by remember { mutableStateOf<String?>(null) }
-    var listState = rememberLazyListState()
+    val listState = rememberLazyListState()
     var isCollapsed by remember { mutableStateOf(false) }
     var emojiSelected by remember { mutableStateOf("❤️") }
     val maxChar = 200
@@ -86,6 +86,7 @@ fun ChatBox(modifier: Modifier = Modifier, chatViewModel: ChatViewModel, lobbyCh
     LaunchedEffect(chatViewModel, lobbyChatViewModel) {
         socketManager.socket?.off(MessageEvents.CHAT_MESSAGE)
         socketManager.socket?.off(MessageEvents.GLOBAL_CHAT_MESSAGE)
+        socketManager.socket?.off(MessageEvents.CHAT_WARNING)
 
         val isBlocked: (String) -> Boolean = {
             friendsViewModel.blockedUsers.value.contains(it) ||
