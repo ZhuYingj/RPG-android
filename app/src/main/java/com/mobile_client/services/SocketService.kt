@@ -275,16 +275,13 @@ class SocketService private constructor() {
         }
 
         socket.on(GameEvents.DEBUG) { args ->
-            println("DEBUG fired")
             if (args.isNotEmpty()) {
                 controller.isDebug.value = args[0] as Boolean
             }
         }
 
-        //TODO idk where to put it so I put it here
-        socket.off(GameEvents.REJOINING_PLAYER)
+        socket.off(GameEvents.REJOINING_PLAYER) // same event in lobbyListeners, so off before on
         socket.on(GameEvents.REJOINING_PLAYER) { args ->
-            //TODO
             if (args.isNotEmpty()) {
                 val res = gson.fromJson(args[0].toString(), RejoiningPlayer::class.java)
                 // Update game state with new player list and map
@@ -322,7 +319,7 @@ class SocketService private constructor() {
 
         socket.on(GameEvents.TIMER) { args ->
             if (args.isNotEmpty()) {
-                controller.timerCounter.value = (args[0] as Number).toInt()
+                controller.timerCounter.intValue = (args[0] as Number).toInt()
             }
         }
 

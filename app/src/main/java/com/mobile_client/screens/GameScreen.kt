@@ -88,12 +88,14 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
 
 
     var accessibleTiles by remember { mutableStateOf<List<Position>>(emptyList()) }
+    var visibleBushTiles by remember { mutableStateOf<List<Position>>(emptyList()) }
     var path by remember { mutableStateOf<List<Position>>(emptyList()) }
     var selectedTile by remember { mutableStateOf<Position?>(null) }
 
 
     // Recalculate accessible tiles when player or turn changes
     LaunchedEffect(player, currentPlayer, isDebug, isBetweenTurn, gameTiles) {
+        visibleBushTiles = controller.getVisibleBushTiles()
         accessibleTiles = controller.getAccessibleTiles()
         path = emptyList()
         selectedTile = null
@@ -274,6 +276,7 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
                     players = players,
                     player = player,
                     accessibleTiles = accessibleTiles,
+                    visibleBushTiles = visibleBushTiles,
                     path = path,
                     isDebug = isDebug,
                     onTileClick = { pos ->
@@ -289,13 +292,14 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
                             if (isAccessible) {
                                 if (selectedTile != null && selectedTile!!.x == pos.x && selectedTile!!.y == pos.y) {
                                     // Second click on same tile: execute move
-                                    controller.move(pos)
+                                    controller.move(pos, path)
                                     path = emptyList()
                                     selectedTile = null
                                 } else {
                                     // First click or different accessible tile: show path
                                     selectedTile = pos
                                     path = controller.getShortestPath(pos)
+                                    println("SHOWING PATH TO $pos = $path")
                                 }
                             } else {
                                 // Non-accessible tile: clear path

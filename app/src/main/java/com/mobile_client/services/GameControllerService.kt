@@ -25,7 +25,6 @@ class GameControllerService private constructor() {
     private val socketManager = SocketService.instance
     val movementService = GameMovementService()
     val fightService = GameFightService.instance
-
     var gameMap = mutableStateOf<GameMap?>(null)
     var gameTiles = mutableStateOf<List<List<GameTile>>>(emptyList())
     var players = mutableStateOf<List<Player>>(emptyList())
@@ -51,23 +50,38 @@ class GameControllerService private constructor() {
     fun getAccessibleTiles(): List<Position> {
         val p = player.value ?: return emptyList()
         val cp = currentPlayer.value ?: return emptyList()
-        if (cp.username != p.username) return emptyList()
-        if (gameTiles.value.isEmpty()) return emptyList()
+        if (cp.username != p.username || gameTiles.value.isEmpty()) return emptyList()
         movementService.tiles = gameTiles.value
         movementService.isDebug = isDebug.value
+        movementService.visibleBushList = getVisibleBushTiles()
         return movementService.availableMovement(p, players.value)
     }
 
-    fun move(position: Position) {
+    fun getVisibleBushTiles(): List<Position> {
+        val p = player.value ?: return emptyList()
+        if (gameTiles.value.isEmpty()) return emptyList()
+        movementService.tiles = gameTiles.value
+        return movementService.visibleBushTiles(p)
+    }
+
+    fun move(position: Position, path: List<Position>) {
         val socket = socketManager.socket ?: return
         val p = player.value ?: return
         if (gameWinner.value.isNotEmpty()) return
         if (isSameTile(position, p.position)) return
-
         val accessible = getAccessibleTiles()
         if (!accessible.any { isSameTile(position, it) }) return
-
-        socket.emit(GameEvents.MOVE, JSONObject(gson.toJson(position)))
+        var finalPosition = position
+        // Path is ordered destination -> player, so reverse to walk from player -> destination
+        val walkOrder = path.reversed()
+        for (i in walkOrder.indices) {
+            if (movementService.hasPlayer(walkOrder[i], players.value)) {
+                // Stop one step before the player
+                finalPosition = if (i > 0) walkOrder[i - 1] else p.position
+                break
+            }
+        }
+        socket.emit(GameEvents.MOVE, JSONObject(gson.toJson(finalPosition)))
     }
 
     fun nextTurn() {
@@ -142,7 +156,7 @@ class GameControllerService private constructor() {
         val moves = mutableListOf<Position>()
         var currentTile: Position? = position
         while (currentTile != null && !isSameTile(p.position, currentTile)) {
-            moves.add(0, currentTile)
+            moves.add(currentTile)
             currentTile = tiles[currentTile.x][currentTile.y].parentTile
         }
         return if (currentTile != null) moves else emptyList()

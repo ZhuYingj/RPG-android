@@ -82,5 +82,10 @@ val TypeToCost = mapOf(
     TileConstants.Types.Water to 2,
     TileConstants.Types.Wall to 99,
     TileConstants.Types.OpenDoor to 1,
-    TileConstants.Types.ClosedDoor to 99
+    TileConstants.Types.ClosedDoor to 99,
+    TileConstants.Types.OpenAutoDoor to 1,
+    TileConstants.Types.ClosedAutoDoor to 99,
+    TileConstants.Types.Bush to 1,
+    TileConstants.Types.Flower to 1,
+    TileConstants.Types.OpenedBush to 1
 )
