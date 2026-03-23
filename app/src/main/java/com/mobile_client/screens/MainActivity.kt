@@ -140,6 +140,7 @@ class MainActivity : ComponentActivity() {
                             }
                             composable(Screen.Inventory.route) {
                                 InventoryScreen(
+                                    navController = navController,
                                     themeViewModel = themeViewModel
                                 )
                             }

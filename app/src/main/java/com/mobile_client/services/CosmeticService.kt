@@ -76,16 +76,4 @@ class CosmeticService private constructor() {
         }
     }
 
-    suspend fun giftItem(cosmeticId: String, targetUserId: String): Boolean {
-        return try {
-            val response = http.post(
-                "$ENVIRONMENT/api/inventory/gift",
-                mapOf("cosmeticId" to cosmeticId, "targetUserId" to targetUserId)
-            )
-            response.status.value in 200..299
-        } catch (e: Exception) {
-            Log.e("InventoryService", "Failed to gift item", e)
-            false
-        }
-    }
 }

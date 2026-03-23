@@ -342,7 +342,8 @@ fun CharacterCreationScreen(
                                                 isBonusLife = isBonusLife == true,
                                                 stats = stats,
                                                 hasAction = 0,
-                                                isObserver = false
+                                                isObserver = false,
+                                                equippedItems = listOf()
                                             )
 
                                             gameLobbyViewModel.addPlayer(player) {
