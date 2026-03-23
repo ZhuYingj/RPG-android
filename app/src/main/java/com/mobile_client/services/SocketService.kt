@@ -24,6 +24,9 @@ import com.mobile_client.utils.toGameTiles
 import com.mobile_client.viewModels.GameLobbyViewModel
 import io.socket.client.IO
 import io.socket.client.Socket
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.URISyntaxException
@@ -31,6 +34,7 @@ import java.time.Instant
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import kotlin.math.ceil
 
 class SocketService private constructor() {
     companion object {
@@ -84,6 +88,35 @@ class SocketService private constructor() {
                     timestamp = convertUTCToLocalTime(data.getString("time")),
                 )
                 onChatMessage(message, MessageEvents.CHAT_MESSAGE)
+            }
+        }
+
+        socket?.on(MessageEvents.CHAT_WARNING) { args ->
+            if (args.isNotEmpty()) {
+                val data = args[0] as JSONObject
+                val remainingTime = data.optLong("remainingTime", 0)
+                val baseMessage = data.getString("message")
+                val fullMessage = if (remainingTime > 0) {
+                    val seconds = ceil(remainingTime / 1000.0).toInt()
+                    "$baseMessage (${seconds}s)"
+                } else {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        AccountService.instance.fetchAccount()
+                    }
+                    baseMessage
+                }
+                val warningMsg = ChatMessage(
+                    username = "Système",
+                    message = fullMessage,
+                    avatar = "",
+                    timestamp = ""
+                )
+                val scope = data.optString("scope", "global")
+                if (scope == "global") {
+                    onChatMessage(warningMsg, MessageEvents.GLOBAL_CHAT_MESSAGE)
+                } else {
+                    onChatMessage(warningMsg, MessageEvents.CHAT_MESSAGE)
+                }
             }
         }
     }

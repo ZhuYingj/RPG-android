@@ -9,4 +9,5 @@ data class ChatMessage(
 object MessageEvents {
     const val CHAT_MESSAGE = "chat-message"
     const val GLOBAL_CHAT_MESSAGE = "global-chat-message"
+    const val CHAT_WARNING = "chatWarning"
 }
