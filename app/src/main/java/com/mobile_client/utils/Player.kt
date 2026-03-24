@@ -76,9 +76,25 @@ data class Player(
     val winNumber: Int = 0,
     val spawnPoint: Position = Position(),
     val team: Int = 0,
-    val isObserver: Boolean,
-    val equippedItems: List<Cosmetic>
+    val isObserver: Boolean = false,
+    val equippedItems: List<Cosmetic> = emptyList(),
+    val challenge: Challenge = Challenge(ChallengeTypes.PickUpItem),
 )
+
+data class Challenge(
+    val type: ChallengeTypes,
+    val progress: Int = 0,
+    val goal: Int = 0,
+    val reward: Int = 0
+)
+
+enum class ChallengeTypes(val value: Int, val description: String) {
+    Water(1, "Déplaces toi 8 fois sur une tuile d'eau"),
+    ToggleDoor(2, "Ouvres 3 porte durant la partie"),
+    InitiateFight(3, "Commences 2 combat durant la partie"),
+    PickUpItem(4, "Ramasses 3 fois un item durant une partie"),
+    Evade(5, "Réussis 2 évasion d'un combat durant la partie");
+}
 
 fun Player.isBot(): Boolean {
     return playerType == PlayerTypes.BotAggressive || playerType == PlayerTypes.BotPassive

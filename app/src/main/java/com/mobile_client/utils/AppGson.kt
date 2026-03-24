@@ -88,24 +88,13 @@ val AppGson = GsonBuilder()
             return valueMap[`in`.nextInt()] ?: TileConstants.Items.None
         }
     })
-    .registerTypeAdapter(UserAction::class.java, object : TypeAdapter<UserAction>() {
-        override fun write(out: JsonWriter, value: UserAction?) {
-            out.value(value?.label)
+    .registerTypeAdapter(ChallengeTypes::class.java, object : TypeAdapter<ChallengeTypes>() {
+        override fun write(out: JsonWriter, value: ChallengeTypes?) {
+            out.value(value?.value)
         }
-        override fun read(`in`: JsonReader): UserAction {
-            val raw = `in`.nextString()
-            return UserAction.entries.firstOrNull { it.label == raw }
-                ?: UserAction.Connection
-        }
-    })
-    .registerTypeAdapter(GameTypes::class.java, object : TypeAdapter<GameTypes>() {
-        override fun write(out: JsonWriter, value: GameTypes?) {
-            out.value(value?.name)
-        }
-        override fun read(`in`: JsonReader): GameTypes {
-            val raw = `in`.nextString()
-            return GameTypes.entries.firstOrNull { it.name.equals(raw, ignoreCase = true) }
-                ?: GameTypes.Classic
+        override fun read(`in`: JsonReader): ChallengeTypes {
+            val v = `in`.nextInt()
+            return ChallengeTypes.entries.firstOrNull { it.value == v } ?: ChallengeTypes.PickUpItem
         }
     })
     .registerTypeAdapter(Date::class.java, JsonDeserializer { json, _, _ ->

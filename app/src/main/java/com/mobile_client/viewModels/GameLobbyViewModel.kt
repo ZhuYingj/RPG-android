@@ -31,7 +31,6 @@ class GameLobbyViewModel : ViewModel() {
     var entryFee = mutableIntStateOf(0)
     private val _errorMessage = MutableSharedFlow<String>()
     val errorMessage = _errorMessage.asSharedFlow()
-
     var qrCodeDataUrl = mutableStateOf<String?>(null)
     var showQrCode = mutableStateOf(false)
 
