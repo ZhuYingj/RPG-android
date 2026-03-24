@@ -200,6 +200,39 @@ fun EndGameScreen(navController: NavController, themeViewModel: ThemeViewModel) 
                         fontSize = 24.sp,
                         color = assets.mainPageTextColor
                     )
+                    val myUsername = controller.player.value?.username ?: ""
+                    val myMoney = controller.moneyResults.value[myUsername]
+                    if (myMoney != null) {
+                        val isPlayerWinner = originalPlayers.any { it.username == myUsername && isWinner(it) }
+                        val label = if (isPlayerWinner) "Victoire" else "Défaite"
+                        val total = myMoney.baseMoney + myMoney.challengeReward + myMoney.entryFeeGain
+
+                        Text(
+                            "$label: ${myMoney.baseMoney}$",
+                            fontSize = 20.sp,
+                            color = assets.mainPageTextColor
+                        )
+                        if (myMoney.challengeReward > 0) {
+                            Text(
+                                "Défi accompli: +${myMoney.challengeReward}$",
+                                fontSize = 20.sp,
+                                color = assets.mainPageTextColor
+                            )
+                        }
+                        if (myMoney.entryFeeGain > 0) {
+                            Text(
+                                "Lot remporté: +${myMoney.entryFeeGain}$",
+                                fontSize = 20.sp,
+                                color = assets.mainPageTextColor
+                            )
+                        }
+                        Text(
+                            "Total gagné: $total$",
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF4CAF50)
+                        )
+                    }
                 }
             }
 
