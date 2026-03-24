@@ -237,6 +237,13 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
 
             Spacer(modifier = Modifier.height(4.dp))
 
+            Text("Défi", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+            Text(
+                "${player.challenge.type.description}\n" +
+                    "${player.challenge.progress}/${player.challenge.goal} -> ${player.challenge.reward}$",
+                fontSize = 11.sp,
+            )
+            Spacer(modifier = Modifier.height(4.dp))
             // Inventory
             Text("Inventaire", fontWeight = FontWeight.Bold, fontSize = 14.sp)
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {

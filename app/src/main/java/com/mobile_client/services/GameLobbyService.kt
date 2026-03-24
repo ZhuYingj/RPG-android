@@ -172,7 +172,8 @@ class GameLobbyService private constructor() {
             ),
             hasAction = 0,
             isObserver = false,
-            equippedItems = listOf()
+            equippedItems = listOf(),
+
         )
         addPlayer(bot, onJoined)
     }

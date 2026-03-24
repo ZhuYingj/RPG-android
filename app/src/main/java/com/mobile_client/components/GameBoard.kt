@@ -116,7 +116,6 @@ fun TileCell(
         }
 
         // Player on tile
-        //TODO add cosmetic here, player.equipments = Cosmetics[]
         playerAtTile?.let { p ->
             ImageResources.avatarToImage[p.avatar]?.let { resId ->
                 Image(

@@ -160,7 +160,16 @@ fun WaitingPageScreen(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Text(
-                        "Frais d'entrée : $entryFee$",
+                        "Frais d'entrée: $entryFee$",
+                        fontSize = 18.sp,
+                        color = assets.mainPageTextColor
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        "Défi : ${currentPlayer?.challenge?.type?.description}\t" +
+                            "${currentPlayer?.challenge?.progress}/${currentPlayer?.challenge?.goal} -> ${currentPlayer?.challenge?.reward}$",
                         fontSize = 18.sp,
                         color = assets.mainPageTextColor
                     )
