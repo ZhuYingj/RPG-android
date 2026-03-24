@@ -9,6 +9,7 @@ import com.mobile_client.utils.GameEvents
 import com.mobile_client.utils.GameMap
 import com.mobile_client.utils.GameStats
 import com.mobile_client.utils.GameTile
+import com.mobile_client.utils.MoneyResult
 import com.mobile_client.utils.ORTHOGONAL_DIRECTIONS
 import com.mobile_client.utils.Player
 import com.mobile_client.utils.PlayerStat
@@ -42,6 +43,7 @@ class GameControllerService private constructor() {
     var gameWinner = mutableStateOf("")
     var lastPlayer = mutableStateOf(false)
     var serverMessage = mutableStateOf("")
+    var moneyResults = mutableStateOf<Map<String, MoneyResult>>(emptyMap())
 
     fun configureListeners() {
         socketManager.initializeGameListeners(this)
@@ -213,5 +215,6 @@ class GameControllerService private constructor() {
         gameStats.value = GameStats()
         gameWinner.value = ""
         lastPlayer.value = false
+        moneyResults.value = emptyMap()
     }
 }

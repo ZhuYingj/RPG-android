@@ -422,6 +422,7 @@ class SocketService private constructor() {
                 val data: EndGameObject = gson.fromJson((args[0] as JSONObject).toString(), EndGameObject::class.java)
                 controller.gameStats.value = data.gameStats
                 controller.playerStats.value = data.playerStats
+                controller.moneyResults.value = data.moneyResults
                 val map = controller.gameMap.value
                 if (map != null && map.isCaptureTheFlag) {
                     val winner = controller.players.value.find { it.username == data.winnerName }

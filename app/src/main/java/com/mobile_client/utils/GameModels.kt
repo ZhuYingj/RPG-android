@@ -36,12 +36,18 @@ data class ItemPickUpObject(
     val item: TileConstants.Items
 )
 
+data class MoneyResult(
+    val baseMoney: Int = 0,
+    val challengeReward: Int = 0,
+    val entryFeeGain: Int = 0,
+)
+
 data class EndGameObject(
     val playerStats: List<PlayerStat>,
     val gameStats: GameStats,
-    val winnerName: String
+    val winnerName: String,
+    val moneyResults: Map<String, MoneyResult> = emptyMap()
 )
-
 data class GameStats(
     val gameTime: Long = 0,
     val doorActivated: List<Position> = emptyList(),
