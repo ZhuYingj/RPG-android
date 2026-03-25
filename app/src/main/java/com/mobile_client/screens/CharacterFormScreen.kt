@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mobile_client.services.AccountService
+import com.mobile_client.services.CosmeticService
 import com.mobile_client.utils.BASE_STAT_VALUE
 import com.mobile_client.utils.Dices
 import com.mobile_client.utils.ImageResources
@@ -66,6 +67,14 @@ import kotlinx.coroutines.launch
 
 private val IconDark = Color(0xFF3E2723)
 private val SelectedGreen = Color(0xFF4CAF50)
+
+// Maps premium avatars (13-16) to their cosmetic filePath
+private val premiumAvatarFilePaths = mapOf(
+    PlayerAvatars.Pumpkin to "avatars/avatar13.png",
+    PlayerAvatars.Asparagus to "avatars/avatar14.png",
+    PlayerAvatars.Eggplant to "avatars/avatar15.png",
+    PlayerAvatars.Avocado to "avatars/avatar16.png",
+)
 
 @Composable
 fun CharacterCreationScreen(
@@ -83,10 +92,34 @@ fun CharacterCreationScreen(
     var isBonusLife by remember { mutableStateOf<Boolean?>(false) }
     var attackDice by remember { mutableStateOf<Dices?>(Dices.D6) }
 
+    // Track which premium avatar filePaths the player owns
+    var ownedPremiumAvatarPaths by remember { mutableStateOf<Set<String>>(emptySet()) }
+
     val hp = if (isBonusLife == true) BASE_STAT_VALUE + 2 else BASE_STAT_VALUE
     val speed = if (isBonusLife == false) BASE_STAT_VALUE + 2 else BASE_STAT_VALUE
 
     val scope: CoroutineScope = rememberCoroutineScope()
+
+    // Load inventory to determine which premium avatars are owned
+    LaunchedEffect(Unit) {
+        val cosmeticService = CosmeticService.instance
+        val inventory = cosmeticService.loadInventory()
+        val shop = cosmeticService.loadShop()
+
+        // Build a map from cosmeticId -> filePath using shop + equipped data
+        val cosmeticIdToFilePath = mutableMapOf<String, String>()
+        shop.forEach { cosmeticIdToFilePath[it._id] = it.filePath }
+        inventory.equipped.forEach { cosmeticIdToFilePath[it._id] = it.filePath }
+
+        // Collect filePaths of all cosmetics the player owns (inventory + equipped)
+        val ownedPaths = mutableSetOf<String>()
+        inventory.inventory.forEach { item ->
+            cosmeticIdToFilePath[item.cosmeticId]?.let { ownedPaths.add(it) }
+        }
+        inventory.equipped.forEach { ownedPaths.add(it.filePath) }
+
+        ownedPremiumAvatarPaths = ownedPaths
+    }
 
     LaunchedEffect(Unit) {
         gameLobbyViewModel.errorMessage.collect { message ->
@@ -172,7 +205,7 @@ fun CharacterCreationScreen(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(380.dp)
+                                .height(485.dp)
                                 .clip(RoundedCornerShape(12.dp))
                         ) {
                             Image(
@@ -204,7 +237,19 @@ fun CharacterCreationScreen(
                                     items(allAvatars.size) { index ->
                                         val avatar = allAvatars[index]
                                         val isSelected = selectedAvatar == avatar
-                                        val isAvailable = availableAvatars.contains(avatar)
+                                        val isNotPickedByOthers = availableAvatars.contains(avatar)
+
+                                        // Premium avatars (13-16) require ownership
+                                        val isPremium = premiumAvatarFilePaths.containsKey(avatar)
+                                        val isOwned = if (isPremium) {
+                                            val filePath = premiumAvatarFilePaths[avatar]
+                                            filePath != null && ownedPremiumAvatarPaths.contains(filePath)
+                                        } else {
+                                            true
+                                        }
+
+                                        val isAvailable = isNotPickedByOthers && isOwned
+
                                         Box(
                                             modifier = Modifier
                                                 .sizeIn(maxHeight = 110.dp, maxWidth = 110.dp)

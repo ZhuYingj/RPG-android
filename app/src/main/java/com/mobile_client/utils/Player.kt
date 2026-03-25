@@ -1,7 +1,5 @@
 package com.mobile_client.utils
 
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.graphics.StrokeJoin
 import com.google.gson.annotations.SerializedName
 
 enum class PlayerAvatars {
@@ -12,7 +10,7 @@ enum class PlayerAvatars {
     @SerializedName("./assets/avatars/avatar3.png")
     Pepper,
     @SerializedName("./assets/avatars/avatar4.png")
-    Brocoli,
+    Broccoli,
     @SerializedName("./assets/avatars/avatar5.png")
     Corn,
     @SerializedName("./assets/avatars/avatar6.png")
@@ -29,6 +27,14 @@ enum class PlayerAvatars {
     Celery,
     @SerializedName("./assets/avatars/avatar12.png")
     Tomato,
+    @SerializedName("./assets/avatars/avatar13.png")
+    Pumpkin,
+    @SerializedName("./assets/avatars/avatar14.png")
+    Asparagus,
+    @SerializedName("./assets/avatars/avatar15.png")
+    Eggplant,
+    @SerializedName("./assets/avatars/avatar16.png")
+    Avocado,
     @SerializedName("")
     None
 }
