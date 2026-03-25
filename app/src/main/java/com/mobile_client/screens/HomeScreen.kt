@@ -70,6 +70,7 @@ fun HomeScreen(navController: NavController, gameLobbyViewModel: GameLobbyViewMo
     val buttons = listOf(
         HomeButton("Joindre une partie") { navController.navigate(Screen.JoinGame.route) },
         HomeButton("Créer une partie") { navController.navigate(Screen.GameCreation.route) },
+        HomeButton("Classement") { navController.navigate(Screen.LeaderBoard.route) },
         HomeButton("Se déconnecter") {
             scope.launch {
                 if (AccountService.instance.logout()) {

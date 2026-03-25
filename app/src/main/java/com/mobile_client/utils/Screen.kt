@@ -7,13 +7,11 @@ sealed class Screen(val route: String) {
     object Account : Screen("account")
     object GameCreation : Screen("game_creation")
     object JoinGame : Screen("join_game")
-
     object CharacterCreation : Screen("character_form")
-
     object WaitingPage : Screen("game_lobby")
-
     object Game : Screen("game")
     object EndGame : Screen("end_game")
     object Inventory : Screen("inventory")
     object Shop : Screen("shop")
+    object LeaderBoard : Screen("leaderboard")
 }

@@ -151,6 +151,12 @@ class MainActivity : ComponentActivity() {
                                     themeViewModel = themeViewModel
                                 )
                             }
+                            composable(Screen.LeaderBoard.route) {
+                                LeaderBoardScreen(
+                                    themeViewModel = themeViewModel,
+                                    friendsViewModel = friendsViewModel,
+                                )
+                            }
                         }
                         if (!hideBackButton) {
                             HomeButton(
