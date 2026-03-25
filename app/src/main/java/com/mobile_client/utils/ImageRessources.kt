@@ -30,12 +30,6 @@ object ImageResources {
         TileConstants.Items.Flag to R.drawable.flag
     )
 
-    val sizeString = mapOf(
-        TileConstants.MapSize.Small to "Petite",
-        TileConstants.MapSize.Medium to "Moyenne",
-        TileConstants.MapSize.Large to "Grande"
-    )
-
     val sizeToPlayerNumber = mapOf(
         TileConstants.MapSize.Small to 2,
         TileConstants.MapSize.Medium to 4,
@@ -46,7 +40,7 @@ object ImageResources {
         PlayerAvatars.Carrot to R.drawable.avatar1,
         PlayerAvatars.Cabbage to R.drawable.avatar2,
         PlayerAvatars.Pepper to R.drawable.avatar3,
-        PlayerAvatars.Brocoli to R.drawable.avatar4,
+        PlayerAvatars.Broccoli to R.drawable.avatar4,
         PlayerAvatars.Corn to R.drawable.avatar5,
         PlayerAvatars.Beet to R.drawable.avatar6,
         PlayerAvatars.Potato to R.drawable.avatar7,
@@ -55,6 +49,10 @@ object ImageResources {
         PlayerAvatars.Cauliflower to R.drawable.avatar10,
         PlayerAvatars.Celery to R.drawable.avatar11,
         PlayerAvatars.Tomato to R.drawable.avatar12,
+        PlayerAvatars.Pumpkin to R.drawable.avatar13,
+        PlayerAvatars.Asparagus to R.drawable.avatar14,
+        PlayerAvatars.Eggplant to R.drawable.avatar15,
+        PlayerAvatars.Avocado to R.drawable.avatar16,
     )
 
     val cosmeticToImage = mapOf(

@@ -60,7 +60,7 @@ fun EndGameScreen(navController: NavController, themeViewModel: ThemeViewModel) 
     val isCTF = gameMap?.isCaptureTheFlag ?: false
 
     var sortColumn by remember { mutableStateOf("name") }
-    var isAscended by remember { mutableStateOf(true) }
+    var isAscended by remember { mutableStateOf(false) }
     var sortedStats by remember { mutableStateOf(playerStats) }
 
     fun getSortableValue(stat: PlayerStat, column: String): Int {
