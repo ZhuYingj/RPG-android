@@ -41,6 +41,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -63,7 +65,7 @@ fun LeaderBoardScreen(
     friendsViewModel: FriendsViewModel,
     leaderboardViewModel: LeaderboardViewModel = viewModel(),
 ) {
-    val assets = themeViewModel.assets
+    val assets = themeViewModel.assets.backgroundLeaderboardPage
     val friends by friendsViewModel.friends.collectAsState()
     val entries = leaderboardViewModel.entries.value
     val isLoading = leaderboardViewModel.isLoading.value
@@ -105,6 +107,12 @@ fun LeaderBoardScreen(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
+        Image(
+            painter = painterResource(assets),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
         Column(
             modifier = Modifier
                 .fillMaxSize()
