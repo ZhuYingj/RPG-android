@@ -13,6 +13,7 @@ import com.mobile_client.utils.GameEvents
 import com.mobile_client.utils.GameMap
 import com.mobile_client.utils.InitFightObject
 import com.mobile_client.utils.ItemPickUpObject
+import com.mobile_client.utils.LeaderboardEvents
 import com.mobile_client.utils.LobbyEvents
 import com.mobile_client.utils.MessageEvents
 import com.mobile_client.utils.Player
@@ -59,6 +60,13 @@ class SocketService private constructor() {
             socket?.connect()
         } catch (e: URISyntaxException) {
             e.printStackTrace()
+        }
+    }
+
+    // ===================== LEADERBOARD LISTENERS =====================
+    fun initializeLeaderboardListeners() {
+        socket?.on(LeaderboardEvents.UPDATE_LEADERBOARD) {
+
         }
     }
 

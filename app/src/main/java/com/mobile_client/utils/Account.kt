@@ -1,5 +1,6 @@
 package com.mobile_client.utils
 
+import com.google.gson.annotations.SerializedName
 import java.util.Date
 
 data class Account(
@@ -39,11 +40,15 @@ data class Match(
 )
 
 enum class UserAction(val label: String) {
+    @SerializedName("Connexion")
     Connection("Connexion"),
-    Disconnection("Déconnexion")
+    @SerializedName("Déconnexion")
+    Disconnection("Déconnexion"),
 }
 
 enum class GameTypes(val label: String) {
+    @SerializedName("Classique")
     Classic("Classique"),
+    @SerializedName("CTF")
     CTF("CTF"),
 }
