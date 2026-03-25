@@ -75,19 +75,27 @@ fun LeaderBoardScreen(
 
     var dropdownExpanded by remember { mutableStateOf(false) }
 
-    // Filter entries by friends and search
-    val rankedEntries = entries.mapIndexed { index, entry ->
-        Pair(index + 1, entry)
-    }.filter { (_, entry) ->
-        val matchesSearch = searchQuery.isEmpty() || entry.username.contains(searchQuery, ignoreCase = true)
-        val matchesFilter = when (filterType) {
-            LeaderboardFilterType.GLOBAL -> true
-            LeaderboardFilterType.FRIENDS -> {
-                val currentUsername = AccountService.instance.username
-                entry.username == currentUsername || friends.any { it.username == entry.username }
+    val rankedEntries = when (filterType) {
+        LeaderboardFilterType.GLOBAL -> {
+            entries.mapIndexed { index, entry ->
+                Pair(index + 1, entry)
             }
         }
-        matchesSearch && matchesFilter
+        LeaderboardFilterType.FRIENDS -> {
+            val currentUsername = AccountService.instance.username
+            val friendUsernames = friends.map { it.username }.toSet()
+            var friendRank = 0
+            entries.mapNotNull { entry ->
+                if (entry.username == currentUsername || friendUsernames.contains(entry.username)) {
+                    friendRank++
+                    Pair(friendRank, entry)
+                } else {
+                    null
+                }
+            }
+        }
+    }.filter { (_, entry) ->
+        searchQuery.isEmpty() || entry.username.contains(searchQuery, ignoreCase = true)
     }
 
     LaunchedEffect(Unit) {
@@ -236,12 +244,8 @@ fun LeaderBoardScreen(
                 ) {
                     items(rankedEntries.size) { index ->
                         val (rank, entry) = rankedEntries[index]
-                        val displayRank = when (filterType) {
-                            LeaderboardFilterType.GLOBAL -> rank
-                            LeaderboardFilterType.FRIENDS -> index + 1
-                        }
                         LeaderboardRowDisplay(
-                            rank = displayRank,
+                            rank = rank,
                             entry = entry,
                             displayValue = leaderboardViewModel.getDisplayValue(entry),
                         )
