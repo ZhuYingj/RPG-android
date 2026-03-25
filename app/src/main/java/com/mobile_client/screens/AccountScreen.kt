@@ -276,7 +276,7 @@ fun AccountScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    log.action.label,
+                                    log.action?.label ?: "Action inconnue",
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = Color.White
                                 )
@@ -314,7 +314,7 @@ fun AccountScreen(
                             ) {
                                 Column {
                                     Text(
-                                        match.gameType.label,
+                                        match.gameType?.label ?: "Type inconnu",
                                         style = MaterialTheme.typography.bodyMedium,
                                         fontWeight = FontWeight.Bold,
                                         color = Color.White
