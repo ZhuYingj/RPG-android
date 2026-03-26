@@ -42,9 +42,6 @@ class TutorialViewModel : ViewModel() {
             currentStep.intValue++
             saveProgress()
         } else {
-            // Finish tutorial
-            currentStep.intValue = totalSteps
-            saveProgress()
             close()
         }
     }
@@ -56,7 +53,7 @@ class TutorialViewModel : ViewModel() {
     }
 
     fun continueFromSaved() {
-        currentStep.intValue = savedProgress.intValue
+        loadProgress()
         if (currentStep.intValue >= totalSteps) {
             currentStep.intValue = totalSteps - 1
         }
@@ -64,9 +61,11 @@ class TutorialViewModel : ViewModel() {
     }
 
     fun restart() {
-        currentStep.intValue = 0
         viewModelScope.launch {
-            service.resetProgress()
+            service.updateProgress(0)
+            val progress = service.getProgress()
+            savedProgress.intValue = progress
+            currentStep.intValue = progress
         }
         show()
     }
@@ -82,12 +81,18 @@ class TutorialViewModel : ViewModel() {
     fun showIfFirstTime() {
         viewModelScope.launch {
             val progress = service.getProgress()
-            savedProgress.intValue = progress
-            currentStep.intValue = progress
             if (progress == 0) {
+                savedProgress.intValue = 0
+                currentStep.intValue = 0
                 show()
             }
         }
+    }
+
+    fun clear() {
+        isVisible.value = false
+        currentStep.intValue = 0
+        savedProgress.intValue = 0
     }
 
     private fun saveProgress() {

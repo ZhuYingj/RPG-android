@@ -31,14 +31,4 @@ class TutorialService private constructor() {
             false
         }
     }
-
-    suspend fun resetProgress(): Boolean {
-        return try {
-            val response = http.post(baseUrl, mapOf("currentStep" to 0))
-            response.status.value in 200..299
-        } catch (e: Exception) {
-            println("TutorialService resetProgress error: ${e.message}")
-            false
-        }
-    }
 }

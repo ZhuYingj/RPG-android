@@ -73,7 +73,7 @@ fun ChatBox(modifier: Modifier = Modifier, chatViewModel: ChatViewModel, lobbyCh
     var newMessage by remember { mutableStateOf("") }
     var mostRecentMessage by remember { mutableStateOf<String?>(null) }
     val listState = rememberLazyListState()
-    var isCollapsed by remember { mutableStateOf(false) }
+    var isCollapsed by remember { mutableStateOf(true) }
     var emojiSelected by remember { mutableStateOf("❤️") }
     val maxChar = 200
     val socketManager = SocketService.instance

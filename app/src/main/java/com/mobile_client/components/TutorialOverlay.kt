@@ -82,7 +82,7 @@ fun TutorialOverlay(tutorialViewModel: TutorialViewModel) {
             Column {
                 Text(
                     text = "Étape ${currentStepIndex + 1}/${tutorialViewModel.totalSteps}",
-                    fontSize = 12.sp,
+                    fontSize = 14.sp,
                     color = Color.Gray,
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.End

@@ -41,10 +41,11 @@ import org.json.JSONObject
 import coil.compose.rememberAsyncImagePainter
 import com.mobile_client.services.AccountService
 import com.mobile_client.utils.LoginResponse
+import com.mobile_client.viewModels.TutorialViewModel
 import io.ktor.client.call.body
 
 @Composable
-fun SignUpScreen(navController: NavController) {
+fun SignUpScreen(navController: NavController, tutorialViewModel: TutorialViewModel) {
 
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -128,6 +129,7 @@ fun SignUpScreen(navController: NavController) {
                             val loginData: LoginResponse = loginResponse.body()
                             AccountService.instance.setAccount(loginData.account, loginData.token)
                             navController.navigate(Screen.Home.route)
+                            tutorialViewModel.showIfFirstTime() //could be overrided in launched effet in mainkt
                         } else {
                             navController.navigate(Screen.Login.route)
                         }

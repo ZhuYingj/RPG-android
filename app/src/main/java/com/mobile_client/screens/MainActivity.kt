@@ -84,14 +84,10 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
                             composable(Screen.SignUp.route) {
-                                SignUpScreen(navController = navController)
+                                SignUpScreen(navController = navController, tutorialViewModel = tutorialViewModel)
                             }
                             composable(Screen.Home.route) {
                                 HomeScreen(navController = navController, gameLobbyViewModel = gameLobbyViewModel, themeViewModel = themeViewModel)
-                                LaunchedEffect(Unit) {
-                                    tutorialViewModel.showIfFirstTime()
-                                }
-                                TutorialOverlay(tutorialViewModel = tutorialViewModel)
                             }
                             composable(Screen.GameCreation.route) {
                                 GamesCreationScreen(
@@ -168,6 +164,7 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
                         }
+
                         if (!hideBackButton) {
                             HomeButton(
                                 navController = navController,
@@ -184,11 +181,11 @@ class MainActivity : ComponentActivity() {
                                 globalChatViewModel.clearList()
                                 lobbyChatViewModel.clearList()
                                 themeViewModel.resetTheme()
+                                tutorialViewModel.clear()
                             }
                         }
                         if (showChat) {
                             val lobbyCode = gameLobbyViewModel.lobbyCode.value
-
 
                             DisposableEffect(Unit) {
                                 globalChatViewModel.enableListeners()
@@ -228,6 +225,10 @@ class MainActivity : ComponentActivity() {
                                 .align(Alignment.BottomCenter)
                                 .zIndex(99f)
                         )
+
+                        if (tutorialViewModel.isVisible.value) {
+                            TutorialOverlay(tutorialViewModel = tutorialViewModel)
+                        }
                     }
                 }
             }
