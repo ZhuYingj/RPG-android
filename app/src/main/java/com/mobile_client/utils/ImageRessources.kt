@@ -69,4 +69,10 @@ object ImageResources {
         "avatars/avatar15.png" to R.drawable.avatar15,
         "avatars/avatar16.png" to R.drawable.avatar16,
     )
+
+    val tutorialStepToImage = mapOf(
+        0 to R.drawable.leaderboard_background, //TODO add tutorial steps
+        1 to R.drawable.step1,
+        2 to R.drawable.step2,
+    )
 }
