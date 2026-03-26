@@ -45,6 +45,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.painterResource
 import com.mobile_client.components.ThemeSelector
 import com.mobile_client.viewModels.ThemeViewModel
+import com.mobile_client.viewModels.TutorialViewModel
 import java.text.SimpleDateFormat
 import java.util.Locale
 import kotlin.math.roundToInt
@@ -55,6 +56,7 @@ fun AccountScreen(
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     accountViewModel: AccountViewModel = viewModel(),
     themeViewModel: ThemeViewModel,
+    tutorialViewModel: TutorialViewModel
 ) {
     val assets = themeViewModel.assets
     val account by accountViewModel.account.collectAsState()
@@ -239,6 +241,24 @@ fun AccountScreen(
                         },
                         enabled = hasAvatarChange
                     ) { Text("Enregistrer avatar", color = Color.White) }
+                }
+
+                // In AccountScreen, after the theme selector section:
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+                Text("Tutoriel", style = MaterialTheme.typography.titleMedium, color = Color.White)
+
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    OutlinedButton(onClick = {
+                        tutorialViewModel.continueFromSaved()
+                    }) {
+                        Text("Continuer le tutoriel", color = Color.White)
+                    }
+                    OutlinedButton(onClick = {
+                        tutorialViewModel.restart()
+                    }) {
+                        Text("Recommencer le tutoriel", color = Color.White)
+                    }
                 }
 
                 // --- Stats Section ---

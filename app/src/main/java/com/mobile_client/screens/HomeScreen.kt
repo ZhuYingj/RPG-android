@@ -21,7 +21,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,6 +43,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.rememberAsyncImagePainter
+import com.mobile_client.components.TutorialOverlay
 import com.mobile_client.services.AccountService
 import com.mobile_client.services.SocketService
 import com.mobile_client.utils.ImageUtils
@@ -64,7 +70,7 @@ fun HomeScreen(navController: NavController, gameLobbyViewModel: GameLobbyViewMo
     val account = AccountService.instance.accountInfo
     val avatarBitmap = ImageUtils.base64ToBitmap(account?.avatar)
     val scope = rememberCoroutineScope()
-    val money = AccountService.instance.money.value
+    val money = AccountService.instance.money.intValue
     val assets = themeViewModel.assets
 
     val buttons = listOf(

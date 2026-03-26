@@ -32,6 +32,7 @@ import androidx.navigation.compose.rememberNavController
 import com.mobile_client.components.ChatBox
 import com.mobile_client.components.FriendsPanel
 import com.mobile_client.components.HomeButton
+import com.mobile_client.components.TutorialOverlay
 import com.mobile_client.screens.ui.theme.MobileclientTheme
 import com.mobile_client.utils.Screen
 import com.mobile_client.viewModels.ChatViewModel
@@ -40,6 +41,7 @@ import com.mobile_client.viewModels.FriendsViewModel
 import com.mobile_client.viewModels.GameListViewModel
 import com.mobile_client.viewModels.GameLobbyViewModel
 import com.mobile_client.viewModels.ThemeViewModel
+import com.mobile_client.viewModels.TutorialViewModel
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalLayoutApi::class)
@@ -58,6 +60,9 @@ class MainActivity : ComponentActivity() {
                 val showChat = currentRoute != null && currentRoute !in listOf(Screen.Login.route, Screen.SignUp.route)
                 val gameLobbyViewModel: GameLobbyViewModel = viewModel()
                 val friendsViewModel: FriendsViewModel = viewModel()
+                val globalChatViewModel: ChatViewModel = viewModel()
+                val lobbyChatViewModel: ChatViewModel = viewModel(key = "lobbyChat")
+                val tutorialViewModel: TutorialViewModel = viewModel()
                 val showLobbyTab = currentRoute in listOf(Screen.WaitingPage.route, Screen.Game.route, Screen.EndGame.route)
                 val hideBackButton = currentRoute in listOf(
                     Screen.Login.route,
@@ -83,6 +88,10 @@ class MainActivity : ComponentActivity() {
                             }
                             composable(Screen.Home.route) {
                                 HomeScreen(navController = navController, gameLobbyViewModel = gameLobbyViewModel, themeViewModel = themeViewModel)
+                                LaunchedEffect(Unit) {
+                                    tutorialViewModel.showIfFirstTime()
+                                }
+                                TutorialOverlay(tutorialViewModel = tutorialViewModel)
                             }
                             composable(Screen.GameCreation.route) {
                                 GamesCreationScreen(
@@ -106,7 +115,8 @@ class MainActivity : ComponentActivity() {
                                 AccountScreen(
                                     navController = navController,
                                     snackbarHostState = snackbarHostState,
-                                    themeViewModel = themeViewModel
+                                    themeViewModel = themeViewModel,
+                                    tutorialViewModel = tutorialViewModel
                                 )
                             }
                             composable(Screen.CharacterCreation.route) {
@@ -168,9 +178,6 @@ class MainActivity : ComponentActivity() {
                                     .zIndex(1f)
                             )
                         }
-
-                        val globalChatViewModel: ChatViewModel = viewModel()
-                        val lobbyChatViewModel: ChatViewModel = viewModel(key = "lobbyChat")
 
                         LaunchedEffect(currentRoute) {
                             if (currentRoute == Screen.Login.route || currentRoute == Screen.SignUp.route) {
