@@ -135,21 +135,8 @@ fun LeaderBoardScreen(
                 .fillMaxHeight()
                 .padding(top = topPad, bottom = bottomPad)
                 .clip(RoundedCornerShape(16.dp))
-        ) {
-            Image(
-                painter = painterResource(assets),
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .blur(16.dp),
-                contentScale = ContentScale.Crop
-            )
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.White.copy(alpha = 0.3f))
-            )
-        }
+                .background(Color.White.copy(alpha = 0.80f))
+        )
 
         Column(
             modifier = Modifier
