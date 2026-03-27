@@ -5,8 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mobile_client.services.LeaderBoardService
 import com.mobile_client.services.SocketService
-import com.mobile_client.utils.LeaderboardEvents
 import com.mobile_client.utils.LeaderboardEntry
+import com.mobile_client.utils.LeaderboardEvents
 import com.mobile_client.utils.LeaderboardFilterType
 import com.mobile_client.utils.LeaderboardSortType
 import kotlinx.coroutines.launch
@@ -39,6 +39,7 @@ class LeaderboardViewModel : ViewModel() {
                 LeaderboardSortType.WINS -> service.getGamesWonLeaderboard()
                 LeaderboardSortType.MONEY -> service.getMoneyLeaderboard()
                 LeaderboardSortType.PLAYTIME -> service.getPlayTimeLeaderboard()
+                LeaderboardSortType.BATTLES_WINS -> service.getBattlesWin()
             }
             isLoading.value = false
         }
@@ -55,6 +56,7 @@ class LeaderboardViewModel : ViewModel() {
                 val seconds = totalSeconds % 60
                 "${minutes}m ${seconds}s"
             }
+            LeaderboardSortType.BATTLES_WINS -> "${entry.stats?.battlesWins ?: 0}"
         }
     }
 }

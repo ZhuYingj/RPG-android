@@ -12,12 +12,14 @@ data class LeaderboardStats(
     val classicGamesPlayed: Int,
     val CTFGamesPlayed: Int,
     val averageGameTime: Double,
+    val battlesWins: Int,
 )
 
 enum class LeaderboardSortType(val label: String) {
     WINS("Victoires"),
     MONEY("Argent"),
     PLAYTIME("Temps de jeu"),
+    BATTLES_WINS("Batailles gagnées"),
 }
 
 enum class LeaderboardFilterType(val label: String) {

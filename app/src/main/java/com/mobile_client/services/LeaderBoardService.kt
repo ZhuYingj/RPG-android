@@ -34,6 +34,10 @@ class LeaderBoardService private constructor() {
         return fetchLeaderboard("/wins")
     }
 
+    suspend fun getBattlesWin() : List<LeaderboardEntry> {
+        return fetchLeaderboard("/battleswins")
+    }
+
     private suspend fun fetchLeaderboard(endpoint: String): List<LeaderboardEntry> {
         return withContext(Dispatchers.IO) {
             try {
