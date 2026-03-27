@@ -184,33 +184,44 @@ fun InventoryScreen(
 
                                 Spacer(modifier = Modifier.height(8.dp))
 
-                                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                                    Button(
-                                        onClick = {
-                                            if (cosmetic?.type !=0)
-                                                inventoryViewModel.equipItem(item)
-                                            else
-                                                navController.navigate(Screen.Account.route) {
-                                                    popUpTo(0) { inclusive = true }
-                                            }
-                                        },
-                                        enabled = !isEquipped,
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = Color(0xFF4CAF50),
-                                            disabledContainerColor = Color(0xFF759D77)
-                                        ),
-                                        shape = RoundedCornerShape(6.dp),
-                                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
-                                    ) {
-                                        Text(
-                                            text = if (cosmetic?.type == 0) {
-                                                "Compte"
-                                            } else {
-                                                if (isEquipped) "Équipé" else "Équipper"
+                                if (cosmetic?.type == 0) {
+                                    Text(
+                                        text = "Disponible pendant la partie",
+                                        fontSize = 13.sp,
+                                        color = Color.Gray
+                                    )
+                                } else {
+                                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                                        Button(
+                                            onClick = {
+                                                if (cosmetic?.type != 0 && cosmetic?.type != 3)
+                                                    inventoryViewModel.equipItem(item)
+                                                else if (cosmetic?.type == 3) {
+                                                    navController.navigate(Screen.Account.route) {
+                                                        popUpTo(0) { inclusive = true }
+                                                    }
+                                                }
                                             },
-                                            color = Color.White,
-                                            fontSize = 13.sp
-                                        )
+                                            enabled = !isEquipped,
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = Color(0xFF4CAF50),
+                                                disabledContainerColor = Color(0xFF759D77)
+                                            ),
+                                            shape = RoundedCornerShape(6.dp),
+                                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                                        ) {
+                                            Text(
+                                                text = if (cosmetic?.type == 0) {
+                                                    "Disponible pendant la partie"
+                                                } else if (cosmetic?.type == 3) {
+                                                    "Compte"
+                                                } else {
+                                                    if (isEquipped) "Équipé" else "Équipper"
+                                                },
+                                                color = Color.White,
+                                                fontSize = 13.sp
+                                            )
+                                        }
                                     }
                                 }
                             }

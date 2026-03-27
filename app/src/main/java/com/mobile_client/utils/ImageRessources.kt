@@ -38,7 +38,8 @@ object ImageResources {
 
     val avatarResources = listOf(
         R.drawable.default1, R.drawable.default2, R.drawable.default3, R.drawable.default4,
-        R.drawable.default5, R.drawable.default6, R.drawable.default7, R.drawable.default8
+        R.drawable.default5, R.drawable.default6, R.drawable.default7, R.drawable.default8,
+        R.drawable.default9, R.drawable.default10, R.drawable.default11, R.drawable.default12
     )
 
     val avatarToImage = mapOf(
@@ -73,6 +74,10 @@ object ImageResources {
         "avatars/avatar14.png" to R.drawable.avatar14,
         "avatars/avatar15.png" to R.drawable.avatar15,
         "avatars/avatar16.png" to R.drawable.avatar16,
+        "user-profile-avatar/default9.png" to R.drawable.default9,
+        "user-profile-avatar/default10.png" to R.drawable.default10,
+        "user-profile-avatar/default11.png" to R.drawable.default11,
+        "user-profile-avatar/default12.png" to R.drawable.default12,
     )
 
     val tutorialStepToImage = mapOf(

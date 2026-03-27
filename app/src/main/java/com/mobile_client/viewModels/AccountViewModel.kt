@@ -114,7 +114,7 @@ class AccountViewModel : ViewModel() {
                 val inventoryDTO = cosmeticService.loadInventory()
                 val ownedIds = inventoryDTO.inventory.map { it.cosmeticId }.toSet()
                 _ownedAvatarCosmetics.value = shop.filter { cosmetic ->
-                    cosmetic.filePath.startsWith("avatars/") &&
+                    cosmetic.filePath.startsWith("user-profile-avatar/") &&
                         ownedIds.contains(cosmetic._id)
                 }
             } catch (e: Exception) {

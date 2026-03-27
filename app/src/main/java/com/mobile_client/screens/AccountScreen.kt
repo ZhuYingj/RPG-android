@@ -52,6 +52,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
@@ -513,69 +514,47 @@ fun AccountScreen(
             title = { Text("Choisir un avatar") },
             text = {
                 Column {
-                    // Default avatars
-                    for (row in 0..1) {
+                    for (row in 0..2) {
                         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             for (col in 0..3) {
                                 val index = row * 4 + col
-                                Image(
-                                    painter = rememberAsyncImagePainter(avatarResources[index]),
-                                    contentDescription = "Avatar",
+                                val resId = avatarResources[index]
+                                val isLocked = index >= 8 && ownedAvatarCosmetics.none { it.filePath.contains("user-profile-avatar/default${index + 1}") }
+
+                                Box(
                                     modifier = Modifier
                                         .size(64.dp)
                                         .clip(CircleShape)
-                                        .clickable {
-                                            val bitmap = BitmapFactory.decodeResource(
-                                                context.resources, avatarResources[index]
-                                            )
-                                            val resized = ImageUtils.resizeBitmap(bitmap, 1024)
-                                            avatarBase64 = ImageUtils.bitmapToBase64(resized)
-                                            avatarUri = null
-                                            selectedDefaultResId = avatarResources[index]
-                                            showAvatarPicker = false
-                                        },
-                                    contentScale = ContentScale.Crop
-                                )
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(12.dp))
-                    }
-
-                    // Owned cosmetic avatars
-                    if (ownedAvatarCosmetics.isNotEmpty()) {
-                        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-                        Text("Cosmétiques", style = MaterialTheme.typography.labelMedium)
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        val cosmeticRows = ownedAvatarCosmetics.chunked(4)
-                        for (rowItems in cosmeticRows) {
-                            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                                for (cosmetic in rowItems) {
-                                    val resId = com.mobile_client.utils.ImageResources.cosmeticToImage[cosmetic.filePath]
-                                    if (resId != null) {
-                                        Image(
-                                            painter = rememberAsyncImagePainter(resId),
-                                            contentDescription = cosmetic.name,
+                                ) {
+                                    Image(
+                                        painter = rememberAsyncImagePainter(resId),
+                                        contentDescription = "Avatar",
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .clickable(enabled = !isLocked) {
+                                                val bitmap = BitmapFactory.decodeResource(context.resources, resId)
+                                                val resized = ImageUtils.resizeBitmap(bitmap, 1024)
+                                                avatarBase64 = ImageUtils.bitmapToBase64(resized)
+                                                avatarUri = null
+                                                selectedDefaultResId = resId
+                                                showAvatarPicker = false
+                                            },
+                                        contentScale = ContentScale.Crop
+                                    )
+                                    if (isLocked) {
+                                        Box(
                                             modifier = Modifier
-                                                .size(64.dp)
-                                                .clip(CircleShape)
-                                                .clickable {
-                                                    val bitmap = BitmapFactory.decodeResource(
-                                                        context.resources, resId
-                                                    )
-                                                    val resized = ImageUtils.resizeBitmap(bitmap, 1024)
-                                                    avatarBase64 = ImageUtils.bitmapToBase64(resized)
-                                                    avatarUri = null
-                                                    selectedDefaultResId = resId
-                                                    showAvatarPicker = false
-                                                },
-                                            contentScale = ContentScale.Crop
-                                        )
+                                                .fillMaxSize()
+                                                .background(Color.Black.copy(alpha = 0.6f)),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text("🔒", style = MaterialTheme.typography.bodySmall)
+                                        }
                                     }
                                 }
                             }
-                            Spacer(modifier = Modifier.height(12.dp))
                         }
+                        Spacer(modifier = Modifier.height(12.dp))
                     }
                 }
             }
