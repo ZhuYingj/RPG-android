@@ -15,10 +15,12 @@ class GameMovementService {
 
     fun availableMovement(player: Player, players: List<Player>): List<Position> {
         resetTiles()
+        val pos = player.position
+        if (!isInMap(pos)) return emptyList()
         val accessibleTiles = mutableListOf<Position>()
-        accessibleTiles.add(player.position)
-        tiles[player.position.x][player.position.y].cost = 0
-        tiles[player.position.x][player.position.y].parentTile = player.position
+        accessibleTiles.add(pos)
+        tiles[pos.x][pos.y].cost = 0
+        tiles[pos.x][pos.y].parentTile = pos
 
         var index = 0
         while (index < accessibleTiles.size) {
@@ -32,8 +34,9 @@ class GameMovementService {
     fun visibleBushTiles(player: Player): List<Position> {
         //mode debug is already checked in frontend GameBoard composable
         resetTiles()
-        val visibleBushTiles = mutableListOf<Position>()
         val pos = player.position
+        if (!isInMap(pos)) return emptyList()
+        val visibleBushTiles = mutableListOf<Position>()
         if (tiles[pos.x][pos.y].type != TileConstants.Types.Bush) {
             for (dir in ORTHOGONAL_DIRECTIONS) {
                 val x = pos.x + dir.x
