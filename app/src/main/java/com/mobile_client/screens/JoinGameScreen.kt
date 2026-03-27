@@ -260,14 +260,13 @@ fun JoinGameScreen(
             // Game list container
             Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .padding(horizontal = 24.dp, vertical = 8.dp)
+                    .fillMaxWidth(0.78f)
+                    .align(Alignment.CenterHorizontally)
+                    .padding(horizontal = 24.dp, vertical = 12.dp)
                     .background(
                         Color(0x5C302F2F),
                         shape = RoundedCornerShape(8.dp)
                     )
-                    .padding(16.dp)
             ) {
                 GameList(currentGameListViewModel, themeViewModel = themeViewModel)
             }
