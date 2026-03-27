@@ -36,6 +36,11 @@ object ImageResources {
         TileConstants.MapSize.Large to 6
     )
 
+    val avatarResources = listOf(
+        R.drawable.default1, R.drawable.default2, R.drawable.default3, R.drawable.default4,
+        R.drawable.default5, R.drawable.default6, R.drawable.default7, R.drawable.default8
+    )
+
     val avatarToImage = mapOf(
         PlayerAvatars.Carrot to R.drawable.avatar1,
         PlayerAvatars.Cabbage to R.drawable.avatar2,

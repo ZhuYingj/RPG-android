@@ -9,43 +9,72 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.QrCode
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.mobile_client.components.ThemeSelector
+import com.mobile_client.utils.AccountStats
+import com.mobile_client.utils.ImageResources.avatarResources
 import com.mobile_client.utils.ImageUtils
+import com.mobile_client.utils.Screen
 import com.mobile_client.utils.Validation
 import com.mobile_client.viewModels.AccountViewModel
-import kotlinx.coroutines.launch
-import androidx.core.content.FileProvider
-import androidx.navigation.NavController
-import com.mobile_client.utils.AccountStats
-import com.mobile_client.utils.Screen
-import java.io.File
-import androidx.compose.material.icons.filled.QrCode
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.res.painterResource
-import com.mobile_client.components.ThemeSelector
 import com.mobile_client.viewModels.ThemeViewModel
 import com.mobile_client.viewModels.TutorialViewModel
+import kotlinx.coroutines.launch
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Locale
 import kotlin.math.roundToInt
@@ -85,11 +114,6 @@ fun AccountScreen(
     val dateFormat = remember {
         SimpleDateFormat("dd MMM yyyy, HH:mm:ss", Locale.getDefault())
     }
-
-    val avatarResources = listOf(
-        R.drawable.default1, R.drawable.default2, R.drawable.default3, R.drawable.default4,
-        R.drawable.default5, R.drawable.default6, R.drawable.default7, R.drawable.default8
-    )
 
     val ownedAvatarCosmetics by accountViewModel.ownedAvatarCosmetics.collectAsState()
 
@@ -271,6 +295,7 @@ fun AccountScreen(
                     StatRow("Parties CTF jouées", "${stats.CTFGamesPlayed}", Color.White)
                     StatRow("Parties gagnées", "${stats.gamesWon}", Color.White)
                     StatRow("Temps moyen de partie", "${stats.averageGameTime.roundToInt()} s", Color.White)
+                    //StatRow("Battailles gagnées", "${stats.battlesWins}", Color.White)
                 }
 
                 // --- Action History Section ---
