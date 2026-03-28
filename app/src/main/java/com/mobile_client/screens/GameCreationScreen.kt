@@ -1,18 +1,24 @@
 package com.mobile_client.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -79,54 +85,80 @@ fun GamesCreationScreen(
                 showFeeDialog = false
                 pendingMap = null
             },
-            title = { Text("Frais d'entrée") },
+            modifier = Modifier.width(400.dp),
+            containerColor = Color.White,
+            titleContentColor = Color.Black,
+            textContentColor = Color.Black,
+            shape = RoundedCornerShape(4.dp),
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Définir un frais d'entrée pour rejoindre ce lobby")
+                    Text("Définir un frais d'entrée pour rejoindre ce lobby",
+                        modifier = Modifier.fillMaxWidth())
                     OutlinedTextField(
                         value = feeInput,
                         onValueChange = { if (it.all(Char::isDigit) && it.length <= 5) feeInput = it },
-                        label = { Text("Montant") },
+                        label = { Text("Frais d'entrée") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        singleLine = true
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            unfocusedBorderColor = Color(0xFF6650A4),
+                            focusedBorderColor = Color(0xFF6650A4),
+                            unfocusedLabelColor = Color(0xFF6650A4),
+                            focusedLabelColor = Color(0xFF6650A4),
+                            cursorColor = Color(0xFF6650A4)
+                        ),
+                        modifier = Modifier.fillMaxWidth()
                     )
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth().offset(x = (-12).dp)
                     ) {
                         Checkbox(
                             checked = isRapid,
-                            onCheckedChange = { isRapid = it }
+                            onCheckedChange = { isRapid = it },
+                            colors = androidx.compose.material3.CheckboxDefaults.colors(
+                                checkedColor = Color(0xFF6650A4)
+                            )
                         )
                         Text("Élimination Rapide")
                     }
                 }
             },
             confirmButton = {
-                Button(
-                    enabled = feeInput != "",
-                    onClick = {
-                        val fee = feeInput.toIntOrNull() ?: 0
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    TextButton(onClick = {
                         showFeeDialog = false
-                        gameLobbyViewModel.createLobby(
-                            map = pendingMap!!,
-                            fee = fee,
-                            isRapid = isRapid,
-                            onSuccess = { navController.navigate(Screen.CharacterCreation.route) },
-                            onError = { message ->
-                                gameLobbyViewModel.showMessage(message)
-                                pendingMap = null
-                            }
-                        )
                         pendingMap = null
-                    }) { Text("Confirmer") }
+                    }) { Text("Annuler", color = Color.Black) }
+
+                    Button(
+                        enabled = feeInput != "",
+                        onClick = {
+                            val fee = feeInput.toIntOrNull() ?: 0
+                            showFeeDialog = false
+                            gameLobbyViewModel.createLobby(
+                                map = pendingMap!!,
+                                fee = fee,
+                                isRapid = isRapid,
+                                onSuccess = { navController.navigate(Screen.CharacterCreation.route) },
+                                onError = { message ->
+                                    gameLobbyViewModel.showMessage(message)
+                                    pendingMap = null
+                                }
+                            )
+                            pendingMap = null
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6650A4)),
+                        shape = RoundedCornerShape(4.dp)
+                    ) { Text("Confirmer", color = Color.White) }
+                }
             },
-            dismissButton = {
-                TextButton(onClick = {
-                    showFeeDialog = false
-                    pendingMap = null
-                }) { Text("Annuler") }
-            }
+            dismissButton = {}
         )
     }
 
@@ -140,12 +172,15 @@ fun GamesCreationScreen(
 
         Column(
             modifier = Modifier
+                .fillMaxWidth(0.67f)
                 .fillMaxSize()
-                .padding(top = 56.dp),
+                .align(Alignment.Center)
+                .background(Color(0x5C302F2F), shape = RoundedCornerShape(8.dp))
+                .padding(16.dp)
         ) {
             Text(
                 text = "Création d'une partie",
-                fontSize = 32.sp,
+                fontSize = 40.sp,
                 fontWeight = FontWeight.Bold,
                 color = assets.mainPageTextColor,
                 style = TextStyle(
@@ -155,35 +190,18 @@ fun GamesCreationScreen(
                         blurRadius = 4f
                     )
                 ),
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(bottom = 8.dp)
+                modifier = Modifier.padding(top = 20.dp, bottom = 12.dp).align(Alignment.CenterHorizontally)
             )
 
             Text(
                 text = "Liste des jeux",
-                fontSize = 20.sp,
+                fontSize = 30.sp,
                 fontWeight = FontWeight.Bold,
                 color = assets.mainPageTextColor,
-                style = TextStyle(
-                    shadow = Shadow(
-                        color = Color.Black.copy(alpha = 0.3f),
-                        offset = Offset(1f, 1f),
-                        blurRadius = 2f
-                    )
-                ),
-                modifier = Modifier
-                    .padding(start = 24.dp, bottom = 8.dp)
+                modifier = Modifier.padding(start = 15.dp, bottom = 8.dp)
             )
 
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .padding(horizontal = 24.dp, vertical = 8.dp)
-            ) {
-                GameList(gameListViewModel, themeViewModel = themeViewModel)
-            }
+            GameList(gameListViewModel, themeViewModel = themeViewModel)
         }
     }
 }

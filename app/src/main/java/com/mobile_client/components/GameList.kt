@@ -60,6 +60,9 @@ import androidx.compose.runtime.produceState
 import androidx.core.graphics.scale
 import com.mobile_client.viewModels.ThemeViewModel
 import androidx.core.graphics.createBitmap
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 private val bitmapCache = mutableMapOf<Int, android.graphics.Bitmap>()
 
@@ -90,11 +93,8 @@ fun GameList(
     }
 
     val isEmpty = (maps.isEmpty() && !viewModel.isLobbyMode) || (currentGames.isEmpty() && viewModel.isLobbyMode)
-    val columnModifier = if (isEmpty) {
-        modifier.fillMaxWidth().wrapContentHeight().padding(20.dp)
-    } else {
-        modifier.fillMaxSize().padding(20.dp)
-    }
+    val columnModifier = modifier.fillMaxWidth().wrapContentHeight().padding(20.dp)
+
 
     Column(modifier = columnModifier) {
         when {
@@ -116,7 +116,7 @@ fun GameList(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 32.dp),
+                        .padding(vertical = 4.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -131,7 +131,7 @@ fun GameList(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 32.dp),
+                        .padding(vertical = 4.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -146,7 +146,7 @@ fun GameList(
                 if (viewModel.isLobbyMode) {
                     LazyColumn(
                         state = listState,
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.wrapContentHeight(),
                         contentPadding = PaddingValues(0.dp),
                         verticalArrangement = Arrangement.spacedBy(0.dp)
                     ) {
@@ -164,7 +164,7 @@ fun GameList(
                 } else {
                     LazyColumn(
                         state = listState,
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.wrapContentHeight(),
                         contentPadding = PaddingValues(0.dp),
                         verticalArrangement = Arrangement.spacedBy(0.dp)
                     ) {
@@ -197,11 +197,11 @@ fun LobbyMapItem(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .padding(bottom = 20.dp)
+            .padding(bottom = 8.dp)
             .shadow(elevation = 4.dp, shape = RoundedCornerShape(8.dp))
             .background(color = Color(0xFFFFFFFF).copy(alpha = 0.92f), shape = RoundedCornerShape(8.dp))
             .border(width = 1.dp, color = Color(0xFFDDDDDD), shape = RoundedCornerShape(8.dp))
-            .padding(15.dp)
+            .padding(10.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -222,7 +222,6 @@ fun LobbyMapItem(
                     DescriptionBubble(description = map.description)
                 } else {
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        MapInfo(map = map, showLastModified = false)
                         Spacer(modifier = Modifier.height(8.dp))
                         LobbyInfo(lobby = lobby)
                     }
@@ -248,60 +247,28 @@ fun LobbyMapItem(
 
 @Composable
 fun LobbyInfo(lobby: SocketCommunicationConst.SendableLobbies) {
-    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        LobbyBadge(
-            label = "Code : ${lobby.code}",
-            backgroundColor = Color(0xFFE3F2FD),
-            textColor = Color(0xFF1565C0)
-        )
-        LobbyBadge(
-            label = if (lobby.hasFriend) "🔒 Amis seulement" else "🔓 Public",
-            backgroundColor = if (lobby.hasFriend) Color(0xFFFFF3E0) else Color(0xFFE8F5E9),
-            textColor = if (lobby.hasFriend) Color(0xFFE65100) else Color(0xFF2E7D32)
-        )
-        LobbyBadge(
-            label = "Hôte : ${lobby.host}",
-            backgroundColor = Color(0xFFF3E5F5),
-            textColor = Color(0xFF6A1B9A)
-        )
-        val maxPlayers = ImageResources.sizeToPlayerNumber[(lobby.map as GameMap).size] ?: 0
-        LobbyBadge(
-            label = "${lobby.playerNumber}/${maxPlayers}",
-            backgroundColor = Color(0xFFF3E5F5),
-            textColor = Color(0xFF6A1B9A)
-        )
-        LobbyBadge(
-            label = "Accès: ${if (lobby.isLocked) "Vérrouillé" else "Déverrouillé"}",
-            backgroundColor = Color(0xFFF3E5F5),
-            textColor = Color(0xFF6A1B9A)
-        )
+    val maxPlayers = ImageResources.sizeToPlayerNumber[(lobby.map as GameMap).size] ?: 0
+    val statut = if (lobby.isLocked) "Vérrouillé" else "En attente"
 
-        LobbyBadge(
-            label = "💰 ${lobby.fee}",
-            backgroundColor = Color(0xFFFFFDE7),
-            textColor = Color(0xFFF57F17)
-        )
-        if (lobby.hasBlockedUser) {
-            LobbyBadge(
-                label = "⚠️ Utilisateur bloqué présent",
-                backgroundColor = Color(0xFFFFEBEE),
-                textColor = Color(0xFFC62828)
-            )
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(text = lobby.map.name, fontSize = 35.sp, fontWeight = FontWeight.Normal, color = Color(0xFF313131), letterSpacing = 2.sp, modifier = Modifier.padding(bottom = 4.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+            Text(text = "Code : ${lobby.code}", fontSize = 14.sp, color = Color(0xFF555555))
+            Text(text = "Joueurs : ${lobby.playerNumber}/$maxPlayers", fontSize = 14.sp, color = Color(0xFF555555))
+            Text(text = "Statut : $statut", fontSize = 14.sp, color = Color(0xFF555555))
+        }
+        Text(text = "Nombre de joueurs max : $maxPlayers", fontSize = 14.sp, color = Color(0xFF555555))
+        Text(text = "Taille : ${lobby.map.size}", fontSize = 14.sp, color = Color(0xFF555555))
+        Text(text = "Mode : ${if (lobby.map.isCaptureTheFlag) "CTF" else "Classique"}", fontSize = 14.sp, color = Color(0xFF555555))
+        Text(text = "Hôte : ${lobby.host}", fontSize = 14.sp, color = Color(0xFF555555))
+        Row(horizontalArrangement = Arrangement.spacedBy(24.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(text = "Frais d'entrée : ${lobby.fee} $", fontSize = 14.sp, color = Color(0xFF555555))
+            if (lobby.hasBlockedUser) {
+                Text(text = "⚠️ Utilisateur bloqué présent", fontSize = 14.sp, color = Color(0xFFC62828))
+            }
         }
     }
 }
-
-@Composable
-fun LobbyBadge(label: String, backgroundColor: Color, textColor: Color) {
-    Box(
-        modifier = Modifier
-            .background(backgroundColor, shape = RoundedCornerShape(6.dp))
-            .padding(horizontal = 10.dp, vertical = 4.dp)
-    ) {
-        Text(text = label, fontSize = 14.sp, color = textColor, fontWeight = FontWeight.Medium)
-    }
-}
-
 @Composable
 fun MapItem(
     map: GameMap,
@@ -426,7 +393,12 @@ fun DescriptionBubble(description: String) {
         }
     }
 }
-
+fun convertUTCToLocalDateTime(utcString: String): String {
+    val instant: Instant = Instant.parse(utcString)
+    val localDateTime = instant.atZone(ZoneId.of("America/Toronto")).toLocalDateTime()
+    val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy, HH:mm:ss")
+    return localDateTime.format(formatter)
+}
 @Composable
 fun MapInfo(map: GameMap, showLastModified: Boolean = true) {
     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -434,7 +406,7 @@ fun MapInfo(map: GameMap, showLastModified: Boolean = true) {
         Text(text = "Taille : ${map.size}", fontSize = 19.sp, color = Color(0xFF555555))
         Text(text = "Mode : ${if (map.isCaptureTheFlag) "CTF" else "Classique"}", fontSize = 19.sp, color = Color(0xFF555555))
         if (showLastModified) {
-            Text(text = "Dernière Modification : ${map.lastModified}", fontSize = 19.sp, color = Color(0xFF555555))
+            Text(text = "Dernière Modification : ${convertUTCToLocalDateTime(map.lastModified)}", fontSize = 19.sp, color = Color(0xFF555555))
         }
     }
 }
@@ -448,3 +420,5 @@ fun GameListPreview() {
         }
     }
 }
+
+

@@ -19,7 +19,7 @@ enum class LeaderboardSortType(val label: String) {
     WINS("Victoires"),
     MONEY("Argent"),
     PLAYTIME("Temps de jeu"),
-    BATTLES_WINS("Batailles gagnées"),
+    BATTLES_WINS("Combats gagnées"),
 }
 
 enum class LeaderboardFilterType(val label: String) {
