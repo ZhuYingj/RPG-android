@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -84,14 +85,15 @@ fun GamesCreationScreen(
                 showFeeDialog = false
                 pendingMap = null
             },
-            modifier = Modifier.width(350.dp),
+            modifier = Modifier.width(400.dp),
             containerColor = Color.White,
             titleContentColor = Color.Black,
             textContentColor = Color.Black,
             shape = RoundedCornerShape(4.dp),
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Définir un frais d'entrée pour rejoindre ce lobby")
+                    Text("Définir un frais d'entrée pour rejoindre ce lobby",
+                        modifier = Modifier.fillMaxWidth())
                     OutlinedTextField(
                         value = feeInput,
                         onValueChange = { if (it.all(Char::isDigit) && it.length <= 5) feeInput = it },
@@ -104,11 +106,13 @@ fun GamesCreationScreen(
                             unfocusedLabelColor = Color(0xFF6650A4),
                             focusedLabelColor = Color(0xFF6650A4),
                             cursorColor = Color(0xFF6650A4)
-                        )
+                        ),
+                        modifier = Modifier.fillMaxWidth()
                     )
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth().offset(x = (-12).dp)
                     ) {
                         Checkbox(
                             checked = isRapid,
@@ -124,7 +128,7 @@ fun GamesCreationScreen(
             confirmButton = {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Start,
+                    horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     TextButton(onClick = {
@@ -168,7 +172,7 @@ fun GamesCreationScreen(
 
         Column(
             modifier = Modifier
-                .fillMaxWidth(0.75f)
+                .fillMaxWidth(0.67f)
                 .fillMaxSize()
                 .align(Alignment.Center)
                 .background(Color(0x5C302F2F), shape = RoundedCornerShape(8.dp))

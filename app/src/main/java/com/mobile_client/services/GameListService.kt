@@ -26,8 +26,7 @@ class GameListService private constructor() {
         return try {
             val response = http.get(BASE_MAPS_URL)
             val mapListType = object : TypeToken<List<GameMap>>() {}.type
-            val maps: List<GameMap> = gson.fromJson(response, mapListType)
-            maps.map { it.copy(lastModified = it.lastModified.replace("T", " ").substringBefore(".")) }
+            gson.fromJson(response, mapListType)
         } catch (e: Exception) {
             e.printStackTrace()
             emptyList()

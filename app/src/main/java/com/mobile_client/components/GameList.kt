@@ -60,6 +60,9 @@ import androidx.compose.runtime.produceState
 import androidx.core.graphics.scale
 import com.mobile_client.viewModels.ThemeViewModel
 import androidx.core.graphics.createBitmap
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 private val bitmapCache = mutableMapOf<Int, android.graphics.Bitmap>()
 
@@ -390,7 +393,12 @@ fun DescriptionBubble(description: String) {
         }
     }
 }
-
+fun convertUTCToLocalDateTime(utcString: String): String {
+    val instant: Instant = Instant.parse(utcString)
+    val localDateTime = instant.atZone(ZoneId.of("America/Toronto")).toLocalDateTime()
+    val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy, HH:mm:ss")
+    return localDateTime.format(formatter)
+}
 @Composable
 fun MapInfo(map: GameMap, showLastModified: Boolean = true) {
     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -398,7 +406,7 @@ fun MapInfo(map: GameMap, showLastModified: Boolean = true) {
         Text(text = "Taille : ${map.size}", fontSize = 19.sp, color = Color(0xFF555555))
         Text(text = "Mode : ${if (map.isCaptureTheFlag) "CTF" else "Classique"}", fontSize = 19.sp, color = Color(0xFF555555))
         if (showLastModified) {
-            Text(text = "Dernière Modification : ${map.lastModified}", fontSize = 19.sp, color = Color(0xFF555555))
+            Text(text = "Dernière Modification : ${convertUTCToLocalDateTime(map.lastModified)}", fontSize = 19.sp, color = Color(0xFF555555))
         }
     }
 }
@@ -412,3 +420,5 @@ fun GameListPreview() {
         }
     }
 }
+
+
