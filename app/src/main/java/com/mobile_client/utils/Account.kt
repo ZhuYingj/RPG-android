@@ -24,7 +24,8 @@ data class AccountStats(
     val classicGamesPlayed: Int = 0,
     val CTFGamesPlayed: Int = 0,
     val gamesWon: Int = 0,
-    val averageGameTime: Double = 0.0
+    val averageGameTime: Double = 0.0,
+    val challengesCompleted: Int = 0,
 )
 
 data class AccountLog(

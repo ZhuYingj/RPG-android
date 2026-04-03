@@ -38,12 +38,15 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mobile_client.components.GameList
+import com.mobile_client.screens.ui.theme.AppFontFamily
+import com.mobile_client.utils.FontSize
 import com.mobile_client.utils.GameMap
 import com.mobile_client.utils.Screen
 import com.mobile_client.viewModels.GameListViewModel
@@ -85,7 +88,7 @@ fun GamesCreationScreen(
                 showFeeDialog = false
                 pendingMap = null
             },
-            modifier = Modifier.width(400.dp),
+            modifier = Modifier.width(425.dp),
             containerColor = Color.White,
             titleContentColor = Color.Black,
             textContentColor = Color.Black,
@@ -93,11 +96,12 @@ fun GamesCreationScreen(
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text("Définir un frais d'entrée pour rejoindre ce lobby",
-                        modifier = Modifier.fillMaxWidth())
+                        modifier = Modifier.fillMaxWidth(), fontFamily = FontFamily.Default, fontSize = FontSize.BODY.sp,)
                     OutlinedTextField(
                         value = feeInput,
                         onValueChange = { if (it.all(Char::isDigit) && it.length <= 5) feeInput = it },
-                        label = { Text("Frais d'entrée") },
+                        textStyle = TextStyle(fontFamily = FontFamily.Default),
+                        label = { Text("Frais d'entrée", fontFamily = FontFamily.Default, fontSize = FontSize.BUTTON.sp,) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         singleLine = true,
                         colors = OutlinedTextFieldDefaults.colors(
@@ -121,7 +125,7 @@ fun GamesCreationScreen(
                                 checkedColor = Color(0xFF6650A4)
                             )
                         )
-                        Text("Élimination Rapide")
+                        Text("Élimination Rapide", fontFamily = FontFamily.Default, fontSize = FontSize.BUTTON.sp)
                     }
                 }
             },
@@ -134,7 +138,7 @@ fun GamesCreationScreen(
                     TextButton(onClick = {
                         showFeeDialog = false
                         pendingMap = null
-                    }) { Text("Annuler", color = Color.Black) }
+                    }) { Text("Annuler", color = Color.Black, fontFamily = FontFamily.Default, fontSize = FontSize.BUTTON.sp) }
 
                     Button(
                         enabled = feeInput != "",
@@ -155,7 +159,7 @@ fun GamesCreationScreen(
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6650A4)),
                         shape = RoundedCornerShape(4.dp)
-                    ) { Text("Confirmer", color = Color.White) }
+                    ) { Text("Confirmer", color = Color.White, fontFamily = FontFamily.Default, fontSize = FontSize.BUTTON.sp) }
                 }
             },
             dismissButton = {}
@@ -180,10 +184,11 @@ fun GamesCreationScreen(
         ) {
             Text(
                 text = "Création d'une partie",
-                fontSize = 40.sp,
+                fontSize = FontSize.BIG_TITLE.sp,
                 fontWeight = FontWeight.Bold,
                 color = assets.mainPageTextColor,
                 style = TextStyle(
+                    fontFamily = AppFontFamily,
                     shadow = Shadow(
                         color = Color.Black.copy(alpha = 0.5f),
                         offset = Offset(2f, 2f),
@@ -195,7 +200,7 @@ fun GamesCreationScreen(
 
             Text(
                 text = "Liste des jeux",
-                fontSize = 30.sp,
+                fontSize = FontSize.TITLE.sp,
                 fontWeight = FontWeight.Bold,
                 color = assets.mainPageTextColor,
                 modifier = Modifier.padding(start = 15.dp, bottom = 8.dp)

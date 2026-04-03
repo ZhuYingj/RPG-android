@@ -2,23 +2,29 @@ package com.mobile_client.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Computer
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -34,10 +40,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -161,7 +172,7 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
         if (gameWinner.isNotEmpty()) {
             scope.launch {
                 snackbarHostState.showSnackbar(
-                    "Partie terminée et gagnant : $gameWinner",
+                    "Partie terminée et gagnant : $gameWinner",
                     duration = SnackbarDuration.Long
                 )
             }
@@ -189,25 +200,47 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
             modifier = Modifier
                 .weight(0.2f)
                 .fillMaxHeight()
-                .background(Color(0xFFF5F5F5))
+                .background(Color(0x29715A00))
                 .padding(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Game info
-            Text("Informations", fontWeight = FontWeight.Bold, fontSize = 14.sp)
-            Text("Taille: ${gameMap.size}", fontSize = 12.sp)
-            Text("Joueurs: ${players.size}/${originalPlayers.size}", fontSize = 12.sp)
-            Text("Joueur actif:", fontSize = 12.sp)
-            ImageResources.avatarToImage[currentPlayer.avatar]?.let {
-                Image(
-                    painter = painterResource(id = it),
-                    contentDescription = "Active player",
-                    modifier = Modifier.size(40.dp)
-                )
+            Card(
+                modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 200.dp),
+                shape = RoundedCornerShape(8.dp),
+                elevation = CardDefaults.cardElevation(2.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9))
+            ) {
+                Column(
+                    modifier = Modifier.padding(10.dp).fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text("Informations de la partie", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        val mapSizeText = when (gameMap.size) {
+                            TileConstants.MapSize.Small -> "10x10"
+                            TileConstants.MapSize.Medium -> "15x15"
+                            TileConstants.MapSize.Large -> "20x20"
+                        }
+                        Text("Taille: $mapSizeText", fontSize = 12.sp)
+                        Text("Joueurs: ${players.size}/${originalPlayers.size}", fontSize = 12.sp)
+                    }
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text("Joueur actif :", fontSize = 12.sp)
+                    Spacer(modifier = Modifier.height(10.dp))
+                    ImageResources.avatarToImage[currentPlayer.avatar]?.let {
+                        Image(
+                            painter = painterResource(id = it),
+                            contentDescription = "Active player",
+                            modifier = Modifier.size(60.dp)
+                        )
+                    }
+                    if (isDebug) {
+                        Text("Mode Debug", color = Color.Red, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
             }
-            Spacer(modifier = Modifier.height(8.dp))
 
-            Text( if (isDebug) "Mode Debug" else "", color = Color.Red, fontSize = 12.sp, fontWeight = FontWeight.Bold)
             ShakeListener({},
                 onHorizontalShake = {
                     shakeCount++
@@ -218,50 +251,113 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
                 }
             )
 
-            // Player stats
-            Text("Mon joueur", fontWeight = FontWeight.Bold, fontSize = 14.sp)
-            Text(player.username, fontSize = 12.sp)
-            ImageResources.avatarToImage[player.avatar]?.let {
-                Image(
-                    painter = painterResource(id = it),
-                    contentDescription = "Player",
-                    modifier = Modifier.size(32.dp)
-                )
-            }
-            Text("Vie: ${player.stats.life}", fontSize = 11.sp)
-            Text("Rapidité: ${player.stats.speed}", fontSize = 11.sp)
-            Text("Attaque: ${player.stats.attack} (D${player.attack.value})", fontSize = 11.sp)
-            Text("Défense: ${player.stats.defense} (D${player.defense.value})", fontSize = 11.sp)
-            Text("Actions: ${player.hasAction}", fontSize = 11.sp)
-            Text("Mouvements: ${player.movement}", fontSize = 11.sp)
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(8.dp),
+                elevation = CardDefaults.cardElevation(2.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9))
+            ) {
+                Column(
+                    modifier = Modifier.padding(10.dp).fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text("Informations du joueur", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Spacer(modifier = Modifier.height(8.dp))
 
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text("Défi", fontWeight = FontWeight.Bold, fontSize = 14.sp)
-            Text(
-                "${player.challenge.type.description}\n" +
-                    "${player.challenge.progress}/${player.challenge.goal} -> ${player.challenge.reward}$",
-                fontSize = 11.sp,
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            // Inventory
-            Text("Inventaire", fontWeight = FontWeight.Bold, fontSize = 14.sp)
-            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                player.items.forEach { item ->
-                    Box(
-                        modifier = Modifier
-                            .size(36.dp)
-                            .border(1.dp, Color.Gray, RoundedCornerShape(4.dp))
-                            .padding(2.dp),
-                        contentAlignment = Alignment.Center
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        if (item != TileConstants.Items.None) {
-                            ImageResources.itemToImage[item]?.let { resId ->
-                                Image(
-                                    painter = painterResource(id = resId),
-                                    contentDescription = "Item",
-                                    modifier = Modifier.fillMaxSize()
-                                )
+                        ImageResources.avatarToImage[player.avatar]?.let {
+                            Image(
+                                painter = painterResource(id = it),
+                                contentDescription = "Player",
+                                modifier = Modifier.size(50.dp)
+                            )
+                        }
+                        Text(player.username, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            StatCard("Vie", "${player.stats.life}", Modifier.weight(1f))
+                            StatCard("Rapidité", "${player.stats.speed}", Modifier.weight(1f))
+                        }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            StatCard("Attaque", "${player.stats.attack} + D${player.attack.value}", Modifier.weight(1f))
+                            StatCard("Défense", "${player.stats.defense} + D${player.defense.value}", Modifier.weight(1f))
+                        }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            StatCard("Mouvements restants", "${player.movement}", Modifier.weight(1f))
+                            StatCard("Actions restantes", "${player.hasAction}", Modifier.weight(1f))
+                        }
+                    }
+                }
+            }
+
+            // Inventory
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(8.dp),
+                elevation = CardDefaults.cardElevation(2.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9))
+            ) {
+                Column(
+                    modifier = Modifier.padding(10.dp).fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text("Inventaire", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Color.White)
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        player.items.forEach { item ->
+                            Box(
+                                modifier = Modifier
+                                    .size(60.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(Color(0xFFEDEDED))
+                                    .drawBehind {
+                                        val stroke = Stroke(
+                                            width = 2.dp.toPx(),
+                                            pathEffect = PathEffect.dashPathEffect(
+                                                floatArrayOf(10f, 6f), 0f
+                                            )
+                                        )
+                                        drawRoundRect(
+                                            color = Color(0xFFBDBDBD),
+                                            style = stroke,
+                                            cornerRadius = CornerRadius(12.dp.toPx())
+                                        )
+                                    },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                if (item != TileConstants.Items.None) {
+                                    ImageResources.itemToImage[item]?.let { resId ->
+                                        Image(
+                                            painter = painterResource(id = resId),
+                                            contentDescription = "Item",
+                                            modifier = Modifier.fillMaxSize()
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
@@ -320,75 +416,131 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
             }
         }
 
-        // === RIGHT COLUMN: Players List + Actions ===
+        // === RIGHT COLUMN: Players List + Défi + Actions ===
         Column(
             modifier = Modifier
                 .weight(0.25f)
                 .fillMaxHeight()
-                .background(Color(0xFFF5F5F5))
                 .padding(8.dp),
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Players list
-            Text("Joueurs", fontWeight = FontWeight.Bold, fontSize = 14.sp)
-            LazyColumn(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+            // Players list card
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(8.dp),
+                elevation = CardDefaults.cardElevation(2.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9))
             ) {
-                items(players) { p ->
-                    PlayerList(
-                        player = p,
-                        isActive = currentPlayer.username == p.username,
-                        isInGame = players.any { it.username == p.username },
-                        isCTF = gameMap.isCaptureTheFlag,
-                        hasFlag = controller.whoHasFlag()?.username == p.username
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            Column( modifier = Modifier.weight(0.75f)) {
-                // Timer
-                Text(
-                    if (isTimerStopped) "Temps: --" else "Temps: $timerCounter",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp
-                )
-
-                // Action buttons
-                Button(
-                    onClick = { controller.nextTurn() },
-                    enabled = player.username == currentPlayer.username && !isInCombat && !isBetweenTurn,
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = ActiveGreen)
+                Column(
+                    modifier = Modifier.padding(10.dp).fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Terminer son tour", color = Color.White)
-                }
-
-                Button(
-                    onClick = { controller.setAction() },
-                    enabled = player.username == currentPlayer.username && (currentPlayer.hasAction > 0) && !isInCombat && !isBetweenTurn,
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isAction) ActionBlue.copy(alpha = 0.7f) else ActionBlue
-                    )
-                ) {
-                    Text(if (isAction) "Action sélectionnée" else "Exécuter une action", color = Color.White)
-                }
-
-                Button(
-                    onClick = { controller.abandon {
-                        gameLobbyViewModel.leaveLobby()
-                        navController.navigate(Screen.Home.route) {
-                            popUpTo(0) { inclusive = true }
+                    Text("Liste des joueurs", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    LazyColumn(
+                        modifier = Modifier.height(228.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        items(players) { p ->
+                            PlayerList(
+                                player = p,
+                                isActive = currentPlayer.username == p.username,
+                                isInGame = players.any { it.username == p.username },
+                                isCTF = gameMap.isCaptureTheFlag,
+                                hasFlag = controller.whoHasFlag()?.username == p.username
+                            )
                         }
-                    }},
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = AbandonRed)
-                ) {
-                    Text("Abandonner", color = Color.White)
+                    }
                 }
             }
 
+            // Défi card
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(8.dp),
+                elevation = CardDefaults.cardElevation(2.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9))
+            ) {
+                Column(
+                    modifier = Modifier.padding(10.dp).fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        "Défi",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        player.challenge.type.description,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        "${player.challenge.progress}/${player.challenge.goal} -> ${player.challenge.reward}$",
+                        fontSize = 16.sp,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+
+            // Timer + Actions card
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(8.dp),
+                elevation = CardDefaults.cardElevation(2.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9))
+            ) {
+                Column(
+                    modifier = Modifier.padding(10.dp).fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Text(
+                        if (isTimerStopped) "Temps Restant: --" else "Temps Restant: $timerCounter",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
+                    )
+
+                    Button(
+                        onClick = { controller.nextTurn() },
+                        enabled = player.username == currentPlayer.username && !isInCombat && !isBetweenTurn,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = ActiveGreen)
+                    ) {
+                        Text("Terminer son tour", color = Color.White)
+                    }
+
+                    Button(
+                        onClick = { controller.setAction() },
+                        enabled = player.username == currentPlayer.username && (currentPlayer.hasAction > 0) && !isInCombat && !isBetweenTurn,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (isAction) ActionBlue.copy(alpha = 0.7f) else ActionBlue
+                        )
+                    ) {
+                        Text(if (isAction) "Action sélectionnée" else "Exécuter une action", color = Color.White)
+                    }
+
+                    Button(
+                        onClick = {
+                            controller.abandon {
+                                gameLobbyViewModel.leaveLobby()
+                                navController.navigate(Screen.Home.route) {
+                                    popUpTo(0) { inclusive = true }
+                                }
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = AbandonRed)
+                    ) {
+                        Text("Abandonner la partie", color = Color.White)
+                    }
+                }
+            }
         }
     }
 
@@ -404,7 +556,6 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
         //TODO si timer run out reject default item?
     }
 }
-
 @Composable
 fun PlayerList(
     player: Player,
@@ -417,14 +568,18 @@ fun PlayerList(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(4.dp))
-            .background(if (isInGame) Color.White else Color.Gray.copy(alpha = 0.3f))
+            .background(
+                if (isActive) Color(0xFFE8F5E9)
+                else if (isInGame) Color.White
+                else Color.Gray.copy(alpha = 0.3f)
+            )
             .padding(6.dp)
             .then(
                 if (player.isObserver) {
                     Modifier.drawWithContent {
                         drawContent()
                         drawLine(
-                            color = Color.Black, // or Color.White depending on background
+                            color = Color.Black,
                             start = androidx.compose.ui.geometry.Offset(0f, size.height / 2),
                             end = androidx.compose.ui.geometry.Offset(size.width, size.height / 2),
                             strokeWidth = 3f
@@ -433,10 +588,15 @@ fun PlayerList(
                 } else Modifier
             ),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-
-        Text(if (isActive) "▶" else "", color = ActiveGreen, fontSize = 12.sp)
+        Box(
+            modifier = Modifier.size(16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            if (isActive) {
+                Text("▶", color = ActiveGreen, fontSize = 12.sp)
+            }
+        }
 
         ImageResources.avatarToImage[player.avatar]?.let {
             Image(
@@ -445,27 +605,59 @@ fun PlayerList(
                 modifier = Modifier.size(24.dp)
             )
         }
-        Column {
-            Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                if (player.playerType == PlayerTypes.Host) {
-                    Text("Host", fontSize = 10.sp, color = Color.Gray)
-                }
-                Text(
-                    player.username,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = if (isCTF && player.team == 1) Color.Red
-                    else if (isCTF && player.team == 2) Color.Blue
-                    else DarkText
-                )
-                if (player.isBot()) {
-                    Text("🖥️", fontSize = 10.sp)
-                }
-                if (hasFlag) {
-                    Text("🚩", fontSize = 10.sp)
-                }
+
+        Spacer(modifier = Modifier.size(4.dp))
+
+        Row(
+            modifier = Modifier.width(120.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            if (player.playerType == PlayerTypes.Host) {
+                Text("Host -", fontSize = 16.sp, color = Color.Gray)
             }
-            Text("${player.winNumber} victoires", fontSize = 10.sp, color = Color.Gray)
+            Text(
+                player.username,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = if (isCTF && player.team == 1) Color.Red
+                else if (isCTF && player.team == 2) Color.Blue
+                else DarkText
+            )
+            if (player.isBot()) {
+                Icon(
+                    imageVector = Icons.Default.Computer,
+                    contentDescription = "Computer",
+                    tint = Color.Black,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
         }
+
+        Box(
+            modifier = Modifier.width(20.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            if (hasFlag) {
+                Text("🚩", fontSize = 16.sp)
+            }
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        Text("${player.winNumber} victoires", fontSize = 10.sp, color = Color.Gray)
+    }
+}
+
+@Composable
+fun StatCard(label: String, value: String, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .padding(vertical = 10.dp, horizontal = 8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(label, fontSize = 12.sp, color = Color.Gray)
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(value, fontSize = 18.sp, fontWeight = FontWeight.Bold)
     }
 }

@@ -37,6 +37,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -46,6 +47,7 @@ import androidx.navigation.NavController
 import com.mobile_client.environment.ENVIRONMENT
 import com.mobile_client.services.AccountService
 import com.mobile_client.services.HttpService
+import com.mobile_client.utils.FontSize
 import com.mobile_client.utils.LoginResponse
 import com.mobile_client.utils.Screen
 import com.mobile_client.utils.Validation.MAX_PASSWORD_LENGTH
@@ -129,7 +131,7 @@ fun LoginScreen(navController: NavController, snackbarHostState: SnackbarHostSta
                 Text(
                     text = "Connexion",
                     style = MaterialTheme.typography.headlineLarge,
-                    fontSize = 36.sp,
+                    fontSize = FontSize.TITLE.sp,
                     modifier = Modifier.padding(bottom = 24.dp)
                 )
 
@@ -137,10 +139,11 @@ fun LoginScreen(navController: NavController, snackbarHostState: SnackbarHostSta
                     Text(
                         text = "Nom d'utilisateur",
                         style = MaterialTheme.typography.bodyLarge,
-                        fontSize = 16.sp
+                        fontSize = FontSize.SUBTITLE.sp
                     )
                     OutlinedTextField(
                         value = username,
+                        textStyle = TextStyle(fontSize = FontSize.BODY.sp),
                         onValueChange = {
                             if (it.length <= MAX_USERNAME_LENGTH) username = it
                         },
@@ -155,7 +158,7 @@ fun LoginScreen(navController: NavController, snackbarHostState: SnackbarHostSta
                     Text(
                         text = "Mot de passe",
                         style = MaterialTheme.typography.bodyLarge,
-                        fontSize = 16.sp
+                        fontSize = FontSize.SUBTITLE.sp
                     )
                     OutlinedTextField(
                         value = password,
@@ -163,6 +166,7 @@ fun LoginScreen(navController: NavController, snackbarHostState: SnackbarHostSta
                             if (it.length <= MAX_PASSWORD_LENGTH) password = it
                         },
                         singleLine = true,
+                        textStyle = TextStyle(fontSize = FontSize.BODY.sp),
                         visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                         trailingIcon = {
@@ -203,7 +207,7 @@ fun LoginScreen(navController: NavController, snackbarHostState: SnackbarHostSta
                             contentColor = Color.Black
                         )
                     ) {
-                        Text("Créer un compte")
+                        Text("Créer un compte", fontSize = FontSize.SUBTITLE.sp)
                     }
 
                     Button(
@@ -218,7 +222,7 @@ fun LoginScreen(navController: NavController, snackbarHostState: SnackbarHostSta
                             disabledContentColor = Color.DarkGray
                         )
                     ) {
-                        Text("Connexion")
+                        Text("Connexion", fontSize = FontSize.SUBTITLE.sp)
                     }
                 }
             }

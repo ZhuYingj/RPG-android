@@ -55,6 +55,7 @@ fun GameBoard(
                     Box(modifier = Modifier.weight(1f)) {
                         TileCell(
                             tile = tile,
+                            player = player,
                             playerAtTile = playerAtTile,
                             isAccessible = isAccessible,
                             isVisibleBush = isVisibleBush,
@@ -72,6 +73,7 @@ fun GameBoard(
 @Composable
 fun TileCell(
     tile: GameTile,
+    player: Player,
     playerAtTile: Player?,
     isAccessible: Boolean,
     isVisibleBush: Boolean,
@@ -120,7 +122,7 @@ fun TileCell(
                 Image(
                     painter = painterResource(id = resId),
                     contentDescription = p.username,
-                    modifier = Modifier.fillMaxSize(0.7f).zIndex(1f)
+                    modifier = Modifier.fillMaxSize(0.7f).zIndex(2f)
                 )
             }
             for (cos in p.equippedItems) {
@@ -129,7 +131,7 @@ fun TileCell(
                         Image(
                             painter = painterResource(id = resId),
                             contentDescription = "cosmétique",
-                            modifier = Modifier.fillMaxSize(0.7f).zIndex(2f).offset(y = (-17).dp)
+                            modifier = Modifier.fillMaxSize(0.7f).zIndex(3f).offset(y = (-17).dp)
                         )
                     }
                 }
@@ -142,9 +144,9 @@ fun TileCell(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(
-                        if (isPath) Color.Blue.copy(alpha = 0.3f)
-                        else Color.Green.copy(alpha = 0.2f)
-                    ).zIndex(4f)
+                        if (isPath) Color(0x73D8B56A)
+                        else Color(0x73C9A24D)
+                    ).zIndex(if (playerAtTile?.username == player.username) 1f else 4f)
             )
         }
 

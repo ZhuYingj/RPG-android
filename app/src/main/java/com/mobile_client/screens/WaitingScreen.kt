@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -18,8 +19,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SnackbarDuration
@@ -28,6 +36,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -52,10 +61,13 @@ import com.mobile_client.utils.toGameTiles
 import com.mobile_client.viewModels.GameLobbyViewModel
 import com.mobile_client.viewModels.ThemeViewModel
 import kotlinx.coroutines.launch
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
+import androidx.compose.ui.text.style.TextAlign
+import com.mobile_client.utils.FontSize
 
 private val BotBlue = Color(0xFF20B6E3)
 private val LockOrange = Color(0xFFD88B06)
-private val DropInCyan = Color(0xFF009688)
 private val StartGreen = Color(0xFF109E1F)
 private val DarkText = Color(0xFF1A1A1A)
 
@@ -146,14 +158,15 @@ fun WaitingPageScreen(
                         "Salle d'attente $lobbyCode",
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold,
-                        color = assets.mainPageTextColor
+                        color = assets.mainPageTextColor,
+                        fontSize = FontSize.MENU_BUTTON.sp,
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
                         "Statut de la salle d'attente: ${if (isLobbyLocked) "Verrouillée" else "Déverrouillée"}",
-                        fontSize = 18.sp,
+                        fontSize = FontSize.SUBTITLE.sp,
                         color = assets.mainPageTextColor
                     )
 
@@ -161,7 +174,7 @@ fun WaitingPageScreen(
 
                     Text(
                         "Frais d'entrée: $entryFee$",
-                        fontSize = 18.sp,
+                        fontSize = FontSize.SUBTITLE.sp,
                         color = assets.mainPageTextColor
                     )
 
@@ -170,7 +183,7 @@ fun WaitingPageScreen(
                     Text(
                         "Défi : ${currentPlayer?.challenge?.type?.description}\t" +
                             "${currentPlayer?.challenge?.progress}/${currentPlayer?.challenge?.goal} -> ${currentPlayer?.challenge?.reward}$",
-                        fontSize = 18.sp,
+                        fontSize = FontSize.SUBTITLE.sp,
                         color = assets.mainPageTextColor
                     )
 
@@ -185,7 +198,6 @@ fun WaitingPageScreen(
                             modifier = Modifier.weight(1f),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            // Player list
                             LazyColumn(
                                 modifier = Modifier
                                     .weight(1f)
@@ -195,6 +207,15 @@ fun WaitingPageScreen(
                                     .padding(10.dp),
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
+                                item {
+                                    Text(
+                                        "Liste des joueurs",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = FontSize.BODY.sp,
+                                        color = Color.Black,
+                                        modifier = Modifier.padding(bottom = 4.dp)
+                                    )
+                                }
                                 items(players) { player ->
                                     PlayerCard(
                                         player,
@@ -216,79 +237,126 @@ fun WaitingPageScreen(
                             ) {
 
                                 OutlinedButton(
-                                    onClick = { gameLobbyViewModel.toggleQrCode() },
-                                    border = BorderStroke(2.dp, DarkText),
-                                    shape = RoundedCornerShape(6.dp)
+                                    onClick = { gameLobbyViewModel.createBotPlayer() },
+                                    border = BorderStroke(2.dp, BotBlue),
+                                    colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White),
+                                    shape = RoundedCornerShape(6.dp),
+                                    modifier = Modifier.width(160.dp)
                                 ) {
-                                    Text(
-                                        if (gameLobbyViewModel.showQrCode.value) "Masquer le code QR" else "Afficher le code QR",
-                                        color = DarkText,
-                                        fontWeight = FontWeight.Bold
-                                    )
+                                    Text("+ Ajouter un JV", color = BotBlue, fontWeight = FontWeight.Bold, fontSize = FontSize.SUBTITLE.sp,)
                                 }
 
                                 OutlinedButton(
                                     onClick = { gameLobbyViewModel.toggleLobbyLock() },
                                     border = BorderStroke(2.dp, LockOrange),
-                                    shape = RoundedCornerShape(6.dp)
+                                    colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White),
+                                    shape = RoundedCornerShape(6.dp),
+                                    modifier = Modifier.width(160.dp)
                                 ) {
                                     Text(
                                         if (isLobbyLocked) "Déverrouiller" else "Verrouiller",
                                         color = LockOrange,
-                                        fontWeight = FontWeight.Bold
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = FontSize.SUBTITLE.sp,
                                     )
                                 }
 
-                                OutlinedButton(
-                                    onClick = {
-                                        gameLobbyViewModel.toggleDropIn()
-                                    },
-                                    border = BorderStroke(2.dp, DropInCyan),
-                                    shape = RoundedCornerShape(6.dp)
+                                Column(
+                                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                                    modifier = Modifier.width(175.dp)
                                 ) {
-                                    Text(
-                                        if (isDropIn) "dropIn active" else "dropIn desactive",
-                                        color = DropInCyan,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
+                                    val toggleLabelWidth = 120.dp
 
-                                OutlinedButton(
-                                    onClick = {
-                                        gameLobbyViewModel.toggleFriendOnly()
-                                    },
-                                    border = BorderStroke(2.dp, DropInCyan),
-                                    shape = RoundedCornerShape(6.dp)
-                                ) {
-                                    Text(
-                                        if (isFriendOnly) "FriendOnly active" else "FriendOnly desactive",
-                                        color = DropInCyan,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
+                                    // Friends Only toggle
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        Text(
+                                            "Friends only",
+                                            color = assets.mainPageTextColor,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = FontSize.SUBTITLE.sp,
+                                            modifier = Modifier.width(toggleLabelWidth),
+                                            textAlign = TextAlign.Start
+                                        )
+                                        Switch(
+                                            checked = isFriendOnly,
+                                            onCheckedChange = { gameLobbyViewModel.toggleFriendOnly() },
+                                            colors = SwitchDefaults.colors(
+                                                checkedThumbColor = Color.White,
+                                                checkedTrackColor = Color(0xFF4CAF50),
+                                                uncheckedThumbColor = Color.White,
+                                                uncheckedTrackColor = Color.Gray
+                                            )
+                                        )
+                                    }
 
-                                OutlinedButton(
-                                    onClick = { gameLobbyViewModel.createBotPlayer() },
-                                    border = BorderStroke(2.dp, BotBlue),
-                                    shape = RoundedCornerShape(6.dp)
-                                ) {
-                                    Text("+ Ajouter un JV", color = BotBlue, fontWeight = FontWeight.Bold)
+                                    // Drop-in toggle
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        Text(
+                                            "Drop-in",
+                                            color = assets.mainPageTextColor,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = FontSize.SUBTITLE.sp,
+                                            modifier = Modifier.width(toggleLabelWidth),
+                                            textAlign = TextAlign.Start
+                                        )
+                                        Switch(
+                                            checked = isDropIn,
+                                            onCheckedChange = { gameLobbyViewModel.toggleDropIn() },
+                                            colors = SwitchDefaults.colors(
+                                                checkedThumbColor = Color.White,
+                                                checkedTrackColor = Color(0xFF4CAF50),
+                                                uncheckedThumbColor = Color.White,
+                                                uncheckedTrackColor = Color.Gray
+                                            )
+                                        )
+                                    }
+
+                                    // QR Code toggle
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        Text(
+                                            "QR Code",
+                                            color = assets.mainPageTextColor,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = FontSize.SUBTITLE.sp,
+                                            modifier = Modifier.width(toggleLabelWidth),
+                                            textAlign = TextAlign.Start
+                                        )
+                                        Switch(
+                                            checked = gameLobbyViewModel.showQrCode.value,
+                                            onCheckedChange = { gameLobbyViewModel.toggleQrCode() },
+                                            colors = SwitchDefaults.colors(
+                                                checkedThumbColor = Color.White,
+                                                checkedTrackColor = Color(0xFF4CAF50),
+                                                uncheckedThumbColor = Color.White,
+                                                uncheckedTrackColor = Color.Gray
+                                            )
+                                        )
+                                    }
                                 }
 
                                 OutlinedButton(
                                     onClick = { gameLobbyViewModel.startGame() },
                                     border = BorderStroke(2.dp, StartGreen),
+                                    colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White),
                                     shape = RoundedCornerShape(6.dp)
                                 ) {
                                     Text(
                                         "Commencer la partie",
                                         color = StartGreen,
                                         fontWeight = FontWeight.Bold,
-                                        fontSize = 18.sp
+                                        fontSize = FontSize.SUBTITLE.sp,
                                     )
                                 }
                             }
-
                         }
                     }
                 }
@@ -320,6 +388,8 @@ fun WaitingPageScreen(
 
 @Composable
 fun PlayerCard(player: Player, isHost: Boolean, gameLobbyViewModel: GameLobbyViewModel, textColor: Color = Color(0xFF1A1A1A), bgColor: Color = Color.White) {
+    var botMenuExpanded by remember { mutableStateOf(false) }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -352,40 +422,83 @@ fun PlayerCard(player: Player, isHost: Boolean, gameLobbyViewModel: GameLobbyVie
                     color = textColor
                 )
                 if (player.playerType == PlayerTypes.Host) {
-                    Text("Hôte", fontSize = 12.sp, color = Color.Red)
+                    Text("Hôte", fontSize = FontSize.BUTTON.sp, color = Color.Red)
                 } else if (player.isBot()) {
                     Text(
                         if (player.playerType == PlayerTypes.BotAggressive) "Robot (Agressif)" else "Robot (Passif)",
-                        fontSize = 12.sp,
+                        fontSize = FontSize.BUTTON.sp,
                         color = Color.Blue
                     )
                 }
             }
         }
 
-        // Kick button (host can kick non-host players)
+        // Host controls for non-host players
         if (isHost && player.playerType != PlayerTypes.Host) {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 if (player.isBot()) {
-                    Button(
-                        onClick = { gameLobbyViewModel.toggleBotType(player) },
-                        colors = ButtonDefaults.buttonColors(containerColor = BotBlue),
-                        shape = RoundedCornerShape(6.dp)
-                    ) {
-                        Text(
-                            if (player.playerType == PlayerTypes.BotAggressive) "Passif" else "Agressif",
-                            color = Color.White,
-                            fontSize = 12.sp
-                        )
+                    Box {
+                        OutlinedButton(
+                            onClick = { botMenuExpanded = true },
+                            border = BorderStroke(1.dp, Color.Gray),
+                            shape = RoundedCornerShape(6.dp),
+                            colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White),
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+                        ) {
+                            Text(
+                                if (player.playerType == PlayerTypes.BotAggressive) "Agressif" else "Passif",
+                                color = DarkText,
+                                fontSize = FontSize.SMALL.sp
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Icon(
+                                imageVector = Icons.Default.ArrowDropDown,
+                                contentDescription = "Changer type",
+                                tint = DarkText,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = botMenuExpanded,
+                            onDismissRequest = { botMenuExpanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Agressif", fontSize = FontSize.SMALL.sp) },
+                                onClick = {
+                                    if (player.playerType != PlayerTypes.BotAggressive) {
+                                        gameLobbyViewModel.toggleBotType(player)
+                                    }
+                                    botMenuExpanded = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Passif", fontSize = FontSize.SMALL.sp) },
+                                onClick = {
+                                    if (player.playerType != PlayerTypes.BotPassive) {
+                                        gameLobbyViewModel.toggleBotType(player)
+                                    }
+                                    botMenuExpanded = false
+                                }
+                            )
+                        }
                     }
                 }
 
-                Button(
+                // Trash icon button instead of "Expulser" text
+                IconButton(
                     onClick = { gameLobbyViewModel.kickPlayer(player) },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
-                    shape = RoundedCornerShape(6.dp)
+                    modifier = Modifier
+                        .size(36.dp)
+                        .background(Color.Red, RoundedCornerShape(6.dp))
                 ) {
-                    Text("Expulser", color = Color.White, fontSize = 12.sp)
+                    Image(
+                        painter = painterResource(id = R.drawable.trash),
+                        contentDescription = "Expulser",
+                        modifier = Modifier.size(20.dp)
+                    )
                 }
             }
         }

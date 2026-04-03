@@ -1,11 +1,13 @@
 package com.mobile_client.components
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import com.mobile_client.utils.AppTheme
 import com.mobile_client.viewModels.ThemeViewModel
 
@@ -16,7 +18,9 @@ fun ThemeSelector(themeViewModel: ThemeViewModel) {
         AppTheme.AUBERGINES to "🍆 Aubergines",
     )
 
-    Row {
+    Row (
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ){
         themes.forEach { (theme, label) ->
             Button(
                 onClick = { themeViewModel.setTheme(theme) },

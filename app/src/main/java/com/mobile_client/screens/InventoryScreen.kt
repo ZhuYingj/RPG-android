@@ -45,6 +45,16 @@ import com.mobile_client.utils.Screen
 import com.mobile_client.viewModels.InventoryViewModel
 import com.mobile_client.viewModels.ThemeViewModel
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.text.font.FontFamily
+import coil.compose.rememberAsyncImagePainter
+import com.mobile_client.services.AccountService
+import com.mobile_client.utils.FontSize
+import com.mobile_client.utils.ImageUtils
 
 @Composable
 fun InventoryScreen(
@@ -84,6 +94,7 @@ fun InventoryScreen(
                 .fillMaxSize()
                 .padding(top = 16.dp)
         ) {
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -91,7 +102,7 @@ fun InventoryScreen(
             ) {
                 Text(
                     text = "Inventaire",
-                    fontSize = 32.sp,
+                    fontSize = FontSize.BIG_TITLE.sp,
                     fontWeight = FontWeight.Bold,
                     color = assets.mainPageTextColor,
                     modifier = Modifier.align(Alignment.Center)
@@ -117,7 +128,7 @@ fun InventoryScreen(
                     ) {
                         Text(
                             text = "Votre inventaire est vide.",
-                            fontSize = 19.sp,
+                            fontSize = FontSize.SUBTITLE.sp,
                             color = assets.mainPageTextColor,
                             textAlign = TextAlign.Center
                         )
@@ -126,7 +137,7 @@ fun InventoryScreen(
 
                 else -> {
                     LazyVerticalGrid(
-                        columns = GridCells.Fixed(4),
+                        columns = GridCells.Fixed(5),
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(horizontal = 24.dp, vertical = 8.dp),
@@ -147,7 +158,7 @@ fun InventoryScreen(
                             ) {
                                 Text(
                                     text = cosmetic?.name ?: "???",
-                                    fontSize = 18.sp,
+                                    fontSize = FontSize.BODY.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.Black,
                                     textAlign = TextAlign.Center,
@@ -161,42 +172,41 @@ fun InventoryScreen(
                                         painter = painterResource(id = resId),
                                         contentDescription = cosmetic.name,
                                         modifier = Modifier
+                                            .padding(bottom = 10.dp)
                                             .size(100.dp)
-                                            .padding(bottom = 10.dp),
-                                        contentScale = ContentScale.Fit
+                                            .clip(CircleShape),
+                                        contentScale = ContentScale.Crop
                                     )
                                 }
 
                                 Text(
                                     text = cosmetic?.description ?: "",
-                                    fontSize = 14.sp,
+                                    fontSize = FontSize.BUTTON.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.Black,
                                     textAlign = TextAlign.Center,
-                                    modifier = Modifier.height(50.dp)
-                                )
-
-                                Text(
-                                    text = "Quantité possédée: ${item.quantity}",
-                                    fontSize = 13.sp,
-                                    color = Color.Black
+                                    modifier = Modifier.height(60.dp)
                                 )
 
                                 Spacer(modifier = Modifier.height(8.dp))
 
-                                if (cosmetic?.type == 0) {
-                                    Text(
-                                        text = "Disponible pendant la partie",
-                                        fontSize = 13.sp,
-                                        color = Color.Gray
-                                    )
-                                } else {
-                                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                                Box(
+                                    modifier = Modifier.height(45.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    if (cosmetic?.type == 0) {
+                                        Text(
+                                            text = "Disponible pendant la partie",
+                                            fontSize = FontSize.SMALL.sp,
+                                            color = Color.Black,
+                                            textAlign = TextAlign.Center
+                                        )
+                                    } else {
                                         Button(
                                             onClick = {
                                                 if (cosmetic?.type != 0 && cosmetic?.type != 3)
                                                     inventoryViewModel.equipItem(item)
-                                                else if (cosmetic?.type == 3) {
+                                                else if (cosmetic.type == 3) {
                                                     navController.navigate(Screen.Account.route) {
                                                         popUpTo(0) { inclusive = true }
                                                     }
@@ -211,15 +221,14 @@ fun InventoryScreen(
                                             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
                                         ) {
                                             Text(
-                                                text = if (cosmetic?.type == 0) {
-                                                    "Disponible pendant la partie"
-                                                } else if (cosmetic?.type == 3) {
+                                                text = if (cosmetic?.type == 3) {
                                                     "Compte"
                                                 } else {
                                                     if (isEquipped) "Équipé" else "Équipper"
                                                 },
                                                 color = Color.White,
-                                                fontSize = 13.sp
+                                                fontSize = FontSize.SMALL.sp,
+                                                fontFamily = FontFamily.Default
                                             )
                                         }
                                     }
@@ -227,6 +236,70 @@ fun InventoryScreen(
                             }
                         }
                     }
+                }
+            }
+        }
+        Row(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(top = 12.dp, end = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFF4CAF50))
+                    .border(1.dp, Color.White, CircleShape)
+                    .clickable { navController.navigate(Screen.Shop.route) { launchSingleTop = true } },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Shop",
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 11.sp,
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Row(
+                modifier = Modifier
+                    .clickable { navController.navigate(Screen.Account.route) { launchSingleTop = true } },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "${AccountService.instance.money.intValue} $",
+                    color = assets.mainPageTextColor,
+                    fontSize = FontSize.BODY.sp,
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = AccountService.instance.accountInfo?.username ?: "",
+                    color = assets.mainPageTextColor,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = FontSize.BODY.sp,
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .border(1.dp, Color.White, CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    val avatarBitmap = ImageUtils.base64ToBitmap(AccountService.instance.accountInfo?.avatar)
+                    Image(
+                        painter = rememberAsyncImagePainter(avatarBitmap),
+                        contentDescription = "Avatar",
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
+                    )
                 }
             }
         }

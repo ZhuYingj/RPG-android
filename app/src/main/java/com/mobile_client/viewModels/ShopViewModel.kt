@@ -44,7 +44,7 @@ class ShopViewModel : ViewModel() {
                 _money.value = AccountService.instance.money.intValue
                 _message.value = "Achat Réussi"
             } else {
-                _message.value = "Échec de l'achat"
+                _message.value = "Vous n'avez pas assez d'argent"
             }
         }
     }

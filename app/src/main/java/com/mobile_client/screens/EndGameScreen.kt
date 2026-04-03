@@ -86,14 +86,15 @@ fun EndGameScreen(navController: NavController, themeViewModel: ThemeViewModel) 
         }
         sortedStats = playerStats.sortedWith(Comparator { a, b ->
             if (column == "name") {
-                if (isAscended) a.playerName.compareTo(b.playerName)
-                else b.playerName.compareTo(a.playerName)
+                if (isAscended) a.playerName.lowercase().compareTo(b.playerName.lowercase())
+                else b.playerName.lowercase().compareTo(a.playerName.lowercase())
             } else {
                 val aVal = getSortableValue(a, column)
                 val bVal = getSortableValue(b, column)
                 if (isAscended) aVal.compareTo(bVal) else bVal.compareTo(aVal)
             }
         })
+        println("sortedStats = " + sortedStats)
     }
 
     fun showArrow(column: String): String {
@@ -193,12 +194,14 @@ fun EndGameScreen(navController: NavController, themeViewModel: ThemeViewModel) 
                         "Fin de la partie",
                         fontSize = 32.sp,
                         fontWeight = FontWeight.Bold,
-                        color = assets.mainPageTextColor
+                        color = assets.mainPageTextColor,
+                        modifier = Modifier.padding(bottom = 32.dp)
                     )
                     Text(
                         "$winner a gagné",
                         fontSize = 24.sp,
-                        color = assets.mainPageTextColor
+                        color = assets.mainPageTextColor,
+                        modifier = Modifier.padding(bottom = 32.dp)
                     )
                     val myUsername = controller.player.value?.username ?: ""
                     val myMoney = controller.moneyResults.value[myUsername]
@@ -210,38 +213,43 @@ fun EndGameScreen(navController: NavController, themeViewModel: ThemeViewModel) 
                         Text(
                             "$label: ${myMoney.baseMoney}$",
                             fontSize = 20.sp,
-                            color = assets.mainPageTextColor
+                            color = assets.mainPageTextColor,
+                            modifier = Modifier.padding(bottom = 32.dp)
                         )
                         if (myMoney.challengeReward > 0) {
                             Text(
                                 "Défi accompli: +${myMoney.challengeReward}$",
                                 fontSize = 20.sp,
-                                color = assets.mainPageTextColor
+                                color = assets.mainPageTextColor,
+                                modifier = Modifier.padding(bottom = 32.dp)
                             )
                         }
                         if (myMoney.entryFeeGain > 0) {
                             Text(
                                 "Lot remporté: +${myMoney.entryFeeGain}$",
                                 fontSize = 20.sp,
-                                color = assets.mainPageTextColor
+                                color = assets.mainPageTextColor,
+                                modifier = Modifier.padding(bottom = 32.dp)
                             )
                         }
                         Text(
                             "Total gagné: $total$",
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF4CAF50)
+                            color = Color(0xFF4CAF50),
+                            modifier = Modifier.padding(bottom = 32.dp)
                         )
                     }
                 }
             }
 
-            // Content: Tables + Chat
+            // Content: Tables
             Row(
                 modifier = Modifier
                     .widthIn(max = 1200.dp)
                     .fillMaxHeight()
                     .padding(horizontal = 16.dp)
+                    .align(Alignment.CenterHorizontally)
             ) {
                 // Tables column
                 LazyColumn(

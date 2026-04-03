@@ -263,8 +263,11 @@ fun LobbyInfo(lobby: SocketCommunicationConst.SendableLobbies) {
         Text(text = "Hôte : ${lobby.host}", fontSize = 14.sp, color = Color(0xFF555555))
         Row(horizontalArrangement = Arrangement.spacedBy(24.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(text = "Frais d'entrée : ${lobby.fee} $", fontSize = 14.sp, color = Color(0xFF555555))
+            if (lobby.hasFriend) {
+                Text(text = "\uD83D\uDC65 Un ami est dans cette partie", fontSize = 14.sp)
+            }
             if (lobby.hasBlockedUser) {
-                Text(text = "⚠️ Utilisateur bloqué présent", fontSize = 14.sp, color = Color(0xFFC62828))
+                Text(text = "⚠️ Utilisateur bloqué présent", fontSize = 14.sp)
             }
         }
     }
