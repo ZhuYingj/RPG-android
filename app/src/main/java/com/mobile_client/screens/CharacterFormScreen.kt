@@ -19,7 +19,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
-import androidx.compose.foundation.layout.width
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,7 +28,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -54,6 +54,7 @@ import com.mobile_client.services.AccountService
 import com.mobile_client.services.CosmeticService
 import com.mobile_client.utils.BASE_STAT_VALUE
 import com.mobile_client.utils.Dices
+import com.mobile_client.utils.FontSize
 import com.mobile_client.utils.ImageResources
 import com.mobile_client.utils.Player
 import com.mobile_client.utils.PlayerAvatars
@@ -158,7 +159,7 @@ fun CharacterCreationScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(horizontal = 80.dp, vertical = 4.dp)
-                    .padding(top = 50.dp),
+                    .padding(top = 25.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Spacer(modifier = Modifier.height(8.dp))
@@ -167,19 +168,18 @@ fun CharacterCreationScreen(
                     "CRÉATION DU PERSONNAGE",
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
+                    fontSize = FontSize.TITLE.sp,
                     color = assets.mainPageTextColor
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                OutlinedTextField(
-                    value = AccountService.instance.username,
-                    onValueChange = {},
-                    singleLine = true,
-                    enabled = false,
-                    modifier = Modifier
-                        .width(300.dp)
-                        .background(Color.White.copy(alpha = 0.5f), RoundedCornerShape(4.dp))
+                // Username displayed in red without white background (matching web version)
+                Text(
+                    text = AccountService.instance.username,
+                    color = Color.Red,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = FontSize.SMALLER_TITLE.sp,
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -198,7 +198,7 @@ fun CharacterCreationScreen(
                         Text(
                             "Choisissez un avatar",
                             fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp,
+                            fontSize = FontSize.SMALLER_TITLE.sp,
                             color = assets.mainPageTextColor
                         )
                         Spacer(modifier = Modifier.height(4.dp))
@@ -206,7 +206,6 @@ fun CharacterCreationScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(485.dp)
-                                .clip(RoundedCornerShape(12.dp))
                         ) {
                             Image(
                                 painter = painterResource(R.drawable.vector_cartoon),
@@ -216,9 +215,8 @@ fun CharacterCreationScreen(
                             )
                             Box(
                                 modifier = Modifier
-                                    .padding(8.dp)
+                                    .padding(20.dp)
                                     .fillMaxSize()
-                                    .clip(RoundedCornerShape(8.dp))
                             ) {
                                 Image(
                                     painter = painterResource(R.drawable.brown_soil),
@@ -230,6 +228,7 @@ fun CharacterCreationScreen(
                                     columns = GridCells.Fixed(4),
                                     horizontalArrangement = Arrangement.spacedBy(2.dp),
                                     verticalArrangement = Arrangement.spacedBy(2.dp),
+                                    userScrollEnabled = false,
                                     modifier = Modifier
                                         .fillMaxSize()
                                         .padding(4.dp),
@@ -252,7 +251,7 @@ fun CharacterCreationScreen(
 
                                         Box(
                                             modifier = Modifier
-                                                .sizeIn(maxHeight = 110.dp, maxWidth = 110.dp)
+                                                .sizeIn(maxHeight = 105.dp, maxWidth = 105.dp)
                                                 .aspectRatio(1f)
                                                 .clip(RoundedCornerShape(6.dp))
                                                 .alpha(if (isAvailable) 1f else 0.3f)
@@ -268,7 +267,7 @@ fun CharacterCreationScreen(
                                         ) {
                                             Box(
                                                 modifier = Modifier
-                                                    .size(110.dp)
+                                                    .size(94.dp)
                                                     .clip(RoundedCornerShape(6.dp))
                                                     .border(
                                                         if (isSelected) 2.dp else 0.dp,
@@ -281,7 +280,18 @@ fun CharacterCreationScreen(
                                                     Image(
                                                         painter = painterResource(id = it),
                                                         contentDescription = avatar.name,
-                                                        modifier = Modifier.size(90.dp)
+                                                        modifier = Modifier.size(90.dp),
+                                                        colorFilter = if (isPremium && !isOwned) {
+                                                            ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) })
+                                                        } else null
+                                                    )
+                                                }
+                                                // Show lock icon on premium avatars the player doesn't own
+                                                if (isPremium && !isOwned) {
+                                                    Image(
+                                                        painter = painterResource(id = R.drawable.lock),
+                                                        contentDescription = "Locked",
+                                                        modifier = Modifier.size(30.dp)
                                                     )
                                                 }
                                             }
@@ -295,12 +305,14 @@ fun CharacterCreationScreen(
                     // Right column - Stats
                     Column(
                         modifier = Modifier.weight(1f),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
                     ) {
+                        Spacer(modifier = Modifier.height(45.dp))
                         Text(
                             "Choisissez un bonus et assignez vos dés",
                             fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp,
+                            fontSize = FontSize.SMALLER_TITLE.sp,
                             color = assets.mainPageTextColor
                         )
                         Spacer(modifier = Modifier.height(4.dp))
@@ -316,16 +328,19 @@ fun CharacterCreationScreen(
                                 modifier = Modifier.fillMaxSize(),
                                 contentScale = ContentScale.Crop
                             )
-                            Column(
+                            Box(
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .padding(12.dp),
-                                verticalArrangement = Arrangement.SpaceBetween
+                                contentAlignment = Alignment.Center
                             ) {
                                 Column {
-                                    Text("Attributs :", fontWeight = FontWeight.Bold, color = assets.mainPageTextColor, fontSize = 16.sp)
+                                    Text("Attributs :", fontWeight = FontWeight.Bold, color = Color.White, fontSize = FontSize.MENU_BUTTON.sp,)
                                     Spacer(modifier = Modifier.height(4.dp))
-                                    Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceEvenly
+                                    ) {
                                         StatIcon(R.drawable.heart, hp)
                                         StatIcon(R.drawable.bolt, speed)
                                         StatIcon(R.drawable.swords, BASE_STAT_VALUE)
@@ -334,83 +349,92 @@ fun CharacterCreationScreen(
 
                                     Spacer(modifier = Modifier.height(8.dp))
 
-                                    Text("Choisissez un bonus +2 :", fontWeight = FontWeight.Bold, color = assets.mainPageTextColor, fontSize = 16.sp)
+                                    Text("Choisissez un bonus +2 :", fontWeight = FontWeight.Bold, color = Color.White, fontSize = FontSize.MENU_BUTTON.sp,)
                                     Spacer(modifier = Modifier.height(4.dp))
-                                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                        SelectableStatIcon(R.drawable.heart, isBonusLife == true) { isBonusLife = true }
-                                        SelectableStatIcon(R.drawable.bolt, isBonusLife == false) { isBonusLife = false }
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.Center
+                                    ) {
+                                        Row(horizontalArrangement = Arrangement.spacedBy(50.dp)) {
+                                            SelectableStatIcon(R.drawable.heart, isBonusLife == true) { isBonusLife = true }
+                                            SelectableStatIcon(R.drawable.bolt, isBonusLife == false) { isBonusLife = false }
+                                        }
                                     }
 
                                     Spacer(modifier = Modifier.height(8.dp))
 
-                                    Text("D6 assigné à :", fontWeight = FontWeight.Bold, color = assets.mainPageTextColor, fontSize = 16.sp)
+                                    Text("D6 assigné à :", fontWeight = FontWeight.Bold, color = Color.White, fontSize = FontSize.MENU_BUTTON.sp,)
                                     Spacer(modifier = Modifier.height(4.dp))
-                                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                        SelectableStatIcon(R.drawable.swords, attackDice == Dices.D6) { attackDice = Dices.D6 }
-                                        SelectableStatIcon(R.drawable.shield, attackDice == Dices.D4) { attackDice = Dices.D4 }
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.Center
+                                    ) {
+                                        Row(horizontalArrangement = Arrangement.spacedBy(50.dp)) {
+                                            SelectableStatIcon(R.drawable.swords, attackDice == Dices.D6) { attackDice = Dices.D6 }
+                                            SelectableStatIcon(R.drawable.shield, attackDice == Dices.D4) { attackDice = Dices.D4 }
+                                        }
                                     }
 
                                     Spacer(modifier = Modifier.height(8.dp))
 
-                                    Text("D4 est assigné à :", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = assets.mainPageTextColor)
+                                    Text("D4 est assigné à :", fontWeight = FontWeight.Bold, fontSize = FontSize.MENU_BUTTON.sp, color = Color.White)
                                     Spacer(modifier = Modifier.height(4.dp))
-                                    if (attackDice != null) {
-                                        Icon(
-                                            painter = painterResource(
-                                                if (attackDice == Dices.D6) R.drawable.shield else R.drawable.swords
-                                            ),
-                                            contentDescription = null,
-                                            tint = IconDark,
-                                            modifier = Modifier.size(32.dp)
-                                        )
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.Center
+                                    ) {
+                                        if (attackDice != null) {
+                                            Icon(
+                                                painter = painterResource(
+                                                    if (attackDice == Dices.D6) R.drawable.shield else R.drawable.swords
+                                                ),
+                                                contentDescription = null,
+                                                tint = IconDark,
+                                                modifier = Modifier.size(32.dp)
+                                            )
+                                        }
                                     }
                                 }
+                                Button(modifier = Modifier.align(Alignment.BottomEnd),
+                                    onClick = {
+                                        val stats = Stats(
+                                            life = hp,
+                                            speed = speed,
+                                            attack = BASE_STAT_VALUE,
+                                            defense = BASE_STAT_VALUE
+                                        )
+                                        val player = Player(
+                                            username = AccountService.instance.username,
+                                            avatar = selectedAvatar,
+                                            playerType = if (gameLobbyViewModel.isHost.value) PlayerTypes.Host else PlayerTypes.Human,
+                                            attack = attackDice ?: Dices.D6,
+                                            defense = if (attackDice == Dices.D6) Dices.D4 else Dices.D6,
+                                            isBonusLife = isBonusLife == true,
+                                            stats = stats,
+                                            hasAction = 0,
+                                            isObserver = false,
+                                            equippedItems = listOf()
+                                        )
 
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.End
-                                ) {
-                                    Button(
-                                        onClick = {
-                                            val stats = Stats(
-                                                life = hp,
-                                                speed = speed,
-                                                attack = BASE_STAT_VALUE,
-                                                defense = BASE_STAT_VALUE
-                                            )
-                                            val player = Player(
-                                                username = AccountService.instance.username,
-                                                avatar = selectedAvatar,
-                                                playerType = if (gameLobbyViewModel.isHost.value) PlayerTypes.Host else PlayerTypes.Human,
-                                                attack = attackDice ?: Dices.D6,
-                                                defense = if (attackDice == Dices.D6) Dices.D4 else Dices.D6,
-                                                isBonusLife = isBonusLife == true,
-                                                stats = stats,
-                                                hasAction = 0,
-                                                isObserver = false,
-                                                equippedItems = listOf()
-                                            )
-
-                                            gameLobbyViewModel.addPlayer(player) {
-                                                Handler(Looper.getMainLooper()).post {
-                                                    navController.navigate(Screen.WaitingPage.route) {
-                                                        launchSingleTop = true
-                                                    }
+                                        gameLobbyViewModel.addPlayer(player) {
+                                            Handler(Looper.getMainLooper()).post {
+                                                navController.navigate(Screen.WaitingPage.route) {
+                                                    launchSingleTop = true
                                                 }
                                             }
-                                        },
-                                        enabled = selectedAvatar != PlayerAvatars.None
-                                            && isBonusLife != null
-                                            && attackDice != null,
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = Color.White,
-                                            disabledContainerColor = Color.White.copy(alpha = 0.5f)
-                                        ),
-                                        shape = RoundedCornerShape(8.dp),
-                                        border = BorderStroke(1.dp, SelectedGreen)
-                                    ) {
-                                        Text("CRÉER", color = SelectedGreen, fontWeight = FontWeight.Bold)
-                                    }
+                                        }
+                                    },
+                                    enabled = selectedAvatar != PlayerAvatars.None
+                                        && isBonusLife != null
+                                        && attackDice != null,
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Color.White,
+                                        disabledContainerColor = Color.White.copy(alpha = 0.5f)
+                                    ),
+                                    shape = RoundedCornerShape(8.dp),
+                                    border = BorderStroke(1.dp, SelectedGreen)
+                                ) {
+                                    Text("CRÉER", color = SelectedGreen, fontWeight = FontWeight.Bold, fontSize = FontSize.MENU_BUTTON.sp,)
                                 }
                             }
                         }
@@ -428,9 +452,9 @@ fun StatIcon(drawableRes: Int, value: Int) {
             painter = painterResource(drawableRes),
             contentDescription = null,
             tint = IconDark,
-            modifier = Modifier.size(24.dp)
+            modifier = Modifier.size(36.dp)
         )
-        Text(" : $value", color = IconDark, fontWeight = FontWeight.Bold)
+        Text(" : $value", color = IconDark, fontWeight = FontWeight.Bold, fontSize = FontSize.MENU_BUTTON.sp,)
     }
 }
 
@@ -438,11 +462,11 @@ fun StatIcon(drawableRes: Int, value: Int) {
 fun SelectableStatIcon(drawableRes: Int, isSelected: Boolean, onClick: () -> Unit) {
     Box(
         modifier = Modifier
-            .size(48.dp)
+            .size(55.dp)
             .clip(RoundedCornerShape(6.dp))
             .border(
                 if (isSelected) 2.dp else 1.dp,
-                if (isSelected) SelectedGreen else Color.Gray,
+                if (isSelected) SelectedGreen else Color.Transparent,
                 RoundedCornerShape(6.dp)
             )
             .background(if (isSelected) Color.White.copy(alpha = 0.1f) else Color.Transparent)
@@ -453,7 +477,7 @@ fun SelectableStatIcon(drawableRes: Int, isSelected: Boolean, onClick: () -> Uni
             painter = painterResource(drawableRes),
             contentDescription = null,
             tint = IconDark,
-            modifier = Modifier.size(28.dp)
+            modifier = Modifier.size(36.dp)
         )
     }
 }

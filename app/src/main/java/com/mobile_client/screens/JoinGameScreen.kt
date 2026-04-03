@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mobile_client.components.GameList
+import com.mobile_client.utils.FontSize
 import com.mobile_client.utils.Screen
 import com.mobile_client.utils.launchQrScanner
 import com.mobile_client.viewModels.CurrentGamesListViewModel
@@ -119,7 +120,7 @@ fun JoinGameScreen(
             // Title
             Text(
                 text = "Joindre une partie",
-                fontSize = 32.sp,
+                fontSize = FontSize.TITLE.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF87CEEB),
                 style = TextStyle(
@@ -135,7 +136,7 @@ fun JoinGameScreen(
             // Subtitle
             Text(
                 text = "Choisissez un jeu, Scanner un code QR ou Entrez le code de la partie",
-                fontSize = 16.sp,
+                fontSize = FontSize.BODY.sp,
                 fontWeight = FontWeight.Bold,
                 color = assets.mainPageTextColor,
                 modifier = Modifier
@@ -173,7 +174,7 @@ fun JoinGameScreen(
                                 }
                             },
                             textStyle = TextStyle(
-                                fontSize = 24.sp,
+                                fontSize = FontSize.MENU_BUTTON.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White,
                                 textAlign = TextAlign.Center,
@@ -223,7 +224,7 @@ fun JoinGameScreen(
                     border = BorderStroke(1.dp, if (codeDigits.all { it.isNotEmpty() }) Color(0xFF1B8811) else Color.Gray),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Text("Rejoindre la partie", color = Color(0xFF1B8811))
+                    Text("Rejoindre la partie", color = Color(0xFF1B8811), fontSize = FontSize.BODY.sp,)
                 }
 
                 // Refresh button
@@ -238,7 +239,7 @@ fun JoinGameScreen(
                     modifier = Modifier.size(40.dp),
                     contentPadding = PaddingValues(0.dp)
                 ) {
-                    Text("⟳", fontSize = 18.sp, color = Color(0xFF1B8811))
+                    Text("⟳", fontSize = FontSize.BODY.sp, color = Color(0xFF1B8811),)
                 }
 
                 Button(
@@ -253,7 +254,7 @@ fun JoinGameScreen(
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = assets.backButtonColor)
                 ) {
-                    Text("Scanner un code QR", color = Color.White)
+                    Text("Scanner un code QR", color = Color.White, fontSize = FontSize.BODY.sp)
                 }
             }
 
@@ -271,44 +272,5 @@ fun JoinGameScreen(
                 GameList(currentGameListViewModel, themeViewModel = themeViewModel)
             }
         }
-    }
-
-    if (showCodeDialog) {
-        AlertDialog(
-            onDismissRequest = { showCodeDialog = false },
-            title = { Text("Entrer un code de lobby") },
-            text = {
-                androidx.compose.material3.OutlinedTextField(
-                    value = codeDigits.joinToString(""),
-                    onValueChange = { newValue ->
-                        if (newValue.length <= 4 && newValue.all { it.isDigit() }) {
-                            codeDigits = List(4) { i -> newValue.getOrElse(i) { ' ' }.toString().trim() }
-                        }
-                    },
-                    label = { Text("Code") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                )
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        showCodeDialog = false
-                        joinWithCode(codeDigits.joinToString(""))
-                    },
-                    enabled = codeDigits.all { it.isNotEmpty() }
-                ) {
-                    Text("Rejoindre", color = assets.mainPageTextColor)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = {
-                    showCodeDialog = false
-                    codeDigits = List(4) { "" }
-                }) {
-                    Text("Annuler")
-                }
-            }
-        )
     }
 }

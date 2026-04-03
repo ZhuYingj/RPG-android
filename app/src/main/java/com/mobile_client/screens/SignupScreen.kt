@@ -1,6 +1,10 @@
 package com.mobile_client.screens
 
+import android.Manifest
 import android.graphics.BitmapFactory
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -10,6 +14,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
@@ -22,11 +27,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
 import androidx.navigation.NavController
 import com.mobile_client.environment.ENVIRONMENT
 import com.mobile_client.services.HttpService
@@ -40,9 +48,11 @@ import kotlinx.coroutines.launch
 import org.json.JSONObject
 import coil.compose.rememberAsyncImagePainter
 import com.mobile_client.services.AccountService
+import com.mobile_client.utils.FontSize
 import com.mobile_client.utils.LoginResponse
 import com.mobile_client.viewModels.TutorialViewModel
 import io.ktor.client.call.body
+import java.io.File
 
 @Composable
 fun SignUpScreen(navController: NavController, tutorialViewModel: TutorialViewModel) {
@@ -69,9 +79,40 @@ fun SignUpScreen(navController: NavController, tutorialViewModel: TutorialViewMo
 
     val context = LocalContext.current
 
-    val avatarBase64 by remember(selectedAvatarIndex) {
+    // Camera support
+    var avatarUri by remember { mutableStateOf<Uri?>(null) }
+    var avatarBase64FromCamera by remember { mutableStateOf<String?>(null) }
+    var tempPhotoUri by remember { mutableStateOf<Uri?>(null) }
+
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success && tempPhotoUri != null) {
+            avatarUri = tempPhotoUri
+            val bitmap = ImageUtils.uriToBitmap(context, tempPhotoUri!!)
+            bitmap?.let {
+                val resized = ImageUtils.resizeBitmap(it, 1024)
+                avatarBase64FromCamera = ImageUtils.bitmapToBase64(resized, 70)
+            }
+        }
+    }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            val file = File(context.cacheDir, "signup_avatar_${System.currentTimeMillis()}.jpg")
+            val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+            tempPhotoUri = uri
+            cameraLauncher.launch(uri)
+        }
+    }
+
+    val avatarBase64 by remember(selectedAvatarIndex, avatarBase64FromCamera) {
         mutableStateOf(
-            run {
+            if (avatarBase64FromCamera != null) {
+                avatarBase64FromCamera!!
+            } else {
                 val bitmap = BitmapFactory.decodeResource(
                     context.resources,
                     avatarResources[selectedAvatarIndex]
@@ -129,7 +170,7 @@ fun SignUpScreen(navController: NavController, tutorialViewModel: TutorialViewMo
                             val loginData: LoginResponse = loginResponse.body()
                             AccountService.instance.setAccount(loginData.account, loginData.token)
                             navController.navigate(Screen.Home.route)
-                            tutorialViewModel.showIfFirstTime() //could be overrided in launched effet in mainkt
+                            tutorialViewModel.showIfFirstTime()
                         } else {
                             navController.navigate(Screen.Login.route)
                         }
@@ -175,7 +216,7 @@ fun SignUpScreen(navController: NavController, tutorialViewModel: TutorialViewMo
 
             Column(
                 modifier = Modifier
-                    .width(650.dp)
+                    .width(900.dp)
                     .shadow(8.dp, RoundedCornerShape(16.dp))
                     .background(
                         Color.White.copy(alpha = 0.95f),
@@ -188,76 +229,107 @@ fun SignUpScreen(navController: NavController, tutorialViewModel: TutorialViewMo
                 Text(
                     text = "Créer un compte",
                     style = MaterialTheme.typography.headlineLarge,
-                    fontSize = 36.sp
+                    fontSize = FontSize.TITLE.sp,
+                    fontWeight = FontWeight.Bold
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Row(
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(40.dp)
                 ) {
 
+                    //LEFT
                     Column(
+                        modifier = Modifier.weight(1f),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
 
-                        Text("Choisir un avatar")
+                        Text(
+                            "Selectionnez un avatar ou prenez une photo",
+                            fontSize = FontSize.BODY.sp,
+                        )
 
-                        Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
 
                         Image(
-                            painter = rememberAsyncImagePainter(avatarResources[selectedAvatarIndex]),
+                            painter = rememberAsyncImagePainter(
+                                if (avatarUri != null) avatarUri else avatarResources[selectedAvatarIndex]
+                            ),
                             contentDescription = null,
                             modifier = Modifier
-                                .size(90.dp)
+                                .size(140.dp)
                                 .clip(CircleShape)
                                 .border(3.dp, Color(0xFF357abd), CircleShape),
                             contentScale = ContentScale.Crop
                         )
 
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        // Camera button
+                        TextButton(
+                            onClick = {
+                                permissionLauncher.launch(Manifest.permission.CAMERA)
+                            }
+                        ) {
+                            Icon(
+                                Icons.Default.CameraAlt,
+                                contentDescription = "Prendre une photo",
+                                tint = Color(0xFF357abd),
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                "Prendre une photo",
+                                fontSize = FontSize.BUTTON.sp,
+                                color = Color(0xFF357abd)
+                            )
+                        }
+
                         Spacer(modifier = Modifier.height(12.dp))
 
                         for (row in 0..1) {
-
                             Row(
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
-
                                 for (col in 0..3) {
-
                                     val index = row * 4 + col
-                                    val isSelected = index == selectedAvatarIndex
+                                    val isSelected = index == selectedAvatarIndex && avatarUri == null
 
                                     Image(
                                         painter = rememberAsyncImagePainter(avatarResources[index]),
                                         contentDescription = null,
                                         modifier = Modifier
-                                            .size(44.dp)
+                                            .size(80.dp)
                                             .clip(CircleShape)
                                             .border(
-                                                if (isSelected) 2.dp else 1.dp,
-                                                if (isSelected) Color(0xFF357abd) else Color.LightGray,
+                                                if (isSelected) 3.dp else 0.dp,
+                                                if (isSelected) Color(0xFF357abd) else Color.Transparent,
                                                 CircleShape
                                             )
                                             .clickable {
                                                 selectedAvatarIndex = index
+                                                avatarUri = null
+                                                avatarBase64FromCamera = null
                                             },
                                         contentScale = ContentScale.Crop
                                     )
                                 }
                             }
-
-                            Spacer(modifier = Modifier.height(6.dp))
+                            Spacer(modifier = Modifier.height(8.dp))
                         }
                     }
 
-                    Column {
+                    //RIGHT
+                    Column(modifier = Modifier.weight(1f)) {
 
-                        Text("Nom d'utilisateur")
+                        Text("Nom d'utilisateur", fontSize = FontSize.SUBTITLE.sp, fontWeight = FontWeight.Bold)
 
                         OutlinedTextField(
                             value = username,
                             singleLine = true,
+                            textStyle = TextStyle(fontSize = FontSize.BODY.sp),
                             onValueChange = {
                                 if (it.length <= Validation.MAX_USERNAME_LENGTH)
                                     username = it
@@ -269,16 +341,17 @@ fun SignUpScreen(navController: NavController, tutorialViewModel: TutorialViewMo
                             supportingText = {
                                 usernameError?.let { Text(it, color = Color.Red) }
                             },
-                            modifier = Modifier.width(260.dp)
+                            modifier = Modifier.fillMaxWidth()
                         )
 
                         Spacer(modifier = Modifier.height(12.dp))
 
-                        Text("Courriel")
+                        Text("Courriel", fontSize = FontSize.SUBTITLE.sp, fontWeight = FontWeight.Bold)
 
                         OutlinedTextField(
                             value = email,
                             singleLine = true,
+                            textStyle = TextStyle(fontSize = FontSize.BODY.sp),
                             onValueChange = {
                                 if (it.length <= Validation.MAX_EMAIL_LENGTH)
                                     email = it
@@ -290,16 +363,17 @@ fun SignUpScreen(navController: NavController, tutorialViewModel: TutorialViewMo
                             supportingText = {
                                 emailError?.let { Text(it, color = Color.Red) }
                             },
-                            modifier = Modifier.width(260.dp)
+                            modifier = Modifier.fillMaxWidth()
                         )
 
                         Spacer(modifier = Modifier.height(12.dp))
 
-                        Text("Mot de passe")
+                        Text("Mot de passe", fontSize = FontSize.SUBTITLE.sp, fontWeight = FontWeight.Bold)
 
                         OutlinedTextField(
                             value = password,
                             singleLine = true,
+                            textStyle = TextStyle(fontSize = FontSize.BODY.sp),
                             onValueChange = {
                                 if (it.length <= Validation.MAX_PASSWORD_LENGTH)
                                     password = it
@@ -311,7 +385,7 @@ fun SignUpScreen(navController: NavController, tutorialViewModel: TutorialViewMo
                             supportingText = {
                                 passwordError?.let { Text(it, color = Color.Red) }
                             },
-                            modifier = Modifier.width(260.dp),
+                            modifier = Modifier.fillMaxWidth(),
                             visualTransformation =
                                 if (passwordVisible)
                                     VisualTransformation.None
@@ -337,45 +411,46 @@ fun SignUpScreen(navController: NavController, tutorialViewModel: TutorialViewMo
                                 }
                             }
                         )
-                    }
-                }
 
-                Spacer(modifier = Modifier.height(30.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
 
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(20.dp)
-                ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(20.dp)
+                        ) {
 
-                    Button(
-                        onClick = {
-                            navController.navigate(Screen.Login.route)
-                        },
-                        modifier = Modifier
-                            .height(50.dp)
-                            .width(170.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.LightGray,
-                            contentColor = Color.Black
-                        )
-                    ) {
-                        Text("Retour")
-                    }
+                            Button(
+                                onClick = {
+                                    navController.navigate(Screen.Login.route)
+                                },
+                                modifier = Modifier.height(50.dp).weight(1f),
+                                shape = RoundedCornerShape(5.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color.LightGray,
+                                    contentColor = Color.Black
+                                )
+                            ) {
+                                Text("Retour", fontSize = FontSize.SUBTITLE.sp)
+                            }
 
-                    Button(
-                        onClick = { handleSignup() },
-                        enabled =
-                            username.isNotBlank() &&
-                                email.isNotBlank() &&
-                                password.isNotBlank(),
-                        modifier = Modifier
-                            .height(50.dp)
-                            .width(170.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF357abd),
-                            contentColor = Color.White
-                        )
-                    ) {
-                        Text("S'inscrire")
+                            Button(
+                                onClick = { handleSignup() },
+                                enabled =
+                                    username.isNotBlank() &&
+                                        email.isNotBlank() &&
+                                        password.isNotBlank(),
+                                modifier = Modifier.height(50.dp).weight(1f),
+                                shape = RoundedCornerShape(5.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFF357abd),
+                                    contentColor = Color.White,
+                                    disabledContainerColor = Color.Gray,
+                                    disabledContentColor = Color.DarkGray
+                                )
+                            ) {
+                                Text("S'inscrire", fontSize = FontSize.SUBTITLE.sp)
+                            }
+                        }
                     }
                 }
             }

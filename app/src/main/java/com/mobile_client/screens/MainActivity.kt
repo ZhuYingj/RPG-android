@@ -33,6 +33,7 @@ import com.mobile_client.components.ChatBox
 import com.mobile_client.components.FriendsPanel
 import com.mobile_client.components.HomeButton
 import com.mobile_client.components.TutorialOverlay
+import com.mobile_client.screens.ui.theme.DefaultFontWrapper
 import com.mobile_client.screens.ui.theme.MobileclientTheme
 import com.mobile_client.utils.Screen
 import com.mobile_client.viewModels.ChatViewModel
@@ -162,6 +163,7 @@ class MainActivity : ComponentActivity() {
                                     themeViewModel = themeViewModel,
                                     friendsViewModel = friendsViewModel,
                                 )
+
                             }
                         }
 
@@ -198,26 +200,28 @@ class MainActivity : ComponentActivity() {
                                     lobbyChatViewModel.clearList()
                                 }
                             }
-                            ChatBox(
-                                modifier = Modifier
-                                    .align(Alignment.BottomEnd)
-                                    .padding(
-                                        start = 16.dp,
-                                        end = 16.dp,
-                                        top = 16.dp,
-                                        bottom = 0.dp
-                                    )
-                                    .zIndex(1f),
-                                chatViewModel = globalChatViewModel,
-                                lobbyChatViewModel = if (showLobbyTab) lobbyChatViewModel else null,
-                                lobbyCode = lobbyCode,
-                                friendsViewModel = friendsViewModel
-                            )
-                            FriendsPanel(
-                                modifier = Modifier.align(Alignment.BottomStart).padding(16.dp),
-                                friendsViewModel = friendsViewModel,
-                                snackbarHostState = snackbarHostState
-                            )
+                            DefaultFontWrapper {
+                                ChatBox(
+                                    modifier = Modifier
+                                        .align(Alignment.BottomEnd)
+                                        .padding(
+                                            start = 16.dp,
+                                            end = 16.dp,
+                                            top = 16.dp,
+                                            bottom = 0.dp
+                                        )
+                                        .zIndex(1f),
+                                    chatViewModel = globalChatViewModel,
+                                    lobbyChatViewModel = if (showLobbyTab) lobbyChatViewModel else null,
+                                    lobbyCode = lobbyCode,
+                                    friendsViewModel = friendsViewModel
+                                )
+                                FriendsPanel(
+                                    modifier = Modifier.align(Alignment.BottomStart).padding(16.dp),
+                                    friendsViewModel = friendsViewModel,
+                                    snackbarHostState = snackbarHostState
+                                )
+                            }
                         }
                         SnackbarHost(
                             hostState = snackbarHostState,

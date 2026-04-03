@@ -39,6 +39,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -47,6 +48,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.mobile_client.services.AccountService
+import com.mobile_client.utils.FontSize
 import com.mobile_client.utils.ImageResources
 import com.mobile_client.utils.ImageUtils
 import com.mobile_client.utils.Screen
@@ -102,7 +104,7 @@ fun ShopScreen(
             ) {
                 Text(
                     text = "Magasin de cosmétiques",
-                    fontSize = 32.sp,
+                    fontSize = FontSize.BIG_TITLE.sp,
                     fontWeight = FontWeight.Bold,
                     color = assets.mainPageTextColor,
                     modifier = Modifier.align(Alignment.Center)
@@ -128,7 +130,7 @@ fun ShopScreen(
                     ) {
                         Text(
                             text = "Le magasin est vide.",
-                            fontSize = 19.sp,
+                            fontSize = FontSize.BODY.sp,
                             color = assets.mainPageTextColor,
                             textAlign = TextAlign.Center
                         )
@@ -137,7 +139,7 @@ fun ShopScreen(
 
                 else -> {
                     LazyVerticalGrid(
-                        columns = GridCells.Fixed(6),
+                        columns = GridCells.Fixed(5),
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(horizontal = 24.dp, vertical = 8.dp),
@@ -155,7 +157,7 @@ fun ShopScreen(
                             ) {
                                 Text(
                                     text = item.name,
-                                    fontSize = 18.sp,
+                                    fontSize = FontSize.BODY.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.Black,
                                     textAlign = TextAlign.Center,
@@ -169,9 +171,10 @@ fun ShopScreen(
                                         painter = painterResource(id = resId),
                                         contentDescription = item.name,
                                         modifier = Modifier
+                                            .padding(bottom = 10.dp)
                                             .size(100.dp)
-                                            .padding(bottom = 10.dp),
-                                        contentScale = ContentScale.Fit
+                                            .clip(CircleShape),
+                                        contentScale = ContentScale.Crop
                                     )
                                 } else {
                                     Box(
@@ -187,17 +190,17 @@ fun ShopScreen(
 
                                 Text(
                                     text = item.description,
-                                    fontSize = 14.sp,
+                                    fontSize = FontSize.SMALL.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.Black,
                                     textAlign = TextAlign.Center,
-                                    modifier = Modifier.height(50.dp)
+                                    modifier = Modifier.height(60.dp)
                                 )
 
                                 Text(
                                     text = "${item.price} $",
-                                    fontSize = 13.sp,
-                                    color = Color.Black
+                                    fontSize = FontSize.SMALL.sp,
+                                    color = Color(0xFF6A1B9A),
                                 )
 
                                 Spacer(modifier = Modifier.height(8.dp))
@@ -208,7 +211,7 @@ fun ShopScreen(
                                     shape = RoundedCornerShape(6.dp),
                                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
                                 ) {
-                                    Text("Acheter", color = Color.White, fontSize = 13.sp)
+                                    Text("Acheter", color = Color.White, fontSize = FontSize.SMALL.sp, fontFamily = FontFamily.Default)
                                 }
                             }
                         }
@@ -221,47 +224,65 @@ fun ShopScreen(
         Row(
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .padding(top = 12.dp, end = 16.dp)
-                .clickable { navController.navigate(Screen.Account.route) { launchSingleTop = true } },
+                .padding(top = 12.dp, end = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "${money}$",
-                color = assets.mainPageTextColor,
-                fontSize = 14.sp
-            )
-            Spacer(modifier = Modifier.width(4.dp))
-            Text(
-                text = account?.username ?: "",
-                color = assets.mainPageTextColor,
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp
-            )
-            Spacer(modifier = Modifier.width(8.dp))
             Box(
                 modifier = Modifier
                     .size(40.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
-                    .border(1.dp, Color.White, CircleShape),
+                    .background(Color(0xFF4CAF50))
+                    .border(1.dp, Color.White, CircleShape)
+                    .clickable { navController.navigate(Screen.Inventory.route) { launchSingleTop = true } },
                 contentAlignment = Alignment.Center
             ) {
-                if (avatarBitmap != null) {
-                    Image(
-                        painter = rememberAsyncImagePainter(avatarBitmap),
-                        contentDescription = "Avatar",
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .clip(CircleShape),
-                        contentScale = ContentScale.Crop
-                    )
-                } else {
-                    Text(
-                        text = account?.username?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp
-                    )
+                Text(
+                    text = "INV",
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 11.sp,
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            Spacer(modifier = Modifier.width(4.dp))
+
+            Row(
+                modifier = Modifier
+                    .clickable { navController.navigate(Screen.Account.route) { launchSingleTop = true } },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "${money}$",
+                    color = assets.mainPageTextColor,
+                    fontSize = FontSize.BODY.sp,
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = account?.username ?: "",
+                    color = assets.mainPageTextColor,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = FontSize.BODY.sp,
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .border(1.dp, Color.White, CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (avatarBitmap != null) {
+                        Image(
+                            painter = rememberAsyncImagePainter(avatarBitmap),
+                            contentDescription = "Avatar",
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clip(CircleShape),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
                 }
             }
         }

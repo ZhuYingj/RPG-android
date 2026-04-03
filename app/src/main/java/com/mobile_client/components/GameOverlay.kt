@@ -10,7 +10,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -28,12 +31,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import com.mobile_client.screens.R
 import com.mobile_client.services.GameControllerService
 import com.mobile_client.services.GameFightService
 import com.mobile_client.utils.ImageResources
@@ -53,26 +58,31 @@ fun BattleOverlay(fightService: GameFightService, timerCounter: Int) {
 
     Box(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxWidth(0.45f)
+            .fillMaxHeight()
             .background(Color.Black.copy(alpha = 0.7f)),
         contentAlignment = Alignment.Center
     ) {
         Column(
             modifier = Modifier
+                .fillMaxWidth(0.7f)
                 .clip(RoundedCornerShape(12.dp))
                 .background(Color.White)
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text("Combat!", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+            Text("Combat", fontWeight = FontWeight.Bold, fontSize = 22.sp)
 
-            Text(actionString, fontSize = 14.sp, color = Color.Gray)
+
+            Text(actionString, fontSize = 14.sp, color = Color.Green)
+
 
             if (player != null && opponent != null && activePlayer != null) {
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(24.dp),
-                    verticalAlignment = Alignment.Top
+                    modifier = Modifier.fillMaxWidth(0.6f),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     // --- Player (you) ---
                     FighterColumn(
@@ -85,8 +95,11 @@ fun BattleOverlay(fightService: GameFightService, timerCounter: Int) {
                         otherPlayer = opponent
                     )
 
-                    Text("VS", fontWeight = FontWeight.Bold, fontSize = 18.sp,
-                        modifier = Modifier.padding(top = 32.dp))
+                    Text(
+                        "VS",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                    )
 
                     // --- Opponent ---
                     FighterColumn(
@@ -101,30 +114,56 @@ fun BattleOverlay(fightService: GameFightService, timerCounter: Int) {
                 }
             }
 
+            Spacer(modifier = Modifier.height(4.dp))
+
             // Action buttons
             Text("Actions de combat:", fontWeight = FontWeight.Bold, fontSize = 14.sp)
-            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(145.dp)) {
                 Button(
                     onClick = { fightService.attack() },
-                    enabled = isMyTurn
+                    enabled = isMyTurn,
+                    shape = RoundedCornerShape(6.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFFFD740),
+                        contentColor = Color.Black,
+                        disabledContentColor = Color.Gray
+                    ),
+                    modifier = Modifier.defaultMinSize(minWidth = 120.dp)
                 ) {
-                    Text("Attaquer")
+                    Text("Attaquer", fontWeight = FontWeight.Bold, fontSize = 14.sp)
                 }
                 Button(
                     onClick = { fightService.evade() },
-                    enabled = isMyTurn && (player?.evasionTry ?: 0) > 0
+                    enabled = isMyTurn && (player?.evasionTry ?: 0) > 0,
+                    shape = RoundedCornerShape(6.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFFFD740),
+                        contentColor = Color.Black,
+                        disabledContentColor = Color.Gray
+                    ),
+                    modifier = Modifier.defaultMinSize(minWidth = 120.dp)
                 ) {
-                    Text("Évasion")
+                    Text("Évasion", fontWeight = FontWeight.Bold, fontSize = 14.sp)
                 }
             }
 
+            Spacer(modifier = Modifier.height(2.dp))
+
             // Timer
-            Text(
-                "Temps restant: $timerCounter sec",
-                fontWeight = FontWeight.Bold,
-                fontSize = 14.sp,
-                color = Color(0xFF333333)
-            )
+            Row {
+                Text(
+                    "Temps restant: ",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp,
+                    color = Color(0xFF333333)
+                )
+                Text(
+                    "$timerCounter sec",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp,
+                    color = Color(0xFFE53935)
+                )
+            }
         }
     }
 }
@@ -140,10 +179,9 @@ private fun FighterColumn(
     otherPlayer: Player
 ) {
     val avatarAlpha = if (isActive) 1f else 0.4f
-    // If this fighter is the active player, they defend; otherwise they attack
     val isDefending = fighter.username == activePlayer.username
     val rawDice = if (isDefending) defenseDice else attackDice
-    val roleName = if (isDefending) "de défense" else "d'attaque"
+    val roleName = if (isDefending) "défense" else "attaque"
     val totalResult = if (isDefending) {
         defenseDice + activePlayer.stats.defense
     } else {
@@ -152,26 +190,47 @@ private fun FighterColumn(
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.width(140.dp)
+        modifier = Modifier
+            .width(220.dp)
+            .then(
+                if (isActive) {
+                    Modifier
+                        .border(
+                            width = 4.dp,
+                            brush = Brush.linearGradient(
+                                colors = listOf(
+                                    Color(0xFFE53935),
+                                    Color(0xFFFF9800),
+                                    Color(0xFFFFD740)
+                                )
+                            ),
+                            shape = RoundedCornerShape(1.dp)
+                        )
+                        .padding(14.dp)
+                } else {
+                    Modifier.padding(18.dp)
+                }
+            )
     ) {
+        // Avatar with cosmetics
         Box {
             ImageResources.avatarToImage[fighter.avatar]?.let {
                 Image(
                     painterResource(id = it),
                     contentDescription = null,
-                    modifier = Modifier.size(48.dp),
+                    modifier = Modifier.size(64.dp),
                     alpha = avatarAlpha
                 )
             }
             for (cos in fighter.equippedItems) {
                 ImageResources.cosmeticToImage[cos.filePath]?.let { resId ->
-                    if(cos.type == 1) {
+                    if (cos.type == 1) {
                         Image(
                             painter = painterResource(id = resId),
                             contentDescription = "cosmétique",
                             modifier = Modifier
-                                .size(48.dp)
-                                .offset(y = (-17).dp)
+                                .size(64.dp)
+                                .offset(y = (-20).dp)
                                 .zIndex(2f)
                         )
                     } else if (cos.type == 2) {
@@ -179,33 +238,60 @@ private fun FighterColumn(
                             painter = painterResource(id = resId),
                             contentDescription = "cosmétique",
                             modifier = Modifier
-                                .size(48.dp)
-                                .offset(x = (17).dp)
+                                .size(64.dp)
+                                .offset(x = (20).dp)
                                 .zIndex(2f)
                         )
                     }
                 }
             }
         }
-        Text(label, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-        Text("Vie: ${fighter.currentLife}", fontSize = 12.sp)
 
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(label, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Box(
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.life),
+                contentDescription = "Vie",
+                modifier = Modifier.size(36.dp)
+            )
+
+            Text(
+                "${fighter.currentLife}",
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                color = Color.White
+            )
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            "Évasions restantes: ${fighter.evasionTry}",
-            fontSize = 11.sp,
-            color = Color.Gray
+            "Tentatives d'évasion restantes: ${fighter.evasionTry}",
+            fontSize = 14.sp,
+            color = Color.Gray,
+            maxLines = 1
         )
 
-        Spacer(modifier = Modifier.height(4.dp))
-
-        Text("Résultat de dé: $rawDice", fontSize = 11.sp)
-        Text(
-            "Résultat $roleName: $totalResult",
-            fontSize = 11.sp,
-            fontWeight = FontWeight.Bold
-        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text("Résultat de dé: $rawDice", fontSize = 14.sp, color = Color.Gray)
+        Spacer(modifier = Modifier.height(8.dp))
+        Row {
+            Text("Résultat de $roleName : ", fontSize = 14.sp, color = Color.Gray)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                "$totalResult",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFFE53935)
+            )
+        }
     }
 }
 
@@ -248,9 +334,9 @@ fun ItemChoiceOverlay(controllerService: GameControllerService) {
     ) {
         Column(
             modifier = Modifier
-                .clip(RoundedCornerShape(10.dp))
+                .clip(RoundedCornerShape(12.dp))
                 .background(Color.White)
-                .padding(20.dp),
+                .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {

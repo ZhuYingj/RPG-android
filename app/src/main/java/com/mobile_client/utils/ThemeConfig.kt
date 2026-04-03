@@ -24,7 +24,8 @@ data class ThemeAssets(
     val userBackgroundColor: Color,
     val backButtonColor: Color,
     val backButtonColorHover: Color,
-    val mainPageTextColor: Color
+    val mainPageTextColor: Color,
+    val tabIndicatorColor: Color,
 )
 
 val themeAssetsMap = mapOf(
@@ -45,6 +46,7 @@ val themeAssetsMap = mapOf(
         backButtonColor = Color(224, 140, 210),
         backButtonColorHover = Color(0xFFD48AB8),
         mainPageTextColor = Color.Black,
+        tabIndicatorColor = Color(0xFFFF8C2E)
     ),
     AppTheme.AUBERGINES to ThemeAssets(
         title = "Les Aubergines",
@@ -63,5 +65,6 @@ val themeAssetsMap = mapOf(
         backButtonColor = Color(113, 181, 207),
         backButtonColorHover = Color(84, 172, 207),
         mainPageTextColor = Color.White,
+        tabIndicatorColor = Color(0xFF7B2FBE)
     ),
 )

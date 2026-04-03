@@ -21,12 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,9 +38,10 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.rememberAsyncImagePainter
-import com.mobile_client.components.TutorialOverlay
+import com.mobile_client.screens.ui.theme.AppFontFamily
 import com.mobile_client.services.AccountService
 import com.mobile_client.services.SocketService
+import com.mobile_client.utils.FontSize
 import com.mobile_client.utils.ImageUtils
 import com.mobile_client.utils.Screen
 import com.mobile_client.viewModels.GameLobbyViewModel
@@ -110,11 +106,12 @@ fun HomeScreen(navController: NavController, gameLobbyViewModel: GameLobbyViewMo
             ) {
                 Text(
                     text = assets.title.uppercase(),
-                    fontSize = 56.sp,
+                    fontSize = 65.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF87CEEB),
                     letterSpacing = 5.sp,
                     style = TextStyle(
+                        fontFamily = AppFontFamily,
                         shadow = Shadow(
                             color = Color.Black.copy(alpha = 0.5f),
                             offset = Offset(2f, 2f),
@@ -147,8 +144,9 @@ fun HomeScreen(navController: NavController, gameLobbyViewModel: GameLobbyViewMo
                             text = button.label,
                             color = Color.White,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 20.sp,
+                            fontSize = FontSize.MENU_BUTTON.sp,
                             style = TextStyle(
+                                fontFamily = AppFontFamily,
                                 shadow = Shadow(
                                     color = Color.Black.copy(alpha = 0.5f),
                                     offset = Offset(2f, 2f),
@@ -171,12 +169,12 @@ fun HomeScreen(navController: NavController, gameLobbyViewModel: GameLobbyViewMo
                     Text(
                         text = "Équipe 102",
                         fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp,
+                        fontSize = FontSize.BODY.sp,
                         color = assets.mainPageTextColor
                     )
                     Text(
                         text = "Antoine Beaunoyer, Alexie Lalonde-Legault, Tan Tommy Rin, Jeremy Vong, Song Ning Lan, Sheng He Ge",
-                        fontSize = 12.sp,
+                        fontSize = FontSize.BODY.sp,
                         color = assets.mainPageTextColor
                     )
                 }
@@ -235,14 +233,14 @@ fun HomeScreen(navController: NavController, gameLobbyViewModel: GameLobbyViewMo
                 Text(
                     text = "$money $",
                     color = assets.mainPageTextColor,
-                    fontSize = 14.sp
+                    fontSize = FontSize.BODY.sp,
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
                     text = account?.username ?: "",
                     color = assets.mainPageTextColor,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp
+                    fontSize = FontSize.BODY.sp,
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Box(
@@ -253,23 +251,14 @@ fun HomeScreen(navController: NavController, gameLobbyViewModel: GameLobbyViewMo
                         .border(1.dp, Color.White, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    if (avatarBitmap != null) {
-                        Image(
-                            painter = rememberAsyncImagePainter(avatarBitmap),
-                            contentDescription = "Avatar",
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .clip(CircleShape),
-                            contentScale = ContentScale.Crop
-                        )
-                    } else {
-                        Text(
-                            text = account?.username?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp
-                        )
-                    }
+                    Image(
+                        painter = rememberAsyncImagePainter(avatarBitmap),
+                        contentDescription = "Avatar",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
+                    )
                 }
             }
         }
