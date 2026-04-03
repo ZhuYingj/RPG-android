@@ -97,7 +97,6 @@ fun FriendsPanel(
         }
     }
 
-
     DisposableEffect(Unit) {
         onDispose {
             friendsViewModel.removeSocketListeners()
@@ -209,10 +208,12 @@ fun FriendsPanel(
                             items(allUsers, key = { it.username }) { user ->
                                 val alreadySent = sentRequestUsernames.contains(user.username)
                                 val receivedRequestId = receivedRequestIds[user.username]
+                                val isBlocked = blockedUsers.contains(user.username)
+                                val isPending = pendingBlock.contains(user.username)
                                 FriendItem(
                                     username = user.username,
                                     actions = {
-                                        if (receivedRequestId != null) {
+                                        if (receivedRequestId != null && !isBlocked && !isPending) {
                                             IconButton(onClick = { friendsViewModel.acceptFriendRequest(receivedRequestId) }) {
                                                 Icon(Icons.Default.Check, contentDescription = "Accepter", tint = Color(0xFF4CAF50))
                                             }
@@ -222,17 +223,15 @@ fun FriendsPanel(
                                         } else {
                                             IconButton(
                                                 onClick = { if (!alreadySent) friendsViewModel.sendFriendRequest(user.username) },
-                                                enabled = !alreadySent
+                                                enabled = !alreadySent && !isBlocked && !isPending
                                             ) {
                                                 Icon(
                                                     if (alreadySent) Icons.Default.Check else Icons.Default.PersonAdd,
                                                     contentDescription = if (alreadySent) "Déjà envoyé" else "Ajouter",
-                                                    tint = if (alreadySent) Color.Gray else Color(0xFF4CAF50)
+                                                    tint = if (alreadySent || isBlocked || isPending) Color.Gray else Color(0xFF4CAF50)
                                                 )
                                             }
                                         }
-                                        val isBlocked = blockedUsers.contains(user.username)
-                                        val isPending = pendingBlock.contains(user.username)
                                         IconButton(
                                             onClick = { if (!isBlocked && !isPending) friendsViewModel.blockUser(user.username) },
                                             enabled = !isBlocked && !isPending
