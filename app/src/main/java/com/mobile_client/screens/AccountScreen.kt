@@ -674,14 +674,14 @@ private fun MatchHistoryTab(
                     }
                     Text(
                         text = when {
-                            match.hasLeft -> "Quitté"
+                            match.hasLeft -> "Vous avez abandonné la partie"
                             match.gameWon -> "Victoire"
                             else -> "Défaite"
                         },
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Bold,
                         color = when {
-                            match.hasLeft -> Color.Gray
+                            match.hasLeft -> Color(0xFFEF5350)
                             match.gameWon -> Color(0xFF4CAF50)
                             else -> Color(0xFFEF5350)
                         },
