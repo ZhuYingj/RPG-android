@@ -30,6 +30,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.ChatBubble
+import androidx.compose.material.icons.filled.ChatBubbleOutline
 import androidx.compose.material.icons.filled.CloseFullscreen
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -127,7 +128,7 @@ fun ChatBox(modifier: Modifier = Modifier, chatViewModel: ChatViewModel, lobbyCh
                     modifier = Modifier.size(56.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.ChatBubble,
+                        imageVector = Icons.Default.ChatBubbleOutline,
                         contentDescription = "Chat",
                         tint = Color.White
                     )
@@ -151,7 +152,7 @@ fun ChatBox(modifier: Modifier = Modifier, chatViewModel: ChatViewModel, lobbyCh
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(
-                                    imageVector = Icons.Default.ChatBubble,
+                                    imageVector = Icons.Default.ChatBubbleOutline,
                                     contentDescription = "Chat",
                                     tint = Color.White
                                 )

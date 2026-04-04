@@ -25,9 +25,10 @@ import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CloseFullscreen
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.PersonAddAlt
-import androidx.compose.material.icons.filled.PersonRemoveAlt1
+import androidx.compose.material.icons.filled.PersonOutline
+import androidx.compose.material.icons.filled.PersonRemove
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -53,10 +54,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import com.mobile_client.screens.R
 import com.mobile_client.utils.FriendsTab
 import com.mobile_client.utils.launchQrScanner
 import com.mobile_client.viewModels.FriendsViewModel
@@ -113,7 +116,7 @@ fun FriendsPanel(
                 modifier = Modifier.size(56.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Default.Person,
+                    imageVector = Icons.Default.PersonOutline,
                     contentDescription = "Amis",
                     tint = Color.White
                 )
@@ -121,7 +124,7 @@ fun FriendsPanel(
         } else {
             Card(
                 modifier = Modifier
-                    .widthIn(max = 350.dp)
+                    .widthIn(max = 355.dp)
                     .height(420.dp),
                 shape = RoundedCornerShape(16.dp),
                 elevation = CardDefaults.cardElevation(8.dp)
@@ -147,7 +150,7 @@ fun FriendsPanel(
                         ) {
                             Icon(
                                 imageVector = if (isAddingFriend) Icons.AutoMirrored.Filled.ArrowBack
-                                else Icons.Default.Person,
+                                else Icons.Default.PersonOutline,
                                 contentDescription = if (isAddingFriend) "Retour" else "Friends",
                                 tint = Color.White
                             )
@@ -216,10 +219,10 @@ fun FriendsPanel(
                                     actions = {
                                         if (receivedRequestId != null && !isBlocked && !isPending) {
                                             IconButton(onClick = { friendsViewModel.acceptFriendRequest(receivedRequestId) }) {
-                                                Icon(Icons.Default.PersonAddAlt, contentDescription = "Accepter", tint = Color(0xFF4CAF50))
+                                                Icon(Icons.Default.Check, contentDescription = "Accepter", tint = Color(0xFF4CAF50))
                                             }
                                             IconButton(onClick = { friendsViewModel.denyFriendRequest(receivedRequestId) }) {
-                                                Icon(Icons.Default.PersonRemoveAlt1, contentDescription = "Refuser", tint = Color(0xFFF44336))
+                                                Icon(Icons.Default.Close, contentDescription = "Refuser", tint = Color(0xFFF44336))
                                             }
                                         } else {
                                             IconButton(
@@ -252,34 +255,33 @@ fun FriendsPanel(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .height(48.dp)
                                 .background(Color(0xFFF8F8F8))
                         ) {
                             FriendsTab.entries.forEach { tab ->
                                 Box(
                                     modifier = Modifier
                                         .weight(1f)
-                                        .clickable { activeTab = tab }
-                                        .background(
-                                            if (activeTab == tab) Color.White else Color.Transparent
-                                        )
-                                        .padding(12.dp),
+                                        .fillMaxSize()
+                                        .clickable { activeTab = tab },
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                        Text(
-                                            text = tab.label,
-                                            style = MaterialTheme.typography.labelMedium,
-                                            color = if (activeTab == tab) Color.Black else Color.Gray
+                                    Text(
+                                        text = tab.label,
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = if (activeTab == tab) Color.Black else Color.Gray
+                                    )
+                                    if (activeTab == tab) {
+                                        Box(
+                                            modifier = Modifier
+                                                .align(Alignment.BottomCenter)
+                                                .width(85.dp)
+                                                .height(3.dp)
+                                                .background(
+                                                    color = Color(0xFFFFA500),
+                                                    shape = RoundedCornerShape(50)
+                                                )
                                         )
-                                        if (activeTab == tab) {
-                                            Spacer(modifier = Modifier.height(2.dp))
-                                            Box(
-                                                modifier = Modifier
-                                                    .width(40.dp)
-                                                    .height(2.dp)
-                                                    .background(Color(0xFFFFA500))
-                                            )
-                                        }
                                     }
                                 }
                             }
@@ -311,18 +313,18 @@ fun FriendsPanel(
                                         FriendItem(
                                             username = friend.username,
                                             actions = {
+                                                IconButton(onClick = { friendsViewModel.removeFriend(friend.username) }) {
+                                                    Icon(
+                                                        painter = painterResource(R.drawable.person_remove_24px),
+                                                        tint = Color(0xFFF44336),
+                                                        contentDescription = "Remove person"
+                                                    )
+                                                }
                                                 IconButton(onClick = { friendsViewModel.blockUser(friend.username) }) {
                                                     Icon(
                                                         Icons.Default.Block,
                                                         contentDescription = "Bloquer",
                                                         tint = Color(0xFFFF9800)
-                                                    )
-                                                }
-                                                IconButton(onClick = { friendsViewModel.removeFriend(friend.username) }) {
-                                                    Icon(
-                                                        Icons.Default.Close,
-                                                        contentDescription = "Retirer",
-                                                        tint = Color(0xFFF44336)
                                                     )
                                                 }
                                             }
@@ -411,7 +413,7 @@ fun FriendsPanel(
                                             actions = {
                                                 IconButton(onClick = { friendsViewModel.blockUser(username) }) {
                                                     Icon(
-                                                        Icons.Default.Block,
+                                                        Icons.Default.LockOpen,
                                                         contentDescription = "Débloquer",
                                                         tint = Color(0xFFF44336)
                                                     )
