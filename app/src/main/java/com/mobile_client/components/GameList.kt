@@ -248,14 +248,17 @@ fun LobbyMapItem(
 @Composable
 fun LobbyInfo(lobby: SocketCommunicationConst.SendableLobbies) {
     val maxPlayers = ImageResources.sizeToPlayerNumber[(lobby.map as GameMap).size] ?: 0
-    val statut = if (lobby.isLocked) "Vérrouillé" else "En attente"
+    val acces = if ((lobby.playerNumber == maxPlayers && lobby.isGameStarted) || (lobby.isLocked && !lobby.isGameStarted))
+        "Vérrouillé" else "Déverrouillé"
+    val statut = if (lobby.isGameStarted) "En cours" else "En attente"
 
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text(text = lobby.map.name, fontSize = 35.sp, fontWeight = FontWeight.Normal, color = Color(0xFF313131), letterSpacing = 2.sp, modifier = Modifier.padding(bottom = 4.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-            Text(text = "Code : ${lobby.code}", fontSize = 14.sp, color = Color(0xFF555555))
-            Text(text = "Joueurs : ${lobby.playerNumber}/$maxPlayers", fontSize = 14.sp, color = Color(0xFF555555))
-            Text(text = "Statut : $statut", fontSize = 14.sp, color = Color(0xFF555555))
+            Text(text = "Code : ${lobby.code}", fontSize = 18.sp, color = Color(0xFF555555))
+            Text(text = "Joueurs : ${lobby.playerNumber}/$maxPlayers", fontSize = 18.sp, color = Color(0xFF555555))
+            Text(text = "Statut : $statut", fontSize = 18.sp, color = Color(0xFF555555))
+            Text(text = "Accès : $acces", fontSize = 18.sp, color = Color(0xFF555555))
         }
         Text(text = "Nombre de joueurs max : $maxPlayers", fontSize = 14.sp, color = Color(0xFF555555))
         Text(text = "Taille : ${lobby.map.size}", fontSize = 14.sp, color = Color(0xFF555555))

@@ -10,5 +10,6 @@ class SocketCommunicationConst {
         val hasBlockedUser: Boolean,
         val playerNumber: Int,
         val isLocked: Boolean,
+        val isGameStarted: Boolean,
     )
 }
