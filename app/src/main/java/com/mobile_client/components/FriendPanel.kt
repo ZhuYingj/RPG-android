@@ -26,7 +26,8 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CloseFullscreen
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.PersonAdd
+import androidx.compose.material.icons.filled.PersonAddAlt
+import androidx.compose.material.icons.filled.PersonRemoveAlt1
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -215,10 +216,10 @@ fun FriendsPanel(
                                     actions = {
                                         if (receivedRequestId != null && !isBlocked && !isPending) {
                                             IconButton(onClick = { friendsViewModel.acceptFriendRequest(receivedRequestId) }) {
-                                                Icon(Icons.Default.Check, contentDescription = "Accepter", tint = Color(0xFF4CAF50))
+                                                Icon(Icons.Default.PersonAddAlt, contentDescription = "Accepter", tint = Color(0xFF4CAF50))
                                             }
                                             IconButton(onClick = { friendsViewModel.denyFriendRequest(receivedRequestId) }) {
-                                                Icon(Icons.Default.Close, contentDescription = "Refuser", tint = Color(0xFFF44336))
+                                                Icon(Icons.Default.PersonRemoveAlt1, contentDescription = "Refuser", tint = Color(0xFFF44336))
                                             }
                                         } else {
                                             IconButton(
@@ -226,7 +227,7 @@ fun FriendsPanel(
                                                 enabled = !alreadySent && !isBlocked && !isPending
                                             ) {
                                                 Icon(
-                                                    if (alreadySent) Icons.Default.Check else Icons.Default.PersonAdd,
+                                                    if (alreadySent) Icons.Default.Check else Icons.Default.PersonAddAlt,
                                                     contentDescription = if (alreadySent) "Déjà envoyé" else "Ajouter",
                                                     tint = if (alreadySent || isBlocked || isPending) Color.Gray else Color(0xFF4CAF50)
                                                 )
@@ -446,7 +447,7 @@ fun FriendsPanel(
                             ) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Icon(
-                                        Icons.Default.PersonAdd,
+                                        Icons.Default.PersonAddAlt,
                                         contentDescription = null,
                                         tint = Color(0xFF4CAF50)
                                     )
