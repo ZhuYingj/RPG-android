@@ -1,8 +1,8 @@
 package com.mobile_client.components
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,17 +29,14 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material.icons.filled.ChatBubble
 import androidx.compose.material.icons.filled.ChatBubbleOutline
 import androidx.compose.material.icons.filled.CloseFullscreen
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -170,42 +167,47 @@ fun ChatBox(modifier: Modifier = Modifier, chatViewModel: ChatViewModel, lobbyCh
                                     )
                                 }
                             }
-                            if (lobbyChatViewModel != null && !isCollapsed) {
-                                Row() {
-                                    OutlinedButton(
-                                        onClick = { isLobbyChat = false },
-                                        colors = ButtonDefaults.textButtonColors(
-                                            containerColor = if (!isLobbyChat) Color.Yellow else Color.Transparent
-                                        ),
-                                        border = BorderStroke(2.dp, Color.White),
-                                        shape = RoundedCornerShape(0.dp)
-                                    ) {
-                                        Text(
-                                            "Global",
-                                            color = if (!isLobbyChat) Color.Black else Color.White.copy(alpha = 0.5f)
-                                        )
-                                    }
-                                    OutlinedButton(
-                                        onClick = { isLobbyChat = true },
-                                        colors = ButtonDefaults.textButtonColors(
-                                            containerColor = if (isLobbyChat) Color.Yellow else Color.Transparent
-                                        ),
-                                        border = BorderStroke(2.dp, Color.White),
-                                        shape = RoundedCornerShape(0.dp)
-                                    ) {
-                                        Text(
-                                            "Lobby",
-                                            color = if (isLobbyChat) Color.Black else Color.White.copy(alpha = 0.5f)
-                                        )
-                                    }
-                                }
-                            }
                             IconButton(onClick = { isCollapsed = !isCollapsed }) {
                                 Icon(
                                     imageVector = Icons.Default.CloseFullscreen,
                                     contentDescription = "Collapse Chat",
                                     tint = Color.White
                                 )
+                            }
+                        }
+
+                        if (lobbyChatViewModel != null && !isCollapsed) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .background(if (!isLobbyChat) Color(0xFF4CAF50) else Color(0xFFE0E0E0))
+                                        .clickable { isLobbyChat = false }
+                                        .padding(vertical = 12.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        "Général",
+                                        style = MaterialTheme.typography.labelLarge,
+                                        color = if (!isLobbyChat) Color.White else Color.Gray
+                                    )
+                                }
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .background(if (isLobbyChat) Color(0xFF4CAF50) else Color(0xFFE0E0E0))
+                                        .clickable { isLobbyChat = true }
+                                        .padding(vertical = 12.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        "Partie",
+                                        style = MaterialTheme.typography.labelLarge,
+                                        color = if (isLobbyChat) Color.White else Color.Gray
+                                    )
+                                }
                             }
                         }
 
