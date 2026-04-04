@@ -247,20 +247,19 @@ fun LobbyMapItem(
 
 @Composable
 fun LobbyInfo(lobby: SocketCommunicationConst.SendableLobbies) {
-    val maxPlayers = ImageResources.sizeToPlayerNumber[(lobby.map as GameMap).size] ?: 0
-    val acces = if ((lobby.playerNumber == maxPlayers && lobby.isGameStarted) || (lobby.isLocked && !lobby.isGameStarted))
+    val acces = if ((lobby.playerNumber == lobby.maxPlayers && lobby.isGameStarted) || (lobby.isLocked && !lobby.isGameStarted))
         "Vérrouillé" else "Déverrouillé"
     val statut = if (lobby.isGameStarted) "En cours" else "En attente"
 
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(text = lobby.map.name, fontSize = 35.sp, fontWeight = FontWeight.Normal, color = Color(0xFF313131), letterSpacing = 2.sp, modifier = Modifier.padding(bottom = 4.dp))
+        Text(text = (lobby.map as GameMap).name, fontSize = 35.sp, fontWeight = FontWeight.Normal, color = Color(0xFF313131), letterSpacing = 2.sp, modifier = Modifier.padding(bottom = 4.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
             Text(text = "Code : ${lobby.code}", fontSize = 18.sp, color = Color(0xFF555555))
-            Text(text = "Joueurs : ${lobby.playerNumber}/$maxPlayers", fontSize = 18.sp, color = Color(0xFF555555))
+            Text(text = "Joueurs : ${lobby.playerNumber}/${lobby.maxPlayers}", fontSize = 18.sp, color = Color(0xFF555555))
             Text(text = "Statut : $statut", fontSize = 18.sp, color = Color(0xFF555555))
             Text(text = "Accès : $acces", fontSize = 18.sp, color = Color(0xFF555555))
         }
-        Text(text = "Nombre de joueurs max : $maxPlayers", fontSize = 14.sp, color = Color(0xFF555555))
+        Text(text = "Nombre de joueurs max : ${lobby.maxPlayers}", fontSize = 14.sp, color = Color(0xFF555555))
         Text(text = "Taille : ${lobby.map.size}", fontSize = 14.sp, color = Color(0xFF555555))
         Text(text = "Mode : ${if (lobby.map.isCaptureTheFlag) "CTF" else "Classique"}", fontSize = 14.sp, color = Color(0xFF555555))
         Text(text = "Hôte : ${lobby.host}", fontSize = 14.sp, color = Color(0xFF555555))
