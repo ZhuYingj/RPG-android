@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -64,7 +65,9 @@ import kotlinx.coroutines.launch
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.ui.text.style.TextAlign
+import coil.compose.rememberAsyncImagePainter
 import com.mobile_client.utils.FontSize
+import com.mobile_client.utils.ImageUtils
 
 private val BotBlue = Color(0xFF20B6E3)
 private val LockOrange = Color(0xFFD88B06)
@@ -389,6 +392,9 @@ fun WaitingPageScreen(
 @Composable
 fun PlayerCard(player: Player, isHost: Boolean, gameLobbyViewModel: GameLobbyViewModel, textColor: Color = Color(0xFF1A1A1A), bgColor: Color = Color.White) {
     var botMenuExpanded by remember { mutableStateOf(false) }
+    val profileBitmap = remember(player.profilePicture) {
+        ImageUtils.base64ToBitmap(player.profilePicture)
+    }
 
     Row(
         modifier = Modifier
@@ -415,7 +421,7 @@ fun PlayerCard(player: Player, isHost: Boolean, gameLobbyViewModel: GameLobbyVie
             }
 
             // Username + type
-            Column {
+            Column (modifier = Modifier.width(100.dp)){
                 Text(
                     player.username,
                     fontWeight = FontWeight.Bold,
@@ -429,6 +435,23 @@ fun PlayerCard(player: Player, isHost: Boolean, gameLobbyViewModel: GameLobbyVie
                         fontSize = FontSize.BUTTON.sp,
                         color = Color.Blue
                     )
+                }
+            }
+            if (!player.isBot()) {
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(CircleShape)
+                        .background(Color.LightGray),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (profileBitmap != null) {
+                        Image(
+                            painter = rememberAsyncImagePainter(profileBitmap),
+                            contentDescription = "Photo de profil",
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
                 }
             }
         }

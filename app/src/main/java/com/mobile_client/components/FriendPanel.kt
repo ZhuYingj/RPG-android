@@ -28,7 +28,6 @@ import androidx.compose.material.icons.filled.CloseFullscreen
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.PersonAddAlt
 import androidx.compose.material.icons.filled.PersonOutline
-import androidx.compose.material.icons.filled.PersonRemove
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -64,6 +63,12 @@ import com.mobile_client.utils.FriendsTab
 import com.mobile_client.utils.launchQrScanner
 import com.mobile_client.viewModels.FriendsViewModel
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.Image
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+import coil.compose.rememberAsyncImagePainter
+import com.mobile_client.utils.ImageUtils
 
 @Composable
 fun FriendsPanel(
@@ -216,6 +221,7 @@ fun FriendsPanel(
                                 val isPending = pendingBlock.contains(user.username)
                                 FriendItem(
                                     username = user.username,
+                                    avatarBase64 = user.avatar,
                                     actions = {
                                         if (receivedRequestId != null && !isBlocked && !isPending) {
                                             IconButton(onClick = { friendsViewModel.acceptFriendRequest(receivedRequestId) }) {
@@ -312,6 +318,7 @@ fun FriendsPanel(
                                     items(friends, key = { it.username }) { friend ->
                                         FriendItem(
                                             username = friend.username,
+                                            avatarBase64 = friend.avatar,
                                             actions = {
                                                 IconButton(onClick = { friendsViewModel.removeFriend(friend.username) }) {
                                                     Icon(
@@ -347,6 +354,7 @@ fun FriendsPanel(
                                     items(friendRequests, key = { it.id }) { request ->
                                         FriendItem(
                                             username = request.username,
+                                            avatarBase64 = request.avatar,
                                             actions = {
                                                 IconButton(onClick = { friendsViewModel.acceptFriendRequest(request.id) }) {
                                                     Icon(
@@ -382,6 +390,7 @@ fun FriendsPanel(
                                     items(sentFriendRequests, key = { it.id }) { request ->
                                         FriendItem(
                                             username = request.username,
+                                            avatarBase64 = request.avatar,
                                             actions = {
                                                 IconButton(onClick = { friendsViewModel.undoFriendRequest(request.id) }) {
                                                     Icon(
@@ -501,14 +510,42 @@ fun FriendsPanel(
 @Composable
 private fun FriendItem(
     username: String,
+    avatarBase64: String? = null,
     actions: @Composable () -> Unit
 ) {
+    val avatarBitmap = remember(avatarBase64) {
+        ImageUtils.base64ToBitmap(avatarBase64)
+    }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 14.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        Box(
+            modifier = Modifier
+                .size(32.dp)
+                .clip(CircleShape)
+                .background(Color.LightGray),
+            contentAlignment = Alignment.Center
+        ) {
+            if (avatarBitmap != null) {
+                Image(
+                    painter = rememberAsyncImagePainter(avatarBitmap),
+                    contentDescription = "Avatar",
+                    modifier = Modifier.fillMaxSize()
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Default.PersonOutline,
+                    contentDescription = "Avatar par défaut",
+                    tint = Color.White,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        }
+        Spacer(modifier = Modifier.width(10.dp))
         Text(
             text = username,
             style = MaterialTheme.typography.bodyLarge,

@@ -68,6 +68,7 @@ data class Position(
 data class Player(
     val username: String,
     val avatar: PlayerAvatars,
+    val profilePicture: String? = null,
     var playerType: PlayerTypes,
     val attack: Dices,
     val defense: Dices,
