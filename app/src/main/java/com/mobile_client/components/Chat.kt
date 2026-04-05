@@ -63,10 +63,11 @@ import androidx.compose.ui.layout.ContentScale
 import coil.compose.rememberAsyncImagePainter
 import com.mobile_client.utils.ImageUtils
 import com.mobile_client.viewModels.FriendsViewModel
+import com.mobile_client.viewModels.ThemeViewModel
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun ChatBox(modifier: Modifier = Modifier, chatViewModel: ChatViewModel, lobbyChatViewModel: ChatViewModel? = null, lobbyCode: String, friendsViewModel: FriendsViewModel) {
+fun ChatBox(modifier: Modifier = Modifier, chatViewModel: ChatViewModel, lobbyChatViewModel: ChatViewModel? = null, lobbyCode: String, friendsViewModel: FriendsViewModel, themeViewModel: ThemeViewModel) {
     val connectionStatus by chatViewModel.connectionStatus.collectAsState()
     var newMessage by remember { mutableStateOf("") }
     var mostRecentMessage by remember { mutableStateOf<String?>(null) }
@@ -81,6 +82,7 @@ fun ChatBox(modifier: Modifier = Modifier, chatViewModel: ChatViewModel, lobbyCh
     val chatMessages by activeViewModel.messages.collectAsState()
     val isKeyboardVisible = WindowInsets.isImeVisible
 
+    val assets = themeViewModel.assets
     LaunchedEffect(chatViewModel, lobbyChatViewModel) {
         socketManager.socket?.off(MessageEvents.CHAT_MESSAGE)
         socketManager.socket?.off(MessageEvents.GLOBAL_CHAT_MESSAGE)
@@ -121,7 +123,7 @@ fun ChatBox(modifier: Modifier = Modifier, chatViewModel: ChatViewModel, lobbyCh
                 FloatingActionButton(
                     onClick = { isCollapsed = !isCollapsed },
                     shape = CircleShape,
-                    containerColor = MaterialTheme.colorScheme.primary,
+                    containerColor = assets.friendsButton,
                     modifier = Modifier.size(56.dp)
                 ) {
                     Icon(
@@ -142,7 +144,7 @@ fun ChatBox(modifier: Modifier = Modifier, chatViewModel: ChatViewModel, lobbyCh
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(MaterialTheme.colorScheme.primary)
+                                .background(assets.friendsButton)
                                 .padding(12.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically

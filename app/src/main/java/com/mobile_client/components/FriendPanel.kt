@@ -69,13 +69,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.mobile_client.utils.ImageUtils
+import com.mobile_client.viewModels.ThemeViewModel
 
 @Composable
 fun FriendsPanel(
     modifier: Modifier = Modifier,
     friendsViewModel: FriendsViewModel,
     snackbarHostState: SnackbarHostState,
+    themeViewModel: ThemeViewModel
 ) {
+    val assets = themeViewModel.assets
     var isOpen by remember { mutableStateOf(false) }
     var activeTab by remember { mutableStateOf(FriendsTab.FRIENDS) }
     var isAddingFriend by remember { mutableStateOf(false) }
@@ -117,7 +120,7 @@ fun FriendsPanel(
             FloatingActionButton(
                 onClick = { isOpen = true },
                 shape = CircleShape,
-                containerColor = MaterialTheme.colorScheme.primary,
+                containerColor = assets.friendsButton,
                 modifier = Modifier.size(56.dp)
             ) {
                 Icon(
@@ -139,7 +142,7 @@ fun FriendsPanel(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(MaterialTheme.colorScheme.primary)
+                            .background(assets.friendsButton)
                             .padding(12.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
