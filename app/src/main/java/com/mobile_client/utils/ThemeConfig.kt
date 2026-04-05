@@ -52,6 +52,9 @@ data class ThemeAssets(
     val leaderBoardHeader: Color,
     val friendsButton: Color,
     val tutorialTrackColor: Color,
+    val gameCreationButton: Color,
+    val gameCreationButtonText: Color,
+
 )
 
 val themeAssetsMap = mapOf(
@@ -99,6 +102,8 @@ val themeAssetsMap = mapOf(
         leaderBoardHeader = Color(238, 255, 169),
         friendsButton = Color(92, 111, 163),
         tutorialTrackColor = Color(0xFF4CAF50),
+        gameCreationButton = Color(101,207,104),
+        gameCreationButtonText = Color.White,
     ),
     AppTheme.AUBERGINES to ThemeAssets(
         title = "Les Aubergines",
@@ -144,5 +149,7 @@ val themeAssetsMap = mapOf(
         leaderBoardHeader = Color(204, 204, 204, 80),
         friendsButton = Color(119, 66, 175),
         tutorialTrackColor = Color(119, 66, 175),
+        gameCreationButton = Color(255, 248, 222),
+        gameCreationButtonText = Color(16,32,46),
     ),
 )

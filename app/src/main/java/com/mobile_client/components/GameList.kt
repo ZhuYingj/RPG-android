@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -25,6 +26,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -58,6 +60,7 @@ import com.mobile_client.viewModels.BaseGameListViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import androidx.compose.runtime.produceState
+import androidx.compose.ui.graphics.lerp
 import androidx.core.graphics.scale
 import com.mobile_client.viewModels.ThemeViewModel
 import androidx.core.graphics.createBitmap
@@ -237,7 +240,7 @@ fun LobbyMapItem(
                 onClick = onPlay,
                 modifier = Modifier
                     .size(60.dp)
-                    .background(color = Color(0xFF91CDFD), shape = RoundedCornerShape(5.dp))
+                    .background(color = lerp(assets.joinButton, Color.White, 0.2f), shape = RoundedCornerShape(5.dp))
             ) {
                 Icon(
                     imageVector = Icons.Filled.PlayArrow,
@@ -334,17 +337,22 @@ fun MapItem(
                 }
             }
 
-            IconButton(
+            Button(
                 onClick = onPlay,
                 modifier = Modifier
-                    .size(60.dp)
-                    .background(color = Color(0xFF91CDFD), shape = RoundedCornerShape(5.dp))
+                    .height(48.dp)
+                    .widthIn(min = 160.dp),
+                shape = RoundedCornerShape(8.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = assets.gameCreationButton,
+                    contentColor = assets.gameCreationButtonText
+                ),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Filled.PlayArrow,
-                    contentDescription = "Play",
-                    modifier = Modifier.size(36.dp),
-                    tint = Color.White
+                Text(
+                    text = "Créer une partie",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
                 )
             }
         }

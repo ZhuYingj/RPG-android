@@ -242,7 +242,7 @@ fun WaitingPageScreen(
                                 OutlinedButton(
                                     onClick = { gameLobbyViewModel.createBotPlayer() },
                                     border = BorderStroke(2.dp, BotBlue),
-                                    colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White),
+                                    colors = ButtonDefaults.outlinedButtonColors(containerColor = assets.textAccount),
                                     shape = RoundedCornerShape(6.dp),
                                     modifier = Modifier.width(160.dp)
                                 ) {
@@ -252,7 +252,7 @@ fun WaitingPageScreen(
                                 OutlinedButton(
                                     onClick = { gameLobbyViewModel.toggleLobbyLock() },
                                     border = BorderStroke(2.dp, LockOrange),
-                                    colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White),
+                                    colors = ButtonDefaults.outlinedButtonColors(containerColor = assets.textAccount),
                                     shape = RoundedCornerShape(6.dp),
                                     modifier = Modifier.width(160.dp)
                                 ) {
@@ -349,7 +349,7 @@ fun WaitingPageScreen(
                                 OutlinedButton(
                                     onClick = { gameLobbyViewModel.startGame() },
                                     border = BorderStroke(2.dp, StartGreen),
-                                    colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White),
+                                    colors = ButtonDefaults.outlinedButtonColors(containerColor = assets.textAccount),
                                     shape = RoundedCornerShape(6.dp)
                                 ) {
                                     Text(
