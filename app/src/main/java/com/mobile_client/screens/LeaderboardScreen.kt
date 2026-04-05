@@ -23,6 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -219,6 +220,9 @@ fun LeaderBoardScreen(
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier.height(40.dp),
                             border = BorderStroke(1.dp, Color.Black),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                containerColor = Color.Gray.copy(alpha = 0.33f)
+                            )
 
                         ) {
                             Text(
