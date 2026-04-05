@@ -233,7 +233,7 @@ class MainActivity : ComponentActivity() {
                         )
 
                         if (tutorialViewModel.isVisible.value) {
-                            TutorialOverlay(tutorialViewModel = tutorialViewModel)
+                            TutorialOverlay(tutorialViewModel = tutorialViewModel, themeViewModel)
                         }
                     }
                 }

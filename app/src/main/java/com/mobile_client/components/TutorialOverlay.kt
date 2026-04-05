@@ -40,12 +40,14 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import com.mobile_client.utils.ImageResources
 import com.mobile_client.utils.TutorialSteps
+import com.mobile_client.viewModels.ThemeViewModel
 import com.mobile_client.viewModels.TutorialViewModel
 
 @Composable
-fun TutorialOverlay(tutorialViewModel: TutorialViewModel) {
+fun TutorialOverlay(tutorialViewModel: TutorialViewModel, themeViewModel: ThemeViewModel) {
     if (!tutorialViewModel.isVisible.value) return
 
+    val assets = themeViewModel.assets
     val currentStepIndex = tutorialViewModel.currentStep.intValue
     val step = TutorialSteps.steps.getOrNull(currentStepIndex) ?: return
     val image = ImageResources.tutorialStepToImage[currentStepIndex]
@@ -96,7 +98,7 @@ fun TutorialOverlay(tutorialViewModel: TutorialViewModel) {
                         .fillMaxWidth()
                         .height(10.dp)
                         .clip(RoundedCornerShape(5.dp)),
-                    color = Color(0xFF4CAF50),
+                    color = assets.tutorialTrackColor,
                     trackColor = Color(0xFFE0E0E0),
                     strokeCap = StrokeCap.Round,
                 )
@@ -198,7 +200,7 @@ fun TutorialOverlay(tutorialViewModel: TutorialViewModel) {
                     onClick = { tutorialViewModel.nextStep() },
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF4CAF50)
+                        containerColor = assets.tutorialTrackColor
                     )
                 ) {
                     Text(
