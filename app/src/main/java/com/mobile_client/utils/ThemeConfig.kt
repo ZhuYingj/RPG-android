@@ -33,6 +33,10 @@ data class ThemeAssets(
     val itemShopBackground: Color,
     val itemInventoryBackground: Color,
     val price: Color,
+    val boxAccount: Color,
+    val textAccount: Color,
+    val buttonOutlineAccount: Color,
+    val buttonBackgroundAccount: Color,
 )
 
 val themeAssetsMap = mapOf(
@@ -61,6 +65,10 @@ val themeAssetsMap = mapOf(
         itemShopBackground = Color(207, 244, 233),
         itemInventoryBackground = Color(180, 216, 166),
         price = Color(107, 84, 208),
+        boxAccount = Color(0, 0, 0, 30),
+        textAccount = Color.White,
+        buttonOutlineAccount = Color(255, 255, 255, 60),
+        buttonBackgroundAccount = Color.Transparent,
 
     ),
     AppTheme.AUBERGINES to ThemeAssets(
@@ -88,5 +96,9 @@ val themeAssetsMap = mapOf(
         itemShopBackground = Color(83, 108, 177),
         itemInventoryBackground = Color(169, 69, 69),
         price = Color(255, 179, 0),
+        boxAccount = Color(255, 255, 255, 60),
+        textAccount = Color.Black,
+        buttonOutlineAccount = Color(0, 0, 0, 60),
+        buttonBackgroundAccount = Color(189, 189, 189, 60),
     ),
 )

@@ -22,12 +22,18 @@ fun ThemeSelector(themeViewModel: ThemeViewModel) {
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ){
         themes.forEach { (theme, label) ->
+            val isSelected = themeViewModel.currentTheme.value == theme
+
             Button(
                 onClick = { themeViewModel.setTheme(theme) },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = if (themeViewModel.currentTheme.value == theme)
                         themeViewModel.assets.backButtonColor
-                    else Color.Gray
+                    else Color.Gray,
+                    contentColor = if (isSelected)
+                        Color.Black
+                    else
+                        Color.White
                 )
             ) {
                 Text(label)

@@ -205,7 +205,7 @@ fun AccountScreen(
                         TabRowDefaults.SecondaryIndicator(
                             modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
                             height = 3.dp,
-                            color = Color.White
+                            color = assets.textAccount.copy(alpha = 0.85f)
                         )
                     }
                 ) {
@@ -217,7 +217,7 @@ fun AccountScreen(
                                 Text(
                                     text = title,
                                     fontWeight = if (selectedTabIndex == index) FontWeight.Bold else FontWeight.Normal,
-                                    color = if (selectedTabIndex == index) Color.White else Color.White.copy(alpha = 0.7f),
+                                    color = if (selectedTabIndex == index) assets.textAccount else assets.textAccount.copy(alpha = 0.3f),
                                     fontSize = if (selectedTabIndex == index) FontSize.BODY.sp else FontSize.BUTTON.sp
                                 )
                             }
@@ -229,7 +229,7 @@ fun AccountScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp))
-                        .background(Color.Black.copy(alpha = 0.3f))
+                        .background(assets.boxAccount)
                         .verticalScroll(rememberScrollState())
                         .padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -285,11 +285,13 @@ fun AccountScreen(
                         )
                         1 -> AccountHistoryTab(
                             account = account,
-                            dateFormat = dateFormat
+                            dateFormat = dateFormat,
+                            themeViewModel
                         )
                         2 -> MatchHistoryTab(
                             account = account,
-                            dateFormat = dateFormat
+                            dateFormat = dateFormat,
+                            themeViewModel
                         )
                     }
                 }
@@ -422,6 +424,7 @@ private fun AccountDetailsTab(
     onRestartTutorial: () -> Unit,
     themeViewModel: ThemeViewModel
 ) {
+    val assets = themeViewModel.assets
     // Avatar display
     Box(
         modifier = Modifier
@@ -467,79 +470,120 @@ private fun AccountDetailsTab(
     }
 
     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        Button(onClick = onTakePhoto) {
-            Icon(Icons.Default.CameraAlt, null)
+        Button(onClick = onTakePhoto,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = assets.buttonBackgroundAccount,
+                contentColor = assets.textAccount
+            )) {
+            Icon(Icons.Default.CameraAlt, null, tint = Color.White)
             Spacer(modifier = Modifier.width(6.dp))
-            Text("Photo", color = Color.White, fontSize = FontSize.BUTTON.sp)
+            Text("Photo", color = assets.textAccount, fontSize = FontSize.BUTTON.sp)
         }
-        OutlinedButton(onClick = onChooseAvatar) {
-            Text("Choisir un avatar", color = Color.White, fontSize = FontSize.BUTTON.sp)
+        OutlinedButton(onClick = onChooseAvatar,
+            colors = ButtonDefaults.outlinedButtonColors(
+                containerColor = assets.buttonBackgroundAccount,
+                contentColor = assets.textAccount
+            ),
+            border = BorderStroke(1.dp, assets.buttonOutlineAccount)) {
+            Text("Choisir un avatar", color = assets.textAccount, fontSize = FontSize.BUTTON.sp)
         }
-        OutlinedButton(onClick = onToggleQr, modifier = Modifier.width(170.dp)) {
+        OutlinedButton(onClick = onToggleQr, modifier = Modifier.width(170.dp),
+            colors = ButtonDefaults.outlinedButtonColors(
+                containerColor = assets.buttonBackgroundAccount,
+                contentColor = assets.textAccount
+            ),
+            border = BorderStroke(1.dp, assets.buttonOutlineAccount)) {
             Icon(Icons.Default.QrCode, null, tint = Color.White)
             Spacer(modifier = Modifier.width(6.dp))
-            Text(if (showQrCode) "Masquer QR" else "Montrer QR", color = Color.White, fontSize = FontSize.BUTTON.sp)
+            Text(if (showQrCode) "Masquer QR" else "Montrer QR", color = assets.textAccount, fontSize = FontSize.BUTTON.sp)
         }
     }
 
     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         OutlinedButton(
             onClick = onResetAvatar,
-            enabled = hasAvatarChange
-        ) { Text("Réinitialiser avatar", color = Color.White, fontSize = FontSize.BUTTON.sp) }
+            enabled = hasAvatarChange,
+            colors = ButtonDefaults.outlinedButtonColors(
+                containerColor = assets.buttonBackgroundAccount,
+                contentColor = assets.textAccount
+            ),
+            border = BorderStroke(1.dp, assets.buttonOutlineAccount)
+        ) { Text("Réinitialiser avatar", color = assets.textAccount, fontSize = FontSize.BUTTON.sp) }
 
         Button(
             onClick = onSaveAvatar,
-            enabled = hasAvatarChange
-        ) { Text("Enregistrer avatar", color = Color.White, fontSize = FontSize.BUTTON.sp) }
+            enabled = hasAvatarChange,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (hasAvatarChange) {
+                    assets.buttonBackgroundAccount.copy(alpha = 0.9f) // whiter
+                } else {
+                    assets.buttonBackgroundAccount
+                },
+                contentColor = assets.textAccount
+            )
+        ) { Text("Enregistrer avatar", color = assets.textAccount, fontSize = FontSize.BUTTON.sp) }
     }
 
     // Tutorial
     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-    Text("Tutoriel", style = MaterialTheme.typography.titleMedium, color = Color.White, fontSize = FontSize.BODY.sp)
+    Text("Tutoriel", style = MaterialTheme.typography.titleMedium, color = assets.textAccount, fontSize = FontSize.BODY.sp)
     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        OutlinedButton(onClick = onContinueTutorial) {
-            Text("Continuer le tutoriel", color = Color.White, fontSize = FontSize.BUTTON.sp)
+        OutlinedButton(
+            onClick = onContinueTutorial,
+            colors = ButtonDefaults.outlinedButtonColors(
+                containerColor = assets.buttonBackgroundAccount,
+                contentColor = assets.textAccount
+            ),
+            border = BorderStroke(1.dp, assets.buttonOutlineAccount)
+            ) {
+            Text("Continuer le tutoriel", color = assets.textAccount, fontSize = FontSize.BUTTON.sp)
         }
-        OutlinedButton(onClick = onRestartTutorial) {
-            Text("Recommencer le tutoriel", color = Color.White, fontSize = FontSize.BUTTON.sp)
+        OutlinedButton(
+            onClick = onRestartTutorial,
+            colors = ButtonDefaults.outlinedButtonColors(
+                containerColor = assets.buttonBackgroundAccount,
+                contentColor = assets.textAccount
+            ),
+            border = BorderStroke(1.dp, assets.buttonOutlineAccount)
+        ) {
+            Text("Recommencer le tutoriel", color = assets.textAccount, fontSize = FontSize.BUTTON.sp)
         }
     }
 
     // Stats
     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-    Text("Statistiques", style = MaterialTheme.typography.titleMedium, color = Color.White, fontSize = FontSize.BODY.sp)
+    Text("Statistiques", style = MaterialTheme.typography.titleMedium, color = assets.textAccount, fontSize = FontSize.BODY.sp)
     Column(modifier = Modifier.fillMaxWidth()) {
-        StatRow("Parties classiques jouées", "${stats.classicGamesPlayed}", Color.White)
-        StatRow("Parties CTF jouées", "${stats.CTFGamesPlayed}", Color.White)
-        StatRow("Parties gagnées", "${stats.gamesWon}", Color.White)
-        StatRow("Temps moyen de partie", "${stats.averageGameTime.roundToInt()} s", Color.White)
-        StatRow("Défis accomplis", "${stats.challengesCompleted}", Color.White)
+        StatRow("Parties classiques jouées", "${stats.classicGamesPlayed}", assets.textAccount)
+        StatRow("Parties CTF jouées", "${stats.CTFGamesPlayed}", assets.textAccount)
+        StatRow("Parties gagnées", "${stats.gamesWon}", assets.textAccount)
+        StatRow("Temps moyen de partie", "${stats.averageGameTime.roundToInt()} s", assets.textAccount)
+        StatRow("Défis accomplis", "${stats.challengesCompleted}", assets.textAccount)
     }
 
     // Theme
     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-    Text("Thème visuel", style = MaterialTheme.typography.titleMedium, color = Color.White, fontSize = FontSize.BODY.sp)
+    Text("Thème visuel", style = MaterialTheme.typography.titleMedium, color = assets.textAccount, fontSize = FontSize.BODY.sp)
     ThemeSelector(themeViewModel = themeViewModel)
 
     // Name & Email fields
     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
     val textFieldColors = OutlinedTextFieldDefaults.colors(
-        focusedTextColor = Color.White,
-        unfocusedTextColor = Color.White,
-        focusedBorderColor = Color.White,
-        unfocusedBorderColor = Color.White.copy(alpha = 0.5f),
-        cursorColor = Color.White,
-        focusedLabelColor = Color.White,
-        unfocusedLabelColor = Color.White.copy(alpha = 0.7f),
+        focusedTextColor = assets.textAccount,
+        unfocusedTextColor = assets.textAccount,
+        focusedBorderColor = assets.textAccount,
+        unfocusedBorderColor = assets.textAccount.copy(alpha = 0.5f),
+        cursorColor = assets.textAccount,
+        focusedLabelColor = assets.textAccount,
+        unfocusedLabelColor = assets.textAccount.copy(alpha = 0.7f),
     )
 
     OutlinedTextField(
         value = name,
         onValueChange = onNameChange,
         label = { Text("Nom") },
-        leadingIcon = { Icon(Icons.Default.Person, null, tint = Color.White) },
+        leadingIcon = { Icon(Icons.Default.Person, null, tint = assets.textAccount) },
         isError = nameError != null,
         supportingText = { nameError?.let { Text(it, color = Color.Red) } },
         modifier = Modifier.fillMaxWidth(),
@@ -552,7 +596,7 @@ private fun AccountDetailsTab(
         value = email,
         onValueChange = onEmailChange,
         label = { Text("Email") },
-        leadingIcon = { Icon(Icons.Default.Email, null, tint = Color.White) },
+        leadingIcon = { Icon(Icons.Default.Email, null, tint = assets.textAccount) },
         isError = emailError != null,
         supportingText = { emailError?.let { Text(it, color = Color.Red) } },
         modifier = Modifier.fillMaxWidth(),
@@ -567,14 +611,19 @@ private fun AccountDetailsTab(
     ) {
         OutlinedButton(
             onClick = onResetFields,
-            modifier = Modifier.weight(1f)
-        ) { Text("Réinitialiser", color = Color.White, fontSize = FontSize.BODY.sp) }
+            modifier = Modifier.weight(1f),
+            colors = ButtonDefaults.outlinedButtonColors(
+                containerColor = assets.buttonBackgroundAccount,
+                contentColor = assets.textAccount
+            ),
+            border = BorderStroke(1.dp, assets.buttonOutlineAccount)
+        ) { Text("Réinitialiser", color = assets.textAccount, fontSize = FontSize.BODY.sp) }
 
         Button(
             onClick = onSaveFields,
             enabled = nameError == null && emailError == null,
             modifier = Modifier.weight(1f)
-        ) { Text("Enregistrer", color = Color.White, fontSize = FontSize.BODY.sp) }
+        ) { Text("Enregistrer", color = assets.textAccount, fontSize = FontSize.BODY.sp) }
     }
 
     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
@@ -583,7 +632,7 @@ private fun AccountDetailsTab(
         colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
         modifier = Modifier.fillMaxWidth()
     ) {
-        Text("Supprimer le compte", color = Color.White, fontSize = FontSize.BODY.sp)
+        Text("Supprimer le compte", color = assets.textAccount, fontSize = FontSize.BODY.sp)
     }
 }
 
@@ -592,9 +641,10 @@ private fun AccountDetailsTab(
 @Composable
 private fun AccountHistoryTab(
     account: com.mobile_client.utils.Account?,
-    dateFormat: SimpleDateFormat
+    dateFormat: SimpleDateFormat,
+    themeViewModel: ThemeViewModel
 ) {
-
+    val assets = themeViewModel.assets
     val actionHistory = account?.actionHistory ?: emptyList()
     if (actionHistory.isEmpty()) {
         Text(
@@ -616,13 +666,13 @@ private fun AccountHistoryTab(
                     Text(
                         log.action.label,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White,
+                        color = assets.textAccount,
                         fontSize = FontSize.BUTTON.sp
                     )
                     Text(
                         dateFormat.format(log.timestamp),
                         style = MaterialTheme.typography.bodySmall,
-                        color = Color.White.copy(alpha = 0.7f),
+                        color = assets.textAccount.copy(alpha = 0.7f),
                         fontSize = FontSize.BUTTON.sp
                     )
                 }
@@ -636,9 +686,10 @@ private fun AccountHistoryTab(
 @Composable
 private fun MatchHistoryTab(
     account: com.mobile_client.utils.Account?,
-    dateFormat: SimpleDateFormat
+    dateFormat: SimpleDateFormat,
+    themeViewModel: ThemeViewModel
 ) {
-
+    val assets = themeViewModel.assets
     val matchHistory = account?.matchHistory ?: emptyList()
     if (matchHistory.isEmpty()) {
         Text(
@@ -662,7 +713,7 @@ private fun MatchHistoryTab(
                             match.gameType.label,
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White,
+                            color = assets.textAccount,
                             fontSize = FontSize.BUTTON.sp
                         )
                         Text(
