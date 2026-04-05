@@ -428,7 +428,7 @@ fun CharacterCreationScreen(
                                         && isBonusLife != null
                                         && attackDice != null,
                                     colors = ButtonDefaults.buttonColors(
-                                        containerColor = Color.White,
+                                        containerColor = assets.textAccount,
                                         disabledContainerColor = Color.White.copy(alpha = 0.5f)
                                     ),
                                     shape = RoundedCornerShape(8.dp),
@@ -452,7 +452,7 @@ fun StatIcon(drawableRes: Int, value: Int, themeViewModel: ThemeViewModel) {
         Icon(
             painter = painterResource(drawableRes),
             contentDescription = null,
-            tint = IconDark,
+            tint = assets.mainPageTextColor,
             modifier = Modifier.size(36.dp)
         )
         Text(" : $value", color = assets.mainPageTextColor, fontWeight = FontWeight.Bold, fontSize = FontSize.MENU_BUTTON.sp,)
@@ -468,7 +468,7 @@ fun SelectableStatIcon(drawableRes: Int, isSelected: Boolean, themeViewModel: Th
             .clip(RoundedCornerShape(6.dp))
             .border(
                 if (isSelected) 2.dp else 1.dp,
-                if (isSelected) assets.characterFormOutline else Color.Transparent,
+                if (isSelected) assets.statsCharacterOutline else Color.Transparent,
                 RoundedCornerShape(6.dp)
             )
             .background(if (isSelected) Color.White.copy(alpha = 0.1f) else Color.Transparent)
@@ -478,7 +478,7 @@ fun SelectableStatIcon(drawableRes: Int, isSelected: Boolean, themeViewModel: Th
         Icon(
             painter = painterResource(drawableRes),
             contentDescription = null,
-            tint = IconDark,
+            tint = assets.mainPageTextColor,
             modifier = Modifier.size(36.dp)
         )
     }

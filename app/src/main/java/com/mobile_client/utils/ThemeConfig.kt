@@ -42,6 +42,7 @@ data class ThemeAssets(
     val mapBackground: Color,
     val textMap: Color,
     val characterFormOutline: Color,
+    val statsCharacterOutline: Color,
     val characterCreateButton: Color,
     val totalWon: Color,
     val statsBackground: Color,
@@ -54,7 +55,6 @@ data class ThemeAssets(
     val tutorialTrackColor: Color,
     val gameCreationButton: Color,
     val gameCreationButtonText: Color,
-
 )
 
 val themeAssetsMap = mapOf(
@@ -92,6 +92,7 @@ val themeAssetsMap = mapOf(
         mapBackground = Color(0xFFDDDDDD),
         textMap = Color(0xFF555555),
         characterFormOutline = Color(22,186,85),
+        statsCharacterOutline = Color(22,186,85),
         characterCreateButton = Color(19,222,87),
         totalWon = Color(255, 89, 0),
         statsBackground = Color(187, 244, 113),
@@ -139,6 +140,7 @@ val themeAssetsMap = mapOf(
         mapBackground = Color.Black.copy(alpha = 0.75f),
         textMap = Color.White.copy(alpha = 0.92f),
         characterFormOutline = Color(255,36,36),
+        statsCharacterOutline = Color(2, 165, 195),
         characterCreateButton = Color(222,19,19),
         totalWon = Color(183, 0, 255),
         statsBackground = Color(0, 167, 151),
