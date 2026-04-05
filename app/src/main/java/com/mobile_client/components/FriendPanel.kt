@@ -120,7 +120,7 @@ fun FriendsPanel(
             FloatingActionButton(
                 onClick = { isOpen = true },
                 shape = CircleShape,
-                containerColor = assets.friendsButton,
+                containerColor = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(56.dp)
             ) {
                 Icon(
@@ -142,7 +142,7 @@ fun FriendsPanel(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(assets.friendsButton)
+                            .background(MaterialTheme.colorScheme.primary)
                             .padding(12.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
