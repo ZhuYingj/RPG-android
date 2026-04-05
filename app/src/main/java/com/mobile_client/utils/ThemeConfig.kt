@@ -37,6 +37,10 @@ data class ThemeAssets(
     val textAccount: Color,
     val buttonOutlineAccount: Color,
     val buttonBackgroundAccount: Color,
+    val joinButton: Color,
+    val gameListBackground: Color,
+    val mapBackground: Color,
+    val textMap: Color,
 )
 
 val themeAssetsMap = mapOf(
@@ -69,6 +73,10 @@ val themeAssetsMap = mapOf(
         textAccount = Color.White,
         buttonOutlineAccount = Color(255, 255, 255, 60),
         buttonBackgroundAccount = Color.Transparent,
+        joinButton = Color(27, 136, 17),
+        gameListBackground = Color(0x5C302F2F),
+        mapBackground = Color(0xFFDDDDDD),
+        textMap = Color(0xFF555555)
 
     ),
     AppTheme.AUBERGINES to ThemeAssets(
@@ -100,5 +108,9 @@ val themeAssetsMap = mapOf(
         textAccount = Color.Black,
         buttonOutlineAccount = Color(0, 0, 0, 60),
         buttonBackgroundAccount = Color(189, 189, 189, 60),
+        joinButton = Color(2, 165, 180),
+        gameListBackground = Color.White.copy(alpha = 0.3f),
+        mapBackground = Color.Black.copy(alpha = 0.75f),
+        textMap = Color.White.copy(alpha = 0.92f)
     ),
 )

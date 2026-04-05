@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -157,7 +158,8 @@ fun GameList(
                                 showDescription = descriptionId == (lobby.map)._id,
                                 onMouseEnter = { descriptionId = (lobby.map)._id },
                                 onMouseLeave = { descriptionId = null },
-                                onPlay = { viewModel.onClick(lobby.map) }
+                                onPlay = { viewModel.onClick(lobby.map) },
+                                themeViewModel = themeViewModel
                             )
                         }
                     }
@@ -192,14 +194,16 @@ fun LobbyMapItem(
     onMouseEnter: () -> Unit,
     onMouseLeave: () -> Unit,
     onPlay: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    themeViewModel: ThemeViewModel
 ) {
+    val assets = themeViewModel.assets
     Box(
         modifier = modifier
             .fillMaxWidth()
             .padding(bottom = 8.dp)
             .shadow(elevation = 4.dp, shape = RoundedCornerShape(8.dp))
-            .background(color = Color(0xFFFFFFFF).copy(alpha = 0.92f), shape = RoundedCornerShape(8.dp))
+            .background(color = assets.mapBackground, shape = RoundedCornerShape(8.dp))
             .border(width = 1.dp, color = Color(0xFFDDDDDD), shape = RoundedCornerShape(8.dp))
             .padding(10.dp)
     ) {
@@ -223,7 +227,7 @@ fun LobbyMapItem(
                 } else {
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Spacer(modifier = Modifier.height(8.dp))
-                        LobbyInfo(lobby = lobby)
+                        LobbyInfo(lobby = lobby, themeViewModel)
                     }
                 }
             }
@@ -246,30 +250,43 @@ fun LobbyMapItem(
 }
 
 @Composable
-fun LobbyInfo(lobby: SocketCommunicationConst.SendableLobbies) {
+fun LobbyInfo(lobby: SocketCommunicationConst.SendableLobbies, themeViewModel: ThemeViewModel) {
+    val assets = themeViewModel.assets
     val acces = if ((lobby.playerNumber == lobby.maxPlayers && lobby.isGameStarted) || (lobby.isLocked && !lobby.isGameStarted))
         "Vérrouillé" else "Déverrouillé"
     val statut = if (lobby.isGameStarted) "En cours" else "En attente"
 
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(text = (lobby.map as GameMap).name, fontSize = 35.sp, fontWeight = FontWeight.Normal, color = Color(0xFF313131), letterSpacing = 2.sp, modifier = Modifier.padding(bottom = 4.dp))
+        Text(text = (lobby.map as GameMap).name, fontSize = 35.sp, fontWeight = FontWeight.Normal, color = assets.textMap, letterSpacing = 2.sp, modifier = Modifier.padding(bottom = 4.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-            Text(text = "Code : ${lobby.code}", fontSize = 18.sp, color = Color(0xFF555555))
-            Text(text = "Joueurs : ${lobby.playerNumber}/${lobby.maxPlayers}", fontSize = 18.sp, color = Color(0xFF555555))
-            Text(text = "Statut : $statut", fontSize = 18.sp, color = Color(0xFF555555))
-            Text(text = "Accès : $acces", fontSize = 18.sp, color = Color(0xFF555555))
+            Text(text = "Code : ${lobby.code}", fontSize = 22.sp, color = assets.textMap)
+            Text(text = "Joueurs : ${lobby.playerNumber}/${lobby.maxPlayers}", fontSize = 22.sp, color = assets.textMap)
+            Text(text = "Statut : $statut", fontSize = 22.sp, color = assets.textMap)
+            Text(text = "Accès : $acces", fontSize = 22.sp, color = assets.textMap)
         }
-        Text(text = "Nombre de joueurs max : ${lobby.maxPlayers}", fontSize = 14.sp, color = Color(0xFF555555))
-        Text(text = "Taille : ${lobby.map.size}", fontSize = 14.sp, color = Color(0xFF555555))
-        Text(text = "Mode : ${if (lobby.map.isCaptureTheFlag) "CTF" else "Classique"}", fontSize = 14.sp, color = Color(0xFF555555))
-        Text(text = "Hôte : ${lobby.host}", fontSize = 14.sp, color = Color(0xFF555555))
+        Text(text = "Nombre de joueurs max : ${lobby.maxPlayers}", fontSize = 18.sp, color = assets.textMap)
+        Text(text = "Taille : ${lobby.map.size}", fontSize = 18.sp, color = assets.textMap)
+        Text(text = "Mode : ${if (lobby.map.isCaptureTheFlag) "CTF" else "Classique"}", fontSize = 18.sp, color = assets.textMap)
+        Text(text = "Hôte : ${lobby.host}", fontSize = 18.sp, color = assets.textMap)
         Row(horizontalArrangement = Arrangement.spacedBy(24.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(text = "Frais d'entrée : ${lobby.fee} $", fontSize = 14.sp, color = Color(0xFF555555))
+            Text(text = "Frais d'entrée : ${lobby.fee} $", fontSize = 18.sp, color = assets.textMap)
             if (lobby.hasFriend) {
-                Text(text = "\uD83D\uDC65 Un ami est dans cette partie", fontSize = 14.sp)
+                Text(text = "\uD83D\uDC65 Un ami est dans cette partie", fontSize = 18.sp, color = assets.textMap)
             }
             if (lobby.hasBlockedUser) {
-                Text(text = "⚠️ Utilisateur bloqué présent", fontSize = 14.sp)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Warning,
+                        contentDescription = null,
+                        tint = Color.Yellow
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "Utilisateur bloqué présent",
+                        color = assets.textMap,
+                        fontSize = 18.sp
+                    )
+                }
             }
         }
     }
