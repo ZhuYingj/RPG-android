@@ -67,6 +67,7 @@ import com.mobile_client.utils.Screen
 import com.mobile_client.utils.TileConstants
 import com.mobile_client.utils.isBot
 import com.mobile_client.viewModels.GameLobbyViewModel
+import com.mobile_client.viewModels.ThemeViewModel
 import kotlinx.coroutines.launch
 
 private val DarkText = Color(0xFF1A1A1A)
@@ -75,7 +76,7 @@ private val ActionBlue = Color(0xFF2196F3)
 private val AbandonRed = Color(0xFFE53935)
 
 @Composable
-fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostState, gameLobbyViewModel: GameLobbyViewModel) {
+fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostState, gameLobbyViewModel: GameLobbyViewModel, themeViewModel: ThemeViewModel) {
     val controller = GameControllerService.instance
     val scope = rememberCoroutineScope()
 
@@ -103,7 +104,7 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
     var path by remember { mutableStateOf<List<Position>>(emptyList()) }
     var selectedTile by remember { mutableStateOf<Position?>(null) }
 
-
+    val assets = themeViewModel.assets
     // Recalculate accessible tiles when player or turn changes
     LaunchedEffect(player, currentPlayer, isDebug, isBetweenTurn, gameTiles) {
         visibleBushTiles = controller.getVisibleBushTiles()
@@ -200,7 +201,7 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
             modifier = Modifier
                 .weight(0.2f)
                 .fillMaxHeight()
-                .background(Color(0x29715A00))
+                .background(assets.gameViewBackground)
                 .padding(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -208,13 +209,13 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
                 modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 200.dp),
                 shape = RoundedCornerShape(8.dp),
                 elevation = CardDefaults.cardElevation(2.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9))
+                colors = CardDefaults.cardColors(containerColor = assets.gameViewBackgroundComponent)
             ) {
                 Column(
                     modifier = Modifier.padding(10.dp).fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Informations de la partie", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Text("Informations de la partie", fontWeight = FontWeight.Bold, fontSize = 20.sp, color = assets.mainPageTextColor)
                     Spacer(modifier = Modifier.height(10.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         val mapSizeText = when (gameMap.size) {
@@ -222,11 +223,11 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
                             TileConstants.MapSize.Medium -> "15x15"
                             TileConstants.MapSize.Large -> "20x20"
                         }
-                        Text("Taille: $mapSizeText", fontSize = 12.sp)
-                        Text("Joueurs: ${players.size}/${originalPlayers.size}", fontSize = 12.sp)
+                        Text("Taille: $mapSizeText", fontSize = 16.sp, color = assets.mainPageTextColor)
+                        Text("Joueurs: ${players.size}/${originalPlayers.size}", fontSize = 16.sp, color = assets.mainPageTextColor)
                     }
                     Spacer(modifier = Modifier.height(10.dp))
-                    Text("Joueur actif :", fontSize = 12.sp)
+                    Text("Joueur actif :", fontSize = 16.sp, color = assets.mainPageTextColor)
                     Spacer(modifier = Modifier.height(10.dp))
                     ImageResources.avatarToImage[currentPlayer.avatar]?.let {
                         Image(
@@ -236,7 +237,7 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
                         )
                     }
                     if (isDebug) {
-                        Text("Mode Debug", color = Color.Red, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        Text("Mode Debug", color = Color.Red, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -255,13 +256,13 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(8.dp),
                 elevation = CardDefaults.cardElevation(2.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9))
+                colors = CardDefaults.cardColors(containerColor = assets.gameViewBackgroundComponent)
             ) {
                 Column(
                     modifier = Modifier.padding(10.dp).fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Informations du joueur", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Text("Informations du joueur", fontWeight = FontWeight.Bold, fontSize = 20.sp, color = assets.mainPageTextColor)
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Row(
@@ -275,7 +276,7 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
                                 modifier = Modifier.size(50.dp)
                             )
                         }
-                        Text(player.username, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                        Text(player.username, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = assets.mainPageTextColor)
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -285,22 +286,22 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            StatCard("Vie", "${player.stats.life}", Modifier.weight(1f))
-                            StatCard("Rapidité", "${player.stats.speed}", Modifier.weight(1f))
+                            StatCard("Vie", "${player.stats.life}", Modifier.weight(1f), color = assets.mainPageTextColor)
+                            StatCard("Rapidité", "${player.stats.speed}", Modifier.weight(1f), color = assets.mainPageTextColor)
                         }
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            StatCard("Attaque", "${player.stats.attack} + D${player.attack.value}", Modifier.weight(1f))
-                            StatCard("Défense", "${player.stats.defense} + D${player.defense.value}", Modifier.weight(1f))
+                            StatCard("Attaque", "${player.stats.attack} + D${player.attack.value}", Modifier.weight(1f), color = assets.mainPageTextColor)
+                            StatCard("Défense", "${player.stats.defense} + D${player.defense.value}", Modifier.weight(1f), color = assets.mainPageTextColor)
                         }
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            StatCard("Mouvements restants", "${player.movement}", Modifier.weight(1f))
-                            StatCard("Actions restantes", "${player.hasAction}", Modifier.weight(1f))
+                            StatCard("Mouvements restants", "${player.movement}", Modifier.weight(1f), color = assets.mainPageTextColor)
+                            StatCard("Actions restantes", "${player.hasAction}", Modifier.weight(1f), color = assets.mainPageTextColor)
                         }
                     }
                 }
@@ -311,19 +312,19 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(8.dp),
                 elevation = CardDefaults.cardElevation(2.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9))
+                colors = CardDefaults.cardColors(containerColor = assets.gameViewBackgroundComponent)
             ) {
                 Column(
                     modifier = Modifier.padding(10.dp).fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Inventaire", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Text("Inventaire", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = assets.mainPageTextColor)
                     Spacer(modifier = Modifier.height(8.dp))
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(8.dp))
-                            .background(Color.White)
+                            .background(assets.gameViewBackgroundComponent)
                             .padding(horizontal = 16.dp, vertical = 12.dp),
                         horizontalArrangement = Arrangement.SpaceEvenly,
                         verticalAlignment = Alignment.CenterVertically
@@ -333,7 +334,7 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
                                 modifier = Modifier
                                     .size(60.dp)
                                     .clip(RoundedCornerShape(12.dp))
-                                    .background(Color(0xFFEDEDED))
+                                    .background(assets.inventoryBox)
                                     .drawBehind {
                                         val stroke = Stroke(
                                             width = 2.dp.toPx(),
@@ -421,6 +422,7 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
             modifier = Modifier
                 .weight(0.25f)
                 .fillMaxHeight()
+                .background(assets.gameViewBackground)
                 .padding(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -429,13 +431,13 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(8.dp),
                 elevation = CardDefaults.cardElevation(2.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9))
+                colors = CardDefaults.cardColors(containerColor = assets.gameViewBackgroundComponent)
             ) {
                 Column(
                     modifier = Modifier.padding(10.dp).fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Liste des joueurs", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Text("Liste des joueurs", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = assets.mainPageTextColor)
                     Spacer(modifier = Modifier.height(8.dp))
                     LazyColumn(
                         modifier = Modifier.height(228.dp),
@@ -447,7 +449,11 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
                                 isActive = currentPlayer.username == p.username,
                                 isInGame = players.any { it.username == p.username },
                                 isCTF = gameMap.isCaptureTheFlag,
-                                hasFlag = controller.whoHasFlag()?.username == p.username
+                                hasFlag = controller.whoHasFlag()?.username == p.username,
+                                playerItemActiveColor = assets.playerItemActive,
+                                playerStatColor = assets.playerStats,
+                                playerItemBackground = assets.playerItem,
+                                arrowActiveColor = assets.joinButton
                             )
                         }
                     }
@@ -459,7 +465,7 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(8.dp),
                 elevation = CardDefaults.cardElevation(2.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9))
+                colors = CardDefaults.cardColors(containerColor = assets.gameViewBackgroundComponent)
             ) {
                 Column(
                     modifier = Modifier.padding(10.dp).fillMaxWidth(),
@@ -469,20 +475,23 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
                         "Défi",
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
+                        color = assets.mainPageTextColor
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
                         player.challenge.type.description,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
+                        color = assets.mainPageTextColor
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
                         "${player.challenge.progress}/${player.challenge.goal} -> ${player.challenge.reward}$",
                         fontSize = 16.sp,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
+                        color = assets.mainPageTextColor
                     )
                 }
             }
@@ -492,7 +501,7 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(8.dp),
                 elevation = CardDefaults.cardElevation(2.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9))
+                colors = CardDefaults.cardColors(containerColor = assets.gameViewBackgroundComponent)
             ) {
                 Column(
                     modifier = Modifier.padding(10.dp).fillMaxWidth(),
@@ -502,16 +511,17 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
                     Text(
                         if (isTimerStopped) "Temps Restant: --" else "Temps Restant: $timerCounter",
                         fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp
+                        fontSize = 16.sp,
+                        color = assets.mainPageTextColor
                     )
 
                     Button(
                         onClick = { controller.nextTurn() },
                         enabled = player.username == currentPlayer.username && !isInCombat && !isBetweenTurn,
                         modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(containerColor = ActiveGreen)
+                        colors = ButtonDefaults.buttonColors(containerColor = assets.endTurn)
                     ) {
-                        Text("Terminer son tour", color = Color.White)
+                        Text("Terminer son tour", color = assets.textActions)
                     }
 
                     Button(
@@ -519,10 +529,10 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
                         enabled = player.username == currentPlayer.username && (currentPlayer.hasAction > 0) && !isInCombat && !isBetweenTurn,
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (isAction) ActionBlue.copy(alpha = 0.7f) else ActionBlue
+                            containerColor = if (isAction) assets.action.copy(alpha = 0.7f) else assets.action
                         )
                     ) {
-                        Text(if (isAction) "Action sélectionnée" else "Exécuter une action", color = Color.White)
+                        Text(if (isAction) "Action sélectionnée" else "Exécuter une action", color = assets.textActions)
                     }
 
                     Button(
@@ -535,9 +545,9 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
                             }
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(containerColor = AbandonRed)
+                        colors = ButtonDefaults.buttonColors(containerColor = assets.abandon)
                     ) {
-                        Text("Abandonner la partie", color = Color.White)
+                        Text("Abandonner la partie", color = assets.textActions)
                     }
                 }
             }
@@ -562,16 +572,20 @@ fun PlayerList(
     isActive: Boolean,
     isInGame: Boolean,
     isCTF: Boolean,
-    hasFlag: Boolean
+    hasFlag: Boolean,
+    playerItemActiveColor: Color,
+    playerStatColor: Color,
+    playerItemBackground: Color,
+    arrowActiveColor: Color
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(4.dp))
             .background(
-                if (isActive) Color(0xFFE8F5E9)
-                else if (isInGame) Color.White
-                else Color.Gray.copy(alpha = 0.3f)
+                if (isActive) playerItemActiveColor
+                else if (isInGame) playerItemBackground
+                else playerItemBackground
             )
             .padding(6.dp)
             .then(
@@ -594,7 +608,7 @@ fun PlayerList(
             contentAlignment = Alignment.Center
         ) {
             if (isActive) {
-                Text("▶", color = ActiveGreen, fontSize = 12.sp)
+                Text("▶", color = arrowActiveColor, fontSize = 12.sp)
             }
         }
 
@@ -645,19 +659,19 @@ fun PlayerList(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        Text("${player.winNumber} victoires", fontSize = 10.sp, color = Color.Gray)
+        Text("${player.winNumber} victoires", fontSize = 10.sp, color = playerStatColor)
     }
 }
 
 @Composable
-fun StatCard(label: String, value: String, modifier: Modifier = Modifier) {
+fun StatCard(label: String, value: String, modifier: Modifier = Modifier, color: Color) {
     Column(
         modifier = modifier
             .padding(vertical = 10.dp, horizontal = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(label, fontSize = 12.sp, color = Color.Gray)
+        Text(label, fontSize = 12.sp, color = color)
         Spacer(modifier = Modifier.height(4.dp))
-        Text(value, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        Text(value, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = color)
     }
 }
