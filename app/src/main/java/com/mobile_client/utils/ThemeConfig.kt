@@ -43,6 +43,8 @@ data class ThemeAssets(
     val textMap: Color,
     val characterFormOutline: Color,
     val characterCreateButton: Color,
+    val totalWon: Color,
+    val statsBackground: Color,
 )
 
 val themeAssetsMap = mapOf(
@@ -81,6 +83,8 @@ val themeAssetsMap = mapOf(
         textMap = Color(0xFF555555),
         characterFormOutline = Color(22,186,85),
         characterCreateButton = Color(19,222,87),
+        totalWon = Color(255, 89, 0),
+        statsBackground = Color(187, 244, 113),
 
     ),
     AppTheme.AUBERGINES to ThemeAssets(
@@ -118,5 +122,7 @@ val themeAssetsMap = mapOf(
         textMap = Color.White.copy(alpha = 0.92f),
         characterFormOutline = Color(255,36,36),
         characterCreateButton = Color(222,19,19),
+        totalWon = Color(183, 0, 255),
+        statsBackground = Color(0, 167, 151),
     ),
 )
