@@ -45,6 +45,11 @@ data class ThemeAssets(
     val characterCreateButton: Color,
     val totalWon: Color,
     val statsBackground: Color,
+    val leaderBoardBackground: Color,
+    val leaderBoardActive: Color,
+    val leaderBoardInactive: Color,
+    val leaderBoardRow: Color,
+    val leaderBoardHeader: Color,
 )
 
 val themeAssetsMap = mapOf(
@@ -85,6 +90,11 @@ val themeAssetsMap = mapOf(
         characterCreateButton = Color(19,222,87),
         totalWon = Color(255, 89, 0),
         statsBackground = Color(187, 244, 113),
+        leaderBoardBackground = Color(0, 0, 0, 80),
+        leaderBoardActive = Color(238, 255, 169),
+        leaderBoardInactive = Color(215, 215, 215),
+        leaderBoardRow = Color(134, 183, 251, 225),
+        leaderBoardHeader = Color(238, 255, 169),
 
     ),
     AppTheme.AUBERGINES to ThemeAssets(
@@ -124,5 +134,10 @@ val themeAssetsMap = mapOf(
         characterCreateButton = Color(222,19,19),
         totalWon = Color(183, 0, 255),
         statsBackground = Color(0, 167, 151),
+        leaderBoardBackground = Color(255, 255, 255, 160),
+        leaderBoardActive = Color(49, 0, 183),
+        leaderBoardInactive = Color.Gray,
+        leaderBoardRow = Color(255, 255, 255, 80),
+        leaderBoardHeader = Color(204, 204, 204, 80),
     ),
 )
