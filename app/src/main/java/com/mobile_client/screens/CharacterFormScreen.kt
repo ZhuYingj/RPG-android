@@ -271,7 +271,7 @@ fun CharacterCreationScreen(
                                                     .clip(RoundedCornerShape(6.dp))
                                                     .border(
                                                         if (isSelected) 2.dp else 0.dp,
-                                                        if (isSelected) SelectedGreen else Color.Transparent,
+                                                        if (isSelected) assets.characterFormOutline else Color.Transparent,
                                                         RoundedCornerShape(6.dp)
                                                     ),
                                                 contentAlignment = Alignment.Center
@@ -335,49 +335,49 @@ fun CharacterCreationScreen(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Column {
-                                    Text("Attributs :", fontWeight = FontWeight.Bold, color = Color.White, fontSize = FontSize.MENU_BUTTON.sp,)
+                                    Text("Attributs :", fontWeight = FontWeight.Bold, color = assets.mainPageTextColor, fontSize = FontSize.MENU_BUTTON.sp,)
                                     Spacer(modifier = Modifier.height(4.dp))
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.SpaceEvenly
                                     ) {
-                                        StatIcon(R.drawable.heart, hp)
-                                        StatIcon(R.drawable.bolt, speed)
-                                        StatIcon(R.drawable.swords, BASE_STAT_VALUE)
-                                        StatIcon(R.drawable.shield, BASE_STAT_VALUE)
+                                        StatIcon(R.drawable.heart, hp, themeViewModel)
+                                        StatIcon(R.drawable.bolt, speed, themeViewModel)
+                                        StatIcon(R.drawable.swords, BASE_STAT_VALUE, themeViewModel)
+                                        StatIcon(R.drawable.shield, BASE_STAT_VALUE, themeViewModel)
                                     }
 
                                     Spacer(modifier = Modifier.height(8.dp))
 
-                                    Text("Choisissez un bonus +2 :", fontWeight = FontWeight.Bold, color = Color.White, fontSize = FontSize.MENU_BUTTON.sp,)
+                                    Text("Choisissez un bonus +2 :", fontWeight = FontWeight.Bold, color = assets.mainPageTextColor, fontSize = FontSize.MENU_BUTTON.sp,)
                                     Spacer(modifier = Modifier.height(4.dp))
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.Center
                                     ) {
                                         Row(horizontalArrangement = Arrangement.spacedBy(50.dp)) {
-                                            SelectableStatIcon(R.drawable.heart, isBonusLife == true) { isBonusLife = true }
-                                            SelectableStatIcon(R.drawable.bolt, isBonusLife == false) { isBonusLife = false }
+                                            SelectableStatIcon(R.drawable.heart, isBonusLife == true, themeViewModel = themeViewModel) { isBonusLife = true }
+                                            SelectableStatIcon(R.drawable.bolt, isBonusLife == false, themeViewModel = themeViewModel) { isBonusLife = false }
                                         }
                                     }
 
                                     Spacer(modifier = Modifier.height(8.dp))
 
-                                    Text("D6 assigné à :", fontWeight = FontWeight.Bold, color = Color.White, fontSize = FontSize.MENU_BUTTON.sp,)
+                                    Text("D6 assigné à :", fontWeight = FontWeight.Bold, color = assets.mainPageTextColor, fontSize = FontSize.MENU_BUTTON.sp,)
                                     Spacer(modifier = Modifier.height(4.dp))
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.Center
                                     ) {
                                         Row(horizontalArrangement = Arrangement.spacedBy(50.dp)) {
-                                            SelectableStatIcon(R.drawable.swords, attackDice == Dices.D6) { attackDice = Dices.D6 }
-                                            SelectableStatIcon(R.drawable.shield, attackDice == Dices.D4) { attackDice = Dices.D4 }
+                                            SelectableStatIcon(R.drawable.swords, attackDice == Dices.D6, themeViewModel = themeViewModel) { attackDice = Dices.D6 }
+                                            SelectableStatIcon(R.drawable.shield, attackDice == Dices.D4, themeViewModel = themeViewModel) { attackDice = Dices.D4 }
                                         }
                                     }
 
                                     Spacer(modifier = Modifier.height(8.dp))
 
-                                    Text("D4 est assigné à :", fontWeight = FontWeight.Bold, fontSize = FontSize.MENU_BUTTON.sp, color = Color.White)
+                                    Text("D4 est assigné à :", fontWeight = FontWeight.Bold, fontSize = FontSize.MENU_BUTTON.sp, color = assets.mainPageTextColor)
                                     Spacer(modifier = Modifier.height(4.dp))
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
@@ -432,9 +432,9 @@ fun CharacterCreationScreen(
                                         disabledContainerColor = Color.White.copy(alpha = 0.5f)
                                     ),
                                     shape = RoundedCornerShape(8.dp),
-                                    border = BorderStroke(1.dp, SelectedGreen)
+                                    border = BorderStroke(1.dp, assets.characterCreateButton)
                                 ) {
-                                    Text("CRÉER", color = SelectedGreen, fontWeight = FontWeight.Bold, fontSize = FontSize.MENU_BUTTON.sp,)
+                                    Text("CRÉER", color = assets.characterCreateButton, fontWeight = FontWeight.Bold, fontSize = FontSize.MENU_BUTTON.sp,)
                                 }
                             }
                         }
@@ -446,7 +446,8 @@ fun CharacterCreationScreen(
 }
 
 @Composable
-fun StatIcon(drawableRes: Int, value: Int) {
+fun StatIcon(drawableRes: Int, value: Int, themeViewModel: ThemeViewModel) {
+    val assets = themeViewModel.assets
     Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(
             painter = painterResource(drawableRes),
@@ -454,19 +455,20 @@ fun StatIcon(drawableRes: Int, value: Int) {
             tint = IconDark,
             modifier = Modifier.size(36.dp)
         )
-        Text(" : $value", color = IconDark, fontWeight = FontWeight.Bold, fontSize = FontSize.MENU_BUTTON.sp,)
+        Text(" : $value", color = assets.mainPageTextColor, fontWeight = FontWeight.Bold, fontSize = FontSize.MENU_BUTTON.sp,)
     }
 }
 
 @Composable
-fun SelectableStatIcon(drawableRes: Int, isSelected: Boolean, onClick: () -> Unit) {
+fun SelectableStatIcon(drawableRes: Int, isSelected: Boolean, themeViewModel: ThemeViewModel, onClick: () -> Unit) {
+    val assets = themeViewModel.assets
     Box(
         modifier = Modifier
             .size(55.dp)
             .clip(RoundedCornerShape(6.dp))
             .border(
                 if (isSelected) 2.dp else 1.dp,
-                if (isSelected) SelectedGreen else Color.Transparent,
+                if (isSelected) assets.characterFormOutline else Color.Transparent,
                 RoundedCornerShape(6.dp)
             )
             .background(if (isSelected) Color.White.copy(alpha = 0.1f) else Color.Transparent)

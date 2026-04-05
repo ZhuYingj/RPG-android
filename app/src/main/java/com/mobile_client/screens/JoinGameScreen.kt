@@ -217,14 +217,14 @@ fun JoinGameScreen(
                     enabled = codeDigits.all { it.isNotEmpty() },
                     colors = ButtonDefaults.outlinedButtonColors(
                         containerColor = Color.White,
-                        contentColor = Color(0xFF1B8811),
+                        contentColor = assets.joinButton,
                         disabledContainerColor = Color.Gray.copy(alpha = 0.4f),
                         disabledContentColor = Color.White.copy(alpha = 0.6f),
                     ),
-                    border = BorderStroke(1.dp, if (codeDigits.all { it.isNotEmpty() }) Color(0xFF1B8811) else Color.Gray),
+                    border = BorderStroke(1.dp, if (codeDigits.all { it.isNotEmpty() }) assets.joinButton else Color.Gray),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Text("Rejoindre la partie", color = Color(0xFF1B8811), fontSize = FontSize.BODY.sp,)
+                    Text("Rejoindre la partie", color = assets.joinButton, fontSize = FontSize.BODY.sp,)
                 }
 
                 // Refresh button
@@ -232,14 +232,14 @@ fun JoinGameScreen(
                     onClick = { currentGameListViewModel.loadMaps() },
                     colors = ButtonDefaults.outlinedButtonColors(
                         containerColor = Color.White,
-                        contentColor = Color(0xFF1B8811)
+                        contentColor = assets.joinButton
                     ),
-                    border = BorderStroke(1.dp, Color(0xFF1B8811)),
+                    border = BorderStroke(1.dp, assets.joinButton),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.size(40.dp),
                     contentPadding = PaddingValues(0.dp)
                 ) {
-                    Text("⟳", fontSize = FontSize.BODY.sp, color = Color(0xFF1B8811),)
+                    Text("⟳", fontSize = FontSize.BODY.sp, color = assets.joinButton,)
                 }
 
                 Button(
@@ -265,7 +265,7 @@ fun JoinGameScreen(
                     .align(Alignment.CenterHorizontally)
                     .padding(horizontal = 24.dp, vertical = 12.dp)
                     .background(
-                        Color(0x5C302F2F),
+                        assets.gameListBackground,
                         shape = RoundedCornerShape(8.dp)
                     )
             ) {

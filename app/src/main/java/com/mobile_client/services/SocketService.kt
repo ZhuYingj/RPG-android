@@ -27,6 +27,7 @@ import io.socket.client.IO
 import io.socket.client.Socket
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
@@ -120,10 +121,13 @@ class SocketService private constructor() {
                     timestamp = ""
                 )
                 val scope = data.optString("scope", "global")
-                if (scope == "global") {
-                    onChatMessage(warningMsg, MessageEvents.GLOBAL_CHAT_MESSAGE)
-                } else {
-                    onChatMessage(warningMsg, MessageEvents.CHAT_MESSAGE)
+                CoroutineScope(Dispatchers.Main).launch {
+                    delay(150)
+                    if (scope == "global") {
+                        onChatMessage(warningMsg, MessageEvents.GLOBAL_CHAT_MESSAGE)
+                    } else {
+                        onChatMessage(warningMsg, MessageEvents.CHAT_MESSAGE)
+                    }
                 }
             }
         }

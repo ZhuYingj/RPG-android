@@ -20,7 +20,10 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -30,6 +33,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -46,6 +50,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -68,7 +73,7 @@ fun LeaderBoardScreen(
     friendsViewModel: FriendsViewModel,
     leaderboardViewModel: LeaderboardViewModel = viewModel(),
 ) {
-    val assets = themeViewModel.assets.backgroundLeaderboardPage
+    val assets = themeViewModel.assets
     val friends by friendsViewModel.friends.collectAsState()
     val entries = leaderboardViewModel.entries.value
     val isLoading = leaderboardViewModel.isLoading.value
@@ -123,7 +128,7 @@ fun LeaderBoardScreen(
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
         Image(
-            painter = painterResource(assets),
+            painter = painterResource(themeViewModel.assets.backgroundLeaderboardPage),
             contentDescription = null,
             modifier = Modifier
                 .fillMaxSize(),
@@ -135,7 +140,7 @@ fun LeaderBoardScreen(
                 .fillMaxHeight()
                 .padding(top = topPad, bottom = bottomPad)
                 .clip(RoundedCornerShape(16.dp))
-                .background(Color.White.copy(alpha = 0.80f))
+                .background(assets.leaderBoardBackground)
         )
 
         Column(
@@ -149,6 +154,7 @@ fun LeaderBoardScreen(
                 text = "Classement",
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
+                color = assets.textAccount,
                 modifier = Modifier.padding(bottom = 12.dp, top = 36.dp)
             )
 
@@ -170,10 +176,25 @@ fun LeaderBoardScreen(
                         value = sortType.label,
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Trier par") },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = dropdownExpanded) },
+                        label = { Text("Trier par", color = assets.textAccount,) },
+                        trailingIcon = { Icon(
+                            imageVector = if (dropdownExpanded)
+                                Icons.Filled.ArrowDropUp
+                            else
+                                Icons.Filled.ArrowDropDown,
+                            contentDescription = null,
+                            tint = assets.textAccount
+                        )},
                         modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
                         singleLine = true,
+                        textStyle = TextStyle(
+                            color = assets.textAccount
+                        ),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = assets.textAccount,
+                            unfocusedBorderColor = assets.textAccount.copy(alpha = 0.5f),
+                            disabledBorderColor = assets.textAccount.copy(alpha = 0.3f)
+                        )
                     )
                     ExposedDropdownMenu(
                         expanded = dropdownExpanded,
@@ -181,7 +202,7 @@ fun LeaderBoardScreen(
                     ) {
                         LeaderboardSortType.entries.forEach { type ->
                             DropdownMenuItem(
-                                text = { Text(type.label) },
+                                text = { Text(type.label,) },
                                 onClick = {
                                     leaderboardViewModel.sortType.value = type
                                     dropdownExpanded = false
@@ -198,12 +219,16 @@ fun LeaderBoardScreen(
                             onClick = { leaderboardViewModel.filterType.value = type },
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier.height(40.dp),
-                            border = BorderStroke(1.dp, Color.Black)
+                            border = BorderStroke(1.dp, Color.Black),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                containerColor = Color.Gray.copy(alpha = 0.33f)
+                            )
+
                         ) {
                             Text(
                                 type.label,
                                 fontWeight = if (filterType == type) FontWeight.Bold else FontWeight.Normal,
-                                color = if (filterType == type) Color(0xFF4CAF50) else Color.Gray
+                                color = if (filterType == type) assets.leaderBoardActive else assets.leaderBoardInactive
                             )
                         }
                     }
@@ -214,20 +239,25 @@ fun LeaderBoardScreen(
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { leaderboardViewModel.searchQuery.value = it },
-                label = { Text("Rechercher un joueur") },
-                leadingIcon = { Icon(Icons.Default.Search, null) },
+                label = { Text("Rechercher un joueur", color = assets.textAccount) },
+                leadingIcon = { Icon(Icons.Default.Search, null, tint = assets.textAccount) },
                 modifier = Modifier
                     .fillMaxWidth(0.7f)
                     .padding(bottom = 8.dp),
                 singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = assets.textAccount,
+                    unfocusedTextColor = assets.textAccount,
+                    cursorColor = assets.textAccount
+                )
             )
 
             // Header row
             Row(
                 modifier = Modifier
                     .fillMaxWidth(0.7f)
-                    .background(Color.Gray.copy(alpha = 0.2f), RoundedCornerShape(8.dp))
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                    .background(assets.leaderBoardHeader, RoundedCornerShape(8.dp))
+                    .padding(horizontal = 16.dp, vertical = 20.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text("#", fontWeight = FontWeight.Bold, modifier = Modifier.width(40.dp))
@@ -251,7 +281,7 @@ fun LeaderBoardScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("Aucun joueur trouvé", color = Color.Gray)
+                    Text("Aucun joueur trouvé", color = assets.textAccount)
                 }
             } else {
                 LazyColumn(
@@ -266,6 +296,7 @@ fun LeaderBoardScreen(
                             rank = rank,
                             entry = entry,
                             displayValue = leaderboardViewModel.getDisplayValue(entry),
+                            themeViewModel
                         )
                     }
                 }
@@ -279,16 +310,17 @@ fun LeaderboardRowDisplay(
     rank: Int,
     entry: LeaderboardEntry,
     displayValue: String,
+    themeViewModel: ThemeViewModel
 ) {
     val avatarBitmap = remember(entry.avatar) {
         ImageUtils.base64ToBitmap(entry.avatar)
     }
-
+    val assets = themeViewModel.assets
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
-            .background(Color.White.copy(alpha = 0.7f))
+            .background(assets.leaderBoardRow)
             .padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -344,7 +376,7 @@ fun LeaderboardRowDisplay(
             text = displayValue,
             fontWeight = FontWeight.Bold,
             fontSize = 14.sp,
-            color = Color(0xFF4CAF50)
+            color = assets.leaderBoardActive
         )
     }
 }

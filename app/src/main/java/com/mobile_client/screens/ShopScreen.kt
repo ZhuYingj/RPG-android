@@ -151,7 +151,7 @@ fun ShopScreen(
                             Column(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(10.dp))
-                                    .background(Color(0xFFCFF4E9))
+                                    .background(assets.itemShopBackground)
                                     .padding(10.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
@@ -159,7 +159,7 @@ fun ShopScreen(
                                     text = item.name,
                                     fontSize = FontSize.BODY.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color.Black,
+                                    color = assets.mainPageTextColor,
                                     textAlign = TextAlign.Center,
                                     modifier = Modifier.padding(vertical = 8.dp)
                                 )
@@ -192,7 +192,7 @@ fun ShopScreen(
                                     text = item.description,
                                     fontSize = FontSize.SMALL.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color.Black,
+                                    color = assets.mainPageTextColor,
                                     textAlign = TextAlign.Center,
                                     modifier = Modifier.height(60.dp)
                                 )
@@ -200,7 +200,7 @@ fun ShopScreen(
                                 Text(
                                     text = "${item.price} $",
                                     fontSize = FontSize.SMALL.sp,
-                                    color = Color(0xFF6A1B9A),
+                                    color = assets.price,
                                 )
 
                                 Spacer(modifier = Modifier.height(8.dp))
@@ -224,28 +224,22 @@ fun ShopScreen(
         Row(
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .padding(top = 12.dp, end = 16.dp),
+                .padding(top = 12.dp, end = 16.dp)
+                .background(assets.headerRightBackground, RoundedCornerShape(20.dp))
+                .border(1.dp, assets.headerRightBorder, RoundedCornerShape(20.dp))
+                .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
+            Image(
+                painter = painterResource(id = R.drawable.inventory_icon),
+                contentDescription = "Inventory",
                 modifier = Modifier
-                    .size(40.dp)
+                    .size(32.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFF4CAF50))
-                    .border(1.dp, Color.White, CircleShape)
-                    .clickable { navController.navigate(Screen.Inventory.route) { launchSingleTop = true } },
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "INV",
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 11.sp,
-                    textAlign = TextAlign.Center
-                )
-            }
+                    .clickable { navController.navigate(Screen.Inventory.route) { launchSingleTop = true } }
+            )
 
-            Spacer(modifier = Modifier.width(4.dp))
+            Spacer(modifier = Modifier.width(8.dp))
 
             Row(
                 modifier = Modifier

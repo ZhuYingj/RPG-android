@@ -90,7 +90,7 @@ class FriendsViewModel : ViewModel() {
                 val json = friendsApi.getUsers(filter)
                 val type = object : TypeToken<List<SearchableUser>>() {}.type
                 val users: List<SearchableUser> = gson.fromJson(json, type)
-                _allUsers.value = users.filter { !_blockedUsers.value.contains(it.username) }
+                _allUsers.value = users
             } catch (e: Exception) {
                 e.printStackTrace()
             }

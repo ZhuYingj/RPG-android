@@ -214,12 +214,14 @@ class MainActivity : ComponentActivity() {
                                     chatViewModel = globalChatViewModel,
                                     lobbyChatViewModel = if (showLobbyTab) lobbyChatViewModel else null,
                                     lobbyCode = lobbyCode,
-                                    friendsViewModel = friendsViewModel
+                                    friendsViewModel = friendsViewModel,
+                                    themeViewModel
                                 )
                                 FriendsPanel(
                                     modifier = Modifier.align(Alignment.BottomStart).padding(16.dp),
                                     friendsViewModel = friendsViewModel,
-                                    snackbarHostState = snackbarHostState
+                                    snackbarHostState = snackbarHostState,
+                                    themeViewModel
                                 )
                             }
                         }
@@ -231,7 +233,7 @@ class MainActivity : ComponentActivity() {
                         )
 
                         if (tutorialViewModel.isVisible.value) {
-                            TutorialOverlay(tutorialViewModel = tutorialViewModel)
+                            TutorialOverlay(tutorialViewModel = tutorialViewModel, themeViewModel)
                         }
                     }
                 }

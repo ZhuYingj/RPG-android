@@ -25,8 +25,9 @@ import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CloseFullscreen
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.PersonAdd
+import androidx.compose.material.icons.filled.LockOpen
+import androidx.compose.material.icons.filled.PersonAddAlt
+import androidx.compose.material.icons.filled.PersonOutline
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -52,21 +53,32 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import com.mobile_client.screens.R
 import com.mobile_client.utils.FriendsTab
 import com.mobile_client.utils.launchQrScanner
 import com.mobile_client.viewModels.FriendsViewModel
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.Image
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+import coil.compose.rememberAsyncImagePainter
+import com.mobile_client.utils.ImageUtils
+import com.mobile_client.viewModels.ThemeViewModel
 
 @Composable
 fun FriendsPanel(
     modifier: Modifier = Modifier,
     friendsViewModel: FriendsViewModel,
     snackbarHostState: SnackbarHostState,
+    themeViewModel: ThemeViewModel
 ) {
+    val assets = themeViewModel.assets
     var isOpen by remember { mutableStateOf(false) }
     var activeTab by remember { mutableStateOf(FriendsTab.FRIENDS) }
     var isAddingFriend by remember { mutableStateOf(false) }
@@ -97,7 +109,6 @@ fun FriendsPanel(
         }
     }
 
-
     DisposableEffect(Unit) {
         onDispose {
             friendsViewModel.removeSocketListeners()
@@ -109,11 +120,11 @@ fun FriendsPanel(
             FloatingActionButton(
                 onClick = { isOpen = true },
                 shape = CircleShape,
-                containerColor = MaterialTheme.colorScheme.primary,
+                containerColor = assets.friendsButton,
                 modifier = Modifier.size(56.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Default.Person,
+                    imageVector = Icons.Default.PersonOutline,
                     contentDescription = "Amis",
                     tint = Color.White
                 )
@@ -121,7 +132,7 @@ fun FriendsPanel(
         } else {
             Card(
                 modifier = Modifier
-                    .widthIn(max = 350.dp)
+                    .widthIn(max = 355.dp)
                     .height(420.dp),
                 shape = RoundedCornerShape(16.dp),
                 elevation = CardDefaults.cardElevation(8.dp)
@@ -131,7 +142,7 @@ fun FriendsPanel(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(MaterialTheme.colorScheme.primary)
+                            .background(assets.friendsButton)
                             .padding(12.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
@@ -147,7 +158,7 @@ fun FriendsPanel(
                         ) {
                             Icon(
                                 imageVector = if (isAddingFriend) Icons.AutoMirrored.Filled.ArrowBack
-                                else Icons.Default.Person,
+                                else Icons.Default.PersonOutline,
                                 contentDescription = if (isAddingFriend) "Retour" else "Friends",
                                 tint = Color.White
                             )
@@ -209,10 +220,13 @@ fun FriendsPanel(
                             items(allUsers, key = { it.username }) { user ->
                                 val alreadySent = sentRequestUsernames.contains(user.username)
                                 val receivedRequestId = receivedRequestIds[user.username]
+                                val isBlocked = blockedUsers.contains(user.username)
+                                val isPending = pendingBlock.contains(user.username)
                                 FriendItem(
                                     username = user.username,
+                                    avatarBase64 = user.avatar,
                                     actions = {
-                                        if (receivedRequestId != null) {
+                                        if (receivedRequestId != null && !isBlocked && !isPending) {
                                             IconButton(onClick = { friendsViewModel.acceptFriendRequest(receivedRequestId) }) {
                                                 Icon(Icons.Default.Check, contentDescription = "Accepter", tint = Color(0xFF4CAF50))
                                             }
@@ -222,17 +236,15 @@ fun FriendsPanel(
                                         } else {
                                             IconButton(
                                                 onClick = { if (!alreadySent) friendsViewModel.sendFriendRequest(user.username) },
-                                                enabled = !alreadySent
+                                                enabled = !alreadySent && !isBlocked && !isPending
                                             ) {
                                                 Icon(
-                                                    if (alreadySent) Icons.Default.Check else Icons.Default.PersonAdd,
+                                                    if (alreadySent) Icons.Default.Check else Icons.Default.PersonAddAlt,
                                                     contentDescription = if (alreadySent) "Déjà envoyé" else "Ajouter",
-                                                    tint = if (alreadySent) Color.Gray else Color(0xFF4CAF50)
+                                                    tint = if (alreadySent || isBlocked || isPending) Color.Gray else Color(0xFF4CAF50)
                                                 )
                                             }
                                         }
-                                        val isBlocked = blockedUsers.contains(user.username)
-                                        val isPending = pendingBlock.contains(user.username)
                                         IconButton(
                                             onClick = { if (!isBlocked && !isPending) friendsViewModel.blockUser(user.username) },
                                             enabled = !isBlocked && !isPending
@@ -252,34 +264,33 @@ fun FriendsPanel(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .height(48.dp)
                                 .background(Color(0xFFF8F8F8))
                         ) {
                             FriendsTab.entries.forEach { tab ->
                                 Box(
                                     modifier = Modifier
                                         .weight(1f)
-                                        .clickable { activeTab = tab }
-                                        .background(
-                                            if (activeTab == tab) Color.White else Color.Transparent
-                                        )
-                                        .padding(12.dp),
+                                        .fillMaxSize()
+                                        .clickable { activeTab = tab },
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                        Text(
-                                            text = tab.label,
-                                            style = MaterialTheme.typography.labelMedium,
-                                            color = if (activeTab == tab) Color.Black else Color.Gray
+                                    Text(
+                                        text = tab.label,
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = if (activeTab == tab) Color.Black else Color.Gray
+                                    )
+                                    if (activeTab == tab) {
+                                        Box(
+                                            modifier = Modifier
+                                                .align(Alignment.BottomCenter)
+                                                .width(85.dp)
+                                                .height(3.dp)
+                                                .background(
+                                                    color = Color(0xFFFFA500),
+                                                    shape = RoundedCornerShape(50)
+                                                )
                                         )
-                                        if (activeTab == tab) {
-                                            Spacer(modifier = Modifier.height(2.dp))
-                                            Box(
-                                                modifier = Modifier
-                                                    .width(40.dp)
-                                                    .height(2.dp)
-                                                    .background(Color(0xFFFFA500))
-                                            )
-                                        }
                                     }
                                 }
                             }
@@ -310,19 +321,20 @@ fun FriendsPanel(
                                     items(friends, key = { it.username }) { friend ->
                                         FriendItem(
                                             username = friend.username,
+                                            avatarBase64 = friend.avatar,
                                             actions = {
+                                                IconButton(onClick = { friendsViewModel.removeFriend(friend.username) }) {
+                                                    Icon(
+                                                        painter = painterResource(R.drawable.person_remove_24px),
+                                                        tint = Color(0xFFF44336),
+                                                        contentDescription = "Remove person"
+                                                    )
+                                                }
                                                 IconButton(onClick = { friendsViewModel.blockUser(friend.username) }) {
                                                     Icon(
                                                         Icons.Default.Block,
                                                         contentDescription = "Bloquer",
                                                         tint = Color(0xFFFF9800)
-                                                    )
-                                                }
-                                                IconButton(onClick = { friendsViewModel.removeFriend(friend.username) }) {
-                                                    Icon(
-                                                        Icons.Default.Close,
-                                                        contentDescription = "Retirer",
-                                                        tint = Color(0xFFF44336)
                                                     )
                                                 }
                                             }
@@ -345,6 +357,7 @@ fun FriendsPanel(
                                     items(friendRequests, key = { it.id }) { request ->
                                         FriendItem(
                                             username = request.username,
+                                            avatarBase64 = request.avatar,
                                             actions = {
                                                 IconButton(onClick = { friendsViewModel.acceptFriendRequest(request.id) }) {
                                                     Icon(
@@ -380,6 +393,7 @@ fun FriendsPanel(
                                     items(sentFriendRequests, key = { it.id }) { request ->
                                         FriendItem(
                                             username = request.username,
+                                            avatarBase64 = request.avatar,
                                             actions = {
                                                 IconButton(onClick = { friendsViewModel.undoFriendRequest(request.id) }) {
                                                     Icon(
@@ -411,7 +425,7 @@ fun FriendsPanel(
                                             actions = {
                                                 IconButton(onClick = { friendsViewModel.blockUser(username) }) {
                                                     Icon(
-                                                        Icons.Default.Block,
+                                                        Icons.Default.LockOpen,
                                                         contentDescription = "Débloquer",
                                                         tint = Color(0xFFF44336)
                                                     )
@@ -447,7 +461,7 @@ fun FriendsPanel(
                             ) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Icon(
-                                        Icons.Default.PersonAdd,
+                                        Icons.Default.PersonAddAlt,
                                         contentDescription = null,
                                         tint = Color(0xFF4CAF50)
                                     )
@@ -499,14 +513,42 @@ fun FriendsPanel(
 @Composable
 private fun FriendItem(
     username: String,
+    avatarBase64: String? = null,
     actions: @Composable () -> Unit
 ) {
+    val avatarBitmap = remember(avatarBase64) {
+        ImageUtils.base64ToBitmap(avatarBase64)
+    }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 14.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        Box(
+            modifier = Modifier
+                .size(32.dp)
+                .clip(CircleShape)
+                .background(Color.LightGray),
+            contentAlignment = Alignment.Center
+        ) {
+            if (avatarBitmap != null) {
+                Image(
+                    painter = rememberAsyncImagePainter(avatarBitmap),
+                    contentDescription = "Avatar",
+                    modifier = Modifier.fillMaxSize()
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Default.PersonOutline,
+                    contentDescription = "Avatar par défaut",
+                    tint = Color.White,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        }
+        Spacer(modifier = Modifier.width(10.dp))
         Text(
             text = username,
             style = MaterialTheme.typography.bodyLarge,

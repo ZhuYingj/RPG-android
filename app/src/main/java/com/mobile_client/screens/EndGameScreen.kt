@@ -236,7 +236,7 @@ fun EndGameScreen(navController: NavController, themeViewModel: ThemeViewModel) 
                             "Total gagné: $total$",
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF4CAF50),
+                            color = assets.totalWon,
                             modifier = Modifier.padding(bottom = 32.dp)
                         )
                     }
@@ -270,7 +270,7 @@ fun EndGameScreen(navController: NavController, themeViewModel: ThemeViewModel) 
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .background(HeaderGreen)
+                                    .background(assets.statsBackground)
                                     .padding(8.dp)
                             ) {
                                 TableHeader("Nom du Joueur${showArrow("name")}", Modifier.weight(1.5f)) { sortTable("name") }
@@ -323,7 +323,7 @@ fun EndGameScreen(navController: NavController, themeViewModel: ThemeViewModel) 
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .background(HeaderGreen)
+                                    .background(assets.statsBackground)
                                     .padding(8.dp)
                             ) {
                                 TableHeader("Temps de la partie", Modifier.weight(1f)) {}
@@ -364,7 +364,7 @@ fun TableHeader(text: String, modifier: Modifier = Modifier, onClick: () -> Unit
             .padding(4.dp),
         fontSize = 14.sp,
         fontWeight = FontWeight.Bold,
-        textAlign = TextAlign.Center
+        textAlign = TextAlign.Start
     )
 }
 
@@ -374,6 +374,6 @@ fun TableCell(text: String, modifier: Modifier = Modifier) {
         text = text,
         modifier = modifier.padding(4.dp),
         fontSize = 14.sp,
-        textAlign = TextAlign.Center
+        textAlign = TextAlign.Start
     )
 }
