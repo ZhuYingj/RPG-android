@@ -176,7 +176,8 @@ fun GameList(
                                 showDescription = descriptionId == map._id,
                                 onMouseEnter = { descriptionId = map._id },
                                 onMouseLeave = { descriptionId = null },
-                                onPlay = { viewModel.onClick(map) }
+                                onPlay = { viewModel.onClick(map) },
+                                themeViewModel = themeViewModel
                             )
                         }
                     }
@@ -298,14 +299,16 @@ fun MapItem(
     onMouseEnter: () -> Unit,
     onMouseLeave: () -> Unit,
     onPlay: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    themeViewModel: ThemeViewModel
 ) {
+    val assets = themeViewModel.assets
     Box(
         modifier = modifier
             .fillMaxWidth()
             .padding(bottom = 20.dp)
             .shadow(elevation = 4.dp, shape = RoundedCornerShape(8.dp))
-            .background(color = Color(0xFFFFFFFF).copy(alpha = 0.92f), shape = RoundedCornerShape(8.dp))
+            .background(color = assets.mapBackground, shape = RoundedCornerShape(8.dp))
             .border(width = 1.dp, color = Color(0xFFDDDDDD), shape = RoundedCornerShape(8.dp))
             .padding(15.dp)
     ) {
@@ -327,7 +330,7 @@ fun MapItem(
                 if (showDescription) {
                     DescriptionBubble(description = map.description)
                 } else {
-                    MapInfo(map = map)
+                    MapInfo(map = map, themeViewModel = themeViewModel)
                 }
             }
 
@@ -422,13 +425,14 @@ fun convertUTCToLocalDateTime(utcString: String): String {
     return localDateTime.format(formatter)
 }
 @Composable
-fun MapInfo(map: GameMap, showLastModified: Boolean = true) {
+fun MapInfo(map: GameMap, showLastModified: Boolean = true, themeViewModel: ThemeViewModel) {
+    val assets = themeViewModel.assets
     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-        Text(text = map.name, fontSize = 35.sp, fontWeight = FontWeight.Normal, color = Color(0xFF313131), letterSpacing = 2.sp, modifier = Modifier.padding(bottom = 8.dp))
-        Text(text = "Taille : ${map.size}", fontSize = 19.sp, color = Color(0xFF555555))
-        Text(text = "Mode : ${if (map.isCaptureTheFlag) "CTF" else "Classique"}", fontSize = 19.sp, color = Color(0xFF555555))
+        Text(text = map.name, fontSize = 35.sp, fontWeight = FontWeight.Normal, color = assets.textMap, letterSpacing = 2.sp, modifier = Modifier.padding(bottom = 8.dp))
+        Text(text = "Taille : ${map.size}", fontSize = 19.sp, color = assets.textMap)
+        Text(text = "Mode : ${if (map.isCaptureTheFlag) "CTF" else "Classique"}", fontSize = 19.sp, color = assets.textMap)
         if (showLastModified) {
-            Text(text = "Dernière Modification : ${convertUTCToLocalDateTime(map.lastModified)}", fontSize = 19.sp, color = Color(0xFF555555))
+            Text(text = "Dernière Modification : ${convertUTCToLocalDateTime(map.lastModified)}", fontSize = 19.sp, color = assets.textMap)
         }
     }
 }

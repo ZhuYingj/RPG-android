@@ -179,7 +179,7 @@ fun GamesCreationScreen(
                 .fillMaxWidth(0.67f)
                 .fillMaxSize()
                 .align(Alignment.Center)
-                .background(Color(0x5C302F2F), shape = RoundedCornerShape(8.dp))
+                .background(assets.gameListBackground, shape = RoundedCornerShape(8.dp))
                 .padding(16.dp)
         ) {
             Text(
