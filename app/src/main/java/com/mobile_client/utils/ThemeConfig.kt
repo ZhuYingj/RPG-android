@@ -26,6 +26,13 @@ data class ThemeAssets(
     val backButtonColorHover: Color,
     val mainPageTextColor: Color,
     val tabIndicatorColor: Color,
+    val headerRightBackground: Color,
+    val headerRightBorder: Color,
+    val buyButtonBackground: Color,
+    val equipAlreadyBackground: Color,
+    val itemShopBackground: Color,
+    val itemInventoryBackground: Color,
+    val price: Color,
 )
 
 val themeAssetsMap = mapOf(
@@ -46,7 +53,15 @@ val themeAssetsMap = mapOf(
         backButtonColor = Color(224, 140, 210),
         backButtonColorHover = Color(0xFFD48AB8),
         mainPageTextColor = Color.Black,
-        tabIndicatorColor = Color(0xFFFF8C2E)
+        tabIndicatorColor = Color(0xFFFF8C2E),
+        headerRightBackground = Color(128, 177, 255, 55),
+        headerRightBorder = Color(0, 0, 0, 40),
+        buyButtonBackground = Color(76, 175, 80, ),
+        equipAlreadyBackground = Color(177, 157, 119),
+        itemShopBackground = Color(207, 244, 233),
+        itemInventoryBackground = Color(180, 216, 166),
+        price = Color(107, 84, 208),
+
     ),
     AppTheme.AUBERGINES to ThemeAssets(
         title = "Les Aubergines",
@@ -65,6 +80,13 @@ val themeAssetsMap = mapOf(
         backButtonColor = Color(113, 181, 207),
         backButtonColorHover = Color(84, 172, 207),
         mainPageTextColor = Color.White,
-        tabIndicatorColor = Color(0xFF7B2FBE)
+        tabIndicatorColor = Color(0xFF7B2FBE),
+        headerRightBackground = Color(255, 255, 255, 40),
+        headerRightBorder = Color(255, 255, 255, 70),
+        buyButtonBackground = Color(138, 117, 255),
+        equipAlreadyBackground = Color(192, 185, 255),
+        itemShopBackground = Color(83, 108, 177),
+        itemInventoryBackground = Color(169, 69, 69),
+        price = Color(255, 179, 0),
     ),
 )

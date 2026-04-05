@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -184,44 +185,31 @@ fun HomeScreen(navController: NavController, gameLobbyViewModel: GameLobbyViewMo
         Row(
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .padding(top = 12.dp, end = 16.dp),
+                .padding(top = 12.dp, end = 16.dp)
+                .background(assets.headerRightBackground, RoundedCornerShape(20.dp))
+                .border(1.dp, assets.headerRightBorder, RoundedCornerShape(20.dp))
+                .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
+            Image(
+                painter = painterResource(id = R.drawable.shop_icon),
+                contentDescription = "Shop",
                 modifier = Modifier
-                    .size(40.dp)
+                    .size(32.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFF4CAF50))
-                    .border(1.dp, Color.White, CircleShape)
-                    .clickable { navController.navigate(Screen.Inventory.route) { launchSingleTop = true } },
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "INV",
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 11.sp,
-                    textAlign = TextAlign.Center
-                )
-            }
+                    .clickable { navController.navigate(Screen.Shop.route) { launchSingleTop = true } }
+            )
 
-            Box(
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Image(
+                painter = painterResource(id = R.drawable.inventory_icon),
+                contentDescription = "Inventory",
                 modifier = Modifier
-                    .size(40.dp)
+                    .size(32.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFF4CAF50))
-                    .border(1.dp, Color.White, CircleShape)
-                    .clickable { navController.navigate(Screen.Shop.route) { launchSingleTop = true } },
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "Shop",
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 11.sp,
-                    textAlign = TextAlign.Center
-                )
-            }
+                    .clickable { navController.navigate(Screen.Inventory.route) { launchSingleTop = true } }
+            )
 
             Spacer(modifier = Modifier.width(8.dp))
 
