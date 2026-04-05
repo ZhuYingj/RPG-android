@@ -20,7 +20,7 @@ fun HomeButton(navController: NavController, modifier: Modifier = Modifier, them
         onClick = { navController.navigate(Screen.Home.route) { launchSingleTop = true } },
         modifier = modifier,
         colors = ButtonDefaults.outlinedButtonColors(
-            containerColor = Color.White.copy(alpha = 0.85f),
+            containerColor = assets.textAccount,
             contentColor = assets.backButtonColor
         ),
         border = BorderStroke(1.dp, assets.backButtonColor),

@@ -136,7 +136,8 @@ class MainActivity : ComponentActivity() {
                                 GameScreen(
                                     navController = navController,
                                     snackbarHostState = snackbarHostState,
-                                    gameLobbyViewModel = gameLobbyViewModel
+                                    gameLobbyViewModel = gameLobbyViewModel,
+                                    themeViewModel
                                 )
                             }
                             composable(Screen.EndGame.route) {

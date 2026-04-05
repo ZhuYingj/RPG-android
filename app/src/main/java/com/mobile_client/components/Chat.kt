@@ -123,7 +123,7 @@ fun ChatBox(modifier: Modifier = Modifier, chatViewModel: ChatViewModel, lobbyCh
                 FloatingActionButton(
                     onClick = { isCollapsed = !isCollapsed },
                     shape = CircleShape,
-                    containerColor = assets.friendsButton,
+                    containerColor = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(56.dp)
                 ) {
                     Icon(
@@ -144,7 +144,7 @@ fun ChatBox(modifier: Modifier = Modifier, chatViewModel: ChatViewModel, lobbyCh
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(assets.friendsButton)
+                                .background(MaterialTheme.colorScheme.primary)
                                 .padding(12.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
