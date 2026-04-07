@@ -51,9 +51,22 @@ class InventoryViewModel : ViewModel() {
             if (dto != null) {
                 _inventory.value = dto.inventory
                 _equipped.value = dto.equipped
-                _message.value = "Item équipé!"
+                _message.value = "Équipement réussi"
             } else {
                 _message.value = "Échec de l'équipement"
+            }
+        }
+    }
+
+    fun unequipItem(item: InventoryCosmetic) {
+        viewModelScope.launch {
+            val dto = cosmeticService.unequipItem(item.cosmeticId)
+            if (dto != null) {
+                _inventory.value = dto.inventory
+                _equipped.value = dto.equipped
+                _message.value = "Déséquipement réussi"
+            } else {
+                _message.value = "Échec du déséquipement"
             }
         }
     }

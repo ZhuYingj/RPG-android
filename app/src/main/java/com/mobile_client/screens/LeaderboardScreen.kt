@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -28,7 +27,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedButton
@@ -45,7 +43,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -55,8 +52,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.mobile_client.components.PressableButton
 import com.mobile_client.services.AccountService
 import com.mobile_client.utils.ImageUtils
 import com.mobile_client.utils.LeaderboardEntry
@@ -215,21 +212,25 @@ fun LeaderBoardScreen(
                 // Toggle Global/Friends
                 Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     LeaderboardFilterType.entries.forEach { type ->
-                        OutlinedButton(
-                            onClick = { leaderboardViewModel.filterType.value = type },
-                            shape = RoundedCornerShape(8.dp),
-                            modifier = Modifier.height(40.dp),
-                            border = BorderStroke(1.dp, Color.Black),
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                containerColor = Color.Gray.copy(alpha = 0.33f)
-                            )
-
-                        ) {
-                            Text(
-                                type.label,
-                                fontWeight = if (filterType == type) FontWeight.Bold else FontWeight.Normal,
-                                color = if (filterType == type) assets.leaderBoardActive else assets.leaderBoardInactive
-                            )
+                        PressableButton(
+                            shadowColor = Color.DarkGray,
+                        ) { interactionSource, pressModifier ->
+                            OutlinedButton(
+                                onClick = { leaderboardViewModel.filterType.value = type },
+                                shape = RoundedCornerShape(8.dp),
+                                modifier = pressModifier.height(40.dp),
+                                interactionSource = interactionSource,
+                                border = BorderStroke(1.dp, Color.Black),
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    containerColor = Color.Gray
+                                )
+                            ) {
+                                Text(
+                                    type.label,
+                                    fontWeight = if (filterType == type) FontWeight.Bold else FontWeight.Normal,
+                                    color = if (filterType == type) assets.leaderBoardActive else assets.leaderBoardInactive
+                                )
+                            }
                         }
                     }
                 }
@@ -238,7 +239,9 @@ fun LeaderBoardScreen(
             // Search bar
             OutlinedTextField(
                 value = searchQuery,
-                onValueChange = { leaderboardViewModel.searchQuery.value = it },
+                onValueChange = {
+                    leaderboardViewModel.searchQuery.value = it.filterNot { c -> c.isWhitespace() }
+                },
                 label = { Text("Rechercher un joueur", color = assets.textAccount) },
                 leadingIcon = { Icon(Icons.Default.Search, null, tint = assets.textAccount) },
                 modifier = Modifier

@@ -50,7 +50,7 @@ class CosmeticService private constructor() {
 
     suspend fun equipItem(cosmeticId: String): InventoryDTO? {
         return try {
-            val response = http.post("$ENVIRONMENT/api/inventory/$cosmeticId", emptyMap<String, String>())
+            val response = http.post("$ENVIRONMENT/api/inventory/equip/$cosmeticId", emptyMap<String, String>())
             if (response.status.value in 200..299) {
                 val json: String = response.body()
                 val dto: InventoryDTO = gson.fromJson(json, InventoryDTO::class.java)
@@ -65,6 +65,23 @@ class CosmeticService private constructor() {
         }
     }
 
+    suspend fun unequipItem(cosmeticId: String): InventoryDTO? {
+        return try {
+            val response = http.post("$ENVIRONMENT/api/inventory/unequip/$cosmeticId", emptyMap<String, String>())
+            if (response.status.value in 200..299) {
+                val json: String = response.body()
+                val dto: InventoryDTO = gson.fromJson(json, InventoryDTO::class.java)
+                dto.equipped.forEach { allCosmetics[it._id] = it }
+                dto
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            Log.e("InventoryService", "Failed to unequip item", e)
+            null
+        }
+    }
+
     suspend fun buyItem(cosmeticId: String): Boolean {
         return try {
             val response = http.post("$ENVIRONMENT/api/shop/$cosmeticId", emptyMap<String, String>())
@@ -75,5 +92,4 @@ class CosmeticService private constructor() {
             false
         }
     }
-
 }

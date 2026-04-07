@@ -66,8 +66,10 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.ui.text.style.TextAlign
 import coil.compose.rememberAsyncImagePainter
+import com.mobile_client.components.PressableButton
 import com.mobile_client.utils.FontSize
 import com.mobile_client.utils.ImageUtils
+import com.mobile_client.utils.showDismissible
 
 private val BotBlue = Color(0xFF20B6E3)
 private val LockOrange = Color(0xFFD88B06)
@@ -96,7 +98,7 @@ fun WaitingPageScreen(
 
     LaunchedEffect(Unit) {
         gameLobbyViewModel.errorMessage.collect { message ->
-            scope.launch { snackbarHostState.showSnackbar(message, duration = SnackbarDuration.Short) }
+            snackbarHostState.showDismissible(scope, message)
         }
     }
 
@@ -239,29 +241,43 @@ fun WaitingPageScreen(
                                 verticalArrangement = Arrangement.spacedBy(16.dp)
                             ) {
 
-                                OutlinedButton(
-                                    onClick = { gameLobbyViewModel.createBotPlayer() },
-                                    border = BorderStroke(2.dp, BotBlue),
-                                    colors = ButtonDefaults.outlinedButtonColors(containerColor = assets.textAccount),
-                                    shape = RoundedCornerShape(6.dp),
-                                    modifier = Modifier.width(160.dp)
-                                ) {
-                                    Text("+ Ajouter un JV", color = BotBlue, fontWeight = FontWeight.Bold, fontSize = FontSize.SUBTITLE.sp,)
+                                PressableButton(
+                                    shadowColor = BotBlue,
+                                    cornerRadius = 6.dp,
+                                    shadowTopInset = 4.dp
+                                ) { interactionSource, pressModifier ->
+                                    OutlinedButton(
+                                        onClick = { gameLobbyViewModel.createBotPlayer() },
+                                        modifier = pressModifier.width(160.dp),
+                                        interactionSource = interactionSource,
+                                        border = BorderStroke(2.dp, BotBlue),
+                                        colors = ButtonDefaults.outlinedButtonColors(containerColor = assets.textAccount),
+                                        shape = RoundedCornerShape(6.dp),
+                                    ) {
+                                        Text("+ Ajouter un JV", color = BotBlue, fontWeight = FontWeight.Bold, fontSize = FontSize.SUBTITLE.sp)
+                                    }
                                 }
 
-                                OutlinedButton(
-                                    onClick = { gameLobbyViewModel.toggleLobbyLock() },
-                                    border = BorderStroke(2.dp, LockOrange),
-                                    colors = ButtonDefaults.outlinedButtonColors(containerColor = assets.textAccount),
-                                    shape = RoundedCornerShape(6.dp),
-                                    modifier = Modifier.width(160.dp)
-                                ) {
-                                    Text(
-                                        if (isLobbyLocked) "Déverrouiller" else "Verrouiller",
-                                        color = LockOrange,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = FontSize.SUBTITLE.sp,
-                                    )
+                                PressableButton(
+                                    shadowColor = LockOrange,
+                                    cornerRadius = 6.dp,
+                                    shadowTopInset = 4.dp
+                                ) { interactionSource, pressModifier ->
+                                    OutlinedButton(
+                                        onClick = { gameLobbyViewModel.toggleLobbyLock() },
+                                        modifier = pressModifier.width(160.dp),
+                                        interactionSource = interactionSource,
+                                        border = BorderStroke(2.dp, LockOrange),
+                                        colors = ButtonDefaults.outlinedButtonColors(containerColor = assets.textAccount),
+                                        shape = RoundedCornerShape(6.dp),
+                                    ) {
+                                        Text(
+                                            if (isLobbyLocked) "Déverrouiller" else "Verrouiller",
+                                            color = LockOrange,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = FontSize.SUBTITLE.sp,
+                                        )
+                                    }
                                 }
 
                                 Column(
@@ -346,18 +362,26 @@ fun WaitingPageScreen(
                                     }
                                 }
 
-                                OutlinedButton(
-                                    onClick = { gameLobbyViewModel.startGame() },
-                                    border = BorderStroke(2.dp, StartGreen),
-                                    colors = ButtonDefaults.outlinedButtonColors(containerColor = assets.textAccount),
-                                    shape = RoundedCornerShape(6.dp)
-                                ) {
-                                    Text(
-                                        "Commencer la partie",
-                                        color = StartGreen,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = FontSize.SUBTITLE.sp,
-                                    )
+                                PressableButton(
+                                    shadowColor = StartGreen,
+                                    cornerRadius = 6.dp,
+                                    shadowTopInset = 4.dp
+                                ) { interactionSource, pressModifier ->
+                                    OutlinedButton(
+                                        onClick = { gameLobbyViewModel.startGame() },
+                                        modifier = pressModifier,
+                                        interactionSource = interactionSource,
+                                        border = BorderStroke(2.dp, StartGreen),
+                                        colors = ButtonDefaults.outlinedButtonColors(containerColor = assets.textAccount),
+                                        shape = RoundedCornerShape(6.dp)
+                                    ) {
+                                        Text(
+                                            "Commencer la partie",
+                                            color = StartGreen,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = FontSize.SUBTITLE.sp,
+                                        )
+                                    }
                                 }
                             }
                         }

@@ -51,9 +51,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mobile_client.components.GameList
+import com.mobile_client.components.PressableButton
 import com.mobile_client.utils.FontSize
 import com.mobile_client.utils.Screen
 import com.mobile_client.utils.launchQrScanner
+import com.mobile_client.utils.showDismissible
 import com.mobile_client.viewModels.CurrentGamesListViewModel
 import com.mobile_client.viewModels.GameLobbyViewModel
 import com.mobile_client.viewModels.ThemeViewModel
@@ -79,7 +81,7 @@ fun JoinGameScreen(
         gameLobbyViewModel.joinLobbyWithBlockCheck(
             code,
             { navController.navigate(Screen.CharacterCreation.route) },
-            { message -> scope.launch { snackbarHostState.showSnackbar(message, duration = SnackbarDuration.Short) } }
+            { message -> snackbarHostState.showDismissible(scope, message) }
         )
     }
 
@@ -99,7 +101,7 @@ fun JoinGameScreen(
 
     LaunchedEffect(Unit) {
         gameLobbyViewModel.errorMessage.collect { message ->
-            scope.launch { snackbarHostState.showSnackbar(message, duration = SnackbarDuration.Short) }
+            snackbarHostState.showDismissible(scope, message)
         }
     }
 
@@ -209,52 +211,72 @@ fun JoinGameScreen(
                 }
 
                 // Join button
-                OutlinedButton(
-                    onClick = {
-                        val code = codeDigits.joinToString("")
-                        if (code.length == 4) joinWithCode(code)
-                    },
-                    enabled = codeDigits.all { it.isNotEmpty() },
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        containerColor = Color.White,
-                        contentColor = assets.joinButton,
-                        disabledContainerColor = Color.Gray.copy(alpha = 0.4f),
-                        disabledContentColor = Color.White.copy(alpha = 0.6f),
-                    ),
-                    border = BorderStroke(1.dp, if (codeDigits.all { it.isNotEmpty() }) assets.joinButton else Color.Gray),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text("Rejoindre la partie", color = assets.joinButton, fontSize = FontSize.BODY.sp,)
+                val isJoinEnabled = codeDigits.all { it.isNotEmpty() }
+                PressableButton(
+                    shadowColor = Color.White,
+                    enabled = isJoinEnabled,
+                ) { interactionSource, pressModifier ->
+                    OutlinedButton(
+                        onClick = {
+                            val code = codeDigits.joinToString("")
+                            if (code.length == 4) joinWithCode(code)
+                        },
+                        modifier = pressModifier,
+                        interactionSource = interactionSource,
+                        enabled = isJoinEnabled,
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            containerColor = Color.White,
+                            contentColor = assets.joinButton,
+                            disabledContainerColor = Color.Gray.copy(alpha = 0.4f),
+                            disabledContentColor = Color.White.copy(alpha = 0.6f),
+                        ),
+                        border = BorderStroke(1.dp, if (isJoinEnabled) assets.joinButton else Color.Gray),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text("Rejoindre la partie", color = assets.joinButton, fontSize = FontSize.BODY.sp)
+                    }
                 }
 
                 // Refresh button
-                OutlinedButton(
-                    onClick = { currentGameListViewModel.loadMaps() },
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        containerColor = Color.White,
-                        contentColor = assets.joinButton
-                    ),
-                    border = BorderStroke(1.dp, assets.joinButton),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.size(40.dp),
-                    contentPadding = PaddingValues(0.dp)
-                ) {
-                    Text("⟳", fontSize = FontSize.BODY.sp, color = assets.joinButton,)
+                PressableButton(
+                    shadowColor = Color.White,
+                ) { interactionSource, pressModifier ->
+                    OutlinedButton(
+                        onClick = { currentGameListViewModel.loadMaps() },
+                        modifier = pressModifier.size(40.dp),
+                        interactionSource = interactionSource,
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            containerColor = Color.White,
+                            contentColor = assets.joinButton
+                        ),
+                        border = BorderStroke(1.dp, assets.joinButton),
+                        shape = RoundedCornerShape(8.dp),
+                        contentPadding = PaddingValues(0.dp)
+                    ) {
+                        Text("⟳", fontSize = FontSize.BODY.sp, color = assets.joinButton)
+                    }
                 }
 
-                Button(
-                    onClick = {
-                        launchQrScanner(
-                            context = context,
-                            onResult = { code -> joinWithCode(code) },
-                            onError = { message ->
-                                scope.launch { snackbarHostState.showSnackbar(message, duration = SnackbarDuration.Short) }
-                            }
-                        )
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = assets.backButtonColor)
-                ) {
-                    Text("Scanner un code QR", color = Color.White, fontSize = FontSize.BODY.sp)
+                PressableButton(
+                    shadowColor = assets.backButtonColor, shadowTopInset = 3.dp,
+                ) { interactionSource, pressModifier ->
+                    Button(
+                        onClick = {
+                            launchQrScanner(
+                                context = context,
+                                onResult = { code -> joinWithCode(code) },
+                                onError = { message ->
+                                    snackbarHostState.showDismissible(scope, message)
+                                }
+                            )
+                        },
+                        modifier = pressModifier,
+                        interactionSource = interactionSource,
+                        colors = ButtonDefaults.buttonColors(containerColor = assets.backButtonColor),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text("Scanner un code QR", color = Color.White, fontSize = FontSize.BODY.sp)
+                    }
                 }
             }
 

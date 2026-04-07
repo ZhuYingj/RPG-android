@@ -22,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,7 +34,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -47,7 +47,9 @@ import com.mobile_client.utils.ImageUtils
 import com.mobile_client.utils.Screen
 import com.mobile_client.viewModels.GameLobbyViewModel
 import com.mobile_client.viewModels.ThemeViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 data class HomeButton(val label: String, val action: () -> Unit)
 
@@ -55,6 +57,31 @@ data class HomeButton(val label: String, val action: () -> Unit)
 fun HomeScreen(navController: NavController, gameLobbyViewModel: GameLobbyViewModel, themeViewModel: ThemeViewModel) {
     BackHandler() { }
     val navBackStackEntry = navController.currentBackStackEntryAsState().value
+
+    val account = AccountService.instance.accountInfo
+    val avatarBitmap = remember(account?.avatar) {
+        ImageUtils.base64ToBitmap(account?.avatar)
+    }
+    val scope = rememberCoroutineScope()
+    val money = AccountService.instance.money.intValue
+    val assets = themeViewModel.assets
+    val avatarPainter = rememberAsyncImagePainter(model = avatarBitmap)
+    val buttons = remember {
+        listOf(
+            HomeButton("Joindre une partie") { navController.navigate(Screen.JoinGame.route) },
+            HomeButton("Créer une partie") { navController.navigate(Screen.GameCreation.route) },
+            HomeButton("Classement") { navController.navigate(Screen.LeaderBoard.route) },
+            HomeButton("Se déconnecter") {
+                scope.launch {
+                    if (AccountService.instance.logout()) {
+                        navController.navigate(Screen.Login.route) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
+                }
+            },
+        )
+    }
 
     LaunchedEffect(navBackStackEntry) {
         println("cleaned sockets")
@@ -64,29 +91,10 @@ fun HomeScreen(navController: NavController, gameLobbyViewModel: GameLobbyViewMo
         gameLobbyViewModel.isSubmitted.value = false
     }
 
-    val account = AccountService.instance.accountInfo
-    val avatarBitmap = ImageUtils.base64ToBitmap(account?.avatar)
-    val scope = rememberCoroutineScope()
-    val money = AccountService.instance.money.intValue
-    val assets = themeViewModel.assets
-
-    val buttons = listOf(
-        HomeButton("Joindre une partie") { navController.navigate(Screen.JoinGame.route) },
-        HomeButton("Créer une partie") { navController.navigate(Screen.GameCreation.route) },
-        HomeButton("Classement") { navController.navigate(Screen.LeaderBoard.route) },
-        HomeButton("Se déconnecter") {
-            scope.launch {
-                if (AccountService.instance.logout()) {
-                    navController.navigate(Screen.Login.route) {
-                        popUpTo(0) { inclusive = true }
-                    }
-                }
-            }
-        },
-    )
-
     LaunchedEffect(Unit) {
-        AccountService.instance.fetchAccount()
+        withContext(Dispatchers.IO) {
+            AccountService.instance.fetchAccount()
+        }
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -240,7 +248,7 @@ fun HomeScreen(navController: NavController, gameLobbyViewModel: GameLobbyViewMo
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
-                        painter = rememberAsyncImagePainter(avatarBitmap),
+                        painter = avatarPainter,
                         contentDescription = "Avatar",
                         modifier = Modifier
                             .fillMaxSize()

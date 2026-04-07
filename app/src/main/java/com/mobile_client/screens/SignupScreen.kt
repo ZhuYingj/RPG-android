@@ -47,6 +47,7 @@ import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import coil.compose.rememberAsyncImagePainter
+import com.mobile_client.components.PressableButton
 import com.mobile_client.services.AccountService
 import com.mobile_client.utils.FontSize
 import com.mobile_client.utils.LoginResponse
@@ -332,7 +333,7 @@ fun SignUpScreen(navController: NavController, tutorialViewModel: TutorialViewMo
                             textStyle = TextStyle(fontSize = FontSize.BODY.sp),
                             onValueChange = {
                                 if (it.length <= Validation.MAX_USERNAME_LENGTH)
-                                    username = it
+                                    username = it.filterNot { c -> c.isWhitespace() }
                                 usernameError =
                                     if (!hasSubmitted && username.isBlank()) null
                                     else Validation.validateUsername(username)
@@ -353,8 +354,9 @@ fun SignUpScreen(navController: NavController, tutorialViewModel: TutorialViewMo
                             singleLine = true,
                             textStyle = TextStyle(fontSize = FontSize.BODY.sp),
                             onValueChange = {
-                                if (it.length <= Validation.MAX_EMAIL_LENGTH)
-                                    email = it
+                                val filtered = it.filterNot { c -> c.isWhitespace() }
+                                if (filtered.length <= Validation.MAX_EMAIL_LENGTH)
+                                    email = filtered
                                 emailError =
                                     if (!hasSubmitted && email.isBlank()) null
                                     else Validation.validateEmail(email)
@@ -418,37 +420,50 @@ fun SignUpScreen(navController: NavController, tutorialViewModel: TutorialViewMo
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(20.dp)
                         ) {
-
-                            Button(
-                                onClick = {
-                                    navController.navigate(Screen.Login.route)
-                                },
-                                modifier = Modifier.height(50.dp).weight(1f),
-                                shape = RoundedCornerShape(5.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color.LightGray,
-                                    contentColor = Color.Black
-                                )
-                            ) {
-                                Text("Retour", fontSize = FontSize.SUBTITLE.sp)
+                            PressableButton(
+                                shadowColor = Color.LightGray,
+                                cornerRadius = 5.dp,
+                                modifier = Modifier.weight(1f),
+                                shadowTopInset = 2.dp
+                            ) { interactionSource, pressModifier ->
+                                Button(
+                                    onClick = { navController.navigate(Screen.Login.route) },
+                                    modifier = pressModifier.height(50.dp).fillMaxWidth(),
+                                    interactionSource = interactionSource,
+                                    shape = RoundedCornerShape(5.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Color.LightGray,
+                                        contentColor = Color.Black
+                                    )
+                                ) {
+                                    Text("Retour", fontSize = FontSize.SUBTITLE.sp)
+                                }
                             }
 
-                            Button(
-                                onClick = { handleSignup() },
-                                enabled =
-                                    username.isNotBlank() &&
-                                        email.isNotBlank() &&
-                                        password.isNotBlank(),
-                                modifier = Modifier.height(50.dp).weight(1f),
-                                shape = RoundedCornerShape(5.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(0xFF357abd),
-                                    contentColor = Color.White,
-                                    disabledContainerColor = Color.Gray,
-                                    disabledContentColor = Color.DarkGray
-                                )
-                            ) {
-                                Text("S'inscrire", fontSize = FontSize.SUBTITLE.sp)
+                            val isSignUpEnabled = username.isNotBlank() && email.isNotBlank() && password.isNotBlank()
+
+                            PressableButton(
+                                shadowColor = Color(0xFF357abd),
+                                cornerRadius = 5.dp,
+                                enabled = isSignUpEnabled,
+                                modifier = Modifier.weight(1f),
+                                shadowTopInset = 2.dp
+                            ) { interactionSource, pressModifier ->
+                                Button(
+                                    onClick = { handleSignup() },
+                                    enabled = isSignUpEnabled,
+                                    modifier = pressModifier.height(50.dp).fillMaxWidth(),
+                                    interactionSource = interactionSource,
+                                    shape = RoundedCornerShape(5.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Color(0xFF357abd),
+                                        contentColor = Color.White,
+                                        disabledContainerColor = Color.Gray,
+                                        disabledContentColor = Color.DarkGray
+                                    )
+                                ) {
+                                    Text("S'inscrire", fontSize = FontSize.SUBTITLE.sp)
+                                }
                             }
                         }
                     }

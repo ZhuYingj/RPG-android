@@ -25,7 +25,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -56,6 +55,7 @@ import com.mobile_client.components.BattleOverlay
 import com.mobile_client.components.BetweenTurnOverlay
 import com.mobile_client.components.GameBoard
 import com.mobile_client.components.ItemChoiceOverlay
+import com.mobile_client.components.PressableButton
 import com.mobile_client.components.ShakeListener
 import com.mobile_client.services.GameControllerService
 import com.mobile_client.services.SocketService
@@ -68,12 +68,10 @@ import com.mobile_client.utils.TileConstants
 import com.mobile_client.utils.isBot
 import com.mobile_client.viewModels.GameLobbyViewModel
 import com.mobile_client.viewModels.ThemeViewModel
-import kotlinx.coroutines.launch
+import androidx.compose.material3.AlertDialog
+import com.mobile_client.utils.showDismissible
 
 private val DarkText = Color(0xFF1A1A1A)
-private val ActiveGreen = Color(0xFF4CAF50)
-private val ActionBlue = Color(0xFF2196F3)
-private val AbandonRed = Color(0xFFE53935)
 
 @Composable
 fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostState, gameLobbyViewModel: GameLobbyViewModel, themeViewModel: ThemeViewModel) {
@@ -105,6 +103,7 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
     var selectedTile by remember { mutableStateOf<Position?>(null) }
 
     val assets = themeViewModel.assets
+    var showAbandonDialog by remember { mutableStateOf(false) }
     // Recalculate accessible tiles when player or turn changes
     LaunchedEffect(player, currentPlayer, isDebug, isBetweenTurn, gameTiles) {
         visibleBushTiles = controller.getVisibleBushTiles()
@@ -145,12 +144,7 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
 
     LaunchedEffect(lastPlayer) {
         if(lastPlayer) {
-            scope.launch {
-                snackbarHostState.showSnackbar(
-                    "Vous êtes le seul joueur restant",
-                    duration = SnackbarDuration.Long
-                )
-            }
+            snackbarHostState.showDismissible(scope, "Vous êtes le seul joueur restant")
             controller.clear()
             navController.navigate(Screen.Home.route) {
                 popUpTo(0) { inclusive = true }
@@ -160,10 +154,7 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
 
     LaunchedEffect(serverMessage) {
         if (serverMessage.isNotEmpty()) {
-            snackbarHostState.showSnackbar(
-                serverMessage,
-                duration = SnackbarDuration.Short
-            )
+            snackbarHostState.showDismissible(scope, serverMessage)
             controller.serverMessage.value = ""
         }
     }
@@ -171,12 +162,7 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
     // Navigate to end game when winner is set
     LaunchedEffect(gameWinner) {
         if (gameWinner.isNotEmpty()) {
-            scope.launch {
-                snackbarHostState.showSnackbar(
-                    "Partie terminée et gagnant : $gameWinner",
-                    duration = SnackbarDuration.Long
-                )
-            }
+            snackbarHostState.showDismissible(scope, "Partie terminée et gagnant : $gameWinner")
             //TODO: Navigate to end game (EndGameScreen, where there is stats) after delay
             navController.navigate(Screen.EndGame.route) {
                 popUpTo(0) { inclusive = true }
@@ -514,46 +500,72 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
                         fontSize = 16.sp,
                         color = assets.mainPageTextColor
                     )
-
-                    Button(
-                        onClick = { controller.nextTurn() },
-                        enabled = player.username == currentPlayer.username && !isInCombat && !isBetweenTurn,
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(containerColor = assets.endTurn)
-                    ) {
-                        Text("Terminer son tour", color = assets.textActions)
+                    val isMyTurn = player.username == currentPlayer.username
+                    PressableButton(
+                        shadowColor = assets.endTurn,
+                        enabled = isMyTurn && !isInCombat && !isBetweenTurn,
+                    ) { interactionSource, pressModifier ->
+                        Button(
+                            onClick = { controller.nextTurn() },
+                            enabled = isMyTurn && !isInCombat && !isBetweenTurn,
+                            modifier = pressModifier.fillMaxWidth(),
+                            interactionSource = interactionSource,
+                            colors = ButtonDefaults.buttonColors(containerColor = assets.endTurn),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text("Terminer son tour", color = assets.textActions)
+                        }
                     }
 
-                    Button(
-                        onClick = { controller.setAction() },
-                        enabled = player.username == currentPlayer.username && (currentPlayer.hasAction > 0) && !isInCombat && !isBetweenTurn,
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (isAction) assets.action.copy(alpha = 0.7f) else assets.action
-                        )
-                    ) {
-                        Text(if (isAction) "Action sélectionnée" else "Exécuter une action", color = assets.textActions)
+                    PressableButton(
+                        shadowColor = assets.action,
+                        enabled = isMyTurn && (currentPlayer.hasAction > 0) && !isInCombat && !isBetweenTurn,
+                    ) { interactionSource, pressModifier ->
+                        Button(
+                            onClick = { controller.setAction() },
+                            enabled = isMyTurn && (currentPlayer.hasAction > 0) && !isInCombat && !isBetweenTurn,
+                            modifier = pressModifier.fillMaxWidth(),
+                            interactionSource = interactionSource,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (isAction) assets.action.copy(alpha = 0.7f) else assets.action
+                            ),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text(if (isAction) "Action sélectionnée" else "Exécuter une action", color = assets.textActions)
+                        }
                     }
 
-                    Button(
-                        onClick = {
-                            controller.abandon {
-                                gameLobbyViewModel.leaveLobby()
-                                navController.navigate(Screen.Home.route) {
-                                    popUpTo(0) { inclusive = true }
-                                }
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(containerColor = assets.abandon)
-                    ) {
-                        Text("Abandonner la partie", color = assets.textActions)
+                    PressableButton(
+                        shadowColor = assets.abandon,
+                    ) { interactionSource, pressModifier ->
+                        Button(
+                            onClick = { showAbandonDialog = true},
+                            modifier = pressModifier.fillMaxWidth(),
+                            interactionSource = interactionSource,
+                            colors = ButtonDefaults.buttonColors(containerColor = assets.abandon),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text("Abandonner la partie", color = assets.textActions)
+                        }
                     }
                 }
             }
         }
     }
-
+    if (showAbandonDialog) {
+        AbandonConfirmDialog(
+            onConfirm = {
+                controller.abandon {
+                    gameLobbyViewModel.leaveLobby()
+                    snackbarHostState.showDismissible(scope, "Partie abandonné")
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            },
+            onDismiss = { showAbandonDialog = false }
+        )
+    }
     // Overlays
     if (isInCombat) {
         BattleOverlay(controller.fightService, timerCounter)
@@ -674,4 +686,74 @@ fun StatCard(label: String, value: String, modifier: Modifier = Modifier, color:
         Spacer(modifier = Modifier.height(4.dp))
         Text(value, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = color)
     }
+}
+
+@Composable
+fun AbandonConfirmDialog(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(20.dp),
+        containerColor = Color.White,
+        title = {
+            Text(
+                text = "Confirmation",
+                fontWeight = FontWeight.Bold,
+                fontSize = 22.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        text = {
+            Text(
+                text = "Êtes-vous sûr de vouloir abandonner la partie?",
+                fontSize = 16.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        confirmButton = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                PressableButton(
+                    shadowColor = Color(0xFF757575),
+                    cornerRadius = 20.dp,
+                ) { interactionSource, pressModifier ->
+                    Button(
+                        onClick = onDismiss,
+                        modifier = pressModifier,
+                        interactionSource = interactionSource,
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF757575)),
+                        shape = RoundedCornerShape(20.dp)
+                    ) {
+                        Text("Annuler", color = Color.White, fontSize = 15.sp)
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                PressableButton(
+                    shadowColor = Color(0xFFE53935),
+                    cornerRadius = 20.dp,
+                ) { interactionSource, pressModifier ->
+                    Button(
+                        onClick = {
+                            onConfirm()
+                            onDismiss()
+                        },
+                        modifier = pressModifier,
+                        interactionSource = interactionSource,
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE53935)),
+                        shape = RoundedCornerShape(20.dp)
+                    ) {
+                        Text("Oui", color = Color.White, fontSize = 15.sp)
+                    }
+                }
+            }
+        }
+    )
 }

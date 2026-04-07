@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
@@ -45,10 +46,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mobile_client.components.GameList
+import com.mobile_client.components.PressableButton
 import com.mobile_client.screens.ui.theme.AppFontFamily
 import com.mobile_client.utils.FontSize
 import com.mobile_client.utils.GameMap
 import com.mobile_client.utils.Screen
+import com.mobile_client.utils.showDismissible
 import com.mobile_client.viewModels.GameListViewModel
 import com.mobile_client.viewModels.GameLobbyViewModel
 import com.mobile_client.viewModels.ThemeViewModel
@@ -77,7 +80,7 @@ fun GamesCreationScreen(
 
     LaunchedEffect(Unit) {
         gameLobbyViewModel.errorMessage.collect { message ->
-            scope.launch { snackbarHostState.showSnackbar(message, duration = SnackbarDuration.Short) }
+            snackbarHostState.showDismissible(scope, message)
         }
     }
 
@@ -88,7 +91,7 @@ fun GamesCreationScreen(
                 showFeeDialog = false
                 pendingMap = null
             },
-            modifier = Modifier.width(425.dp),
+            modifier = Modifier.width(450.dp),
             containerColor = Color.White,
             titleContentColor = Color.Black,
             textContentColor = Color.Black,
@@ -135,31 +138,59 @@ fun GamesCreationScreen(
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    TextButton(onClick = {
-                        showFeeDialog = false
-                        pendingMap = null
-                    }) { Text("Annuler", color = Color.Black, fontFamily = FontFamily.Default, fontSize = FontSize.BUTTON.sp) }
+                    PressableButton(
+                        shadowColor = Color(0xFF757575),
+                        cornerRadius = 20.dp,
+                    ) { interactionSource, pressModifier ->
+                        Button(
+                            onClick = {
+                                showFeeDialog = false
+                                pendingMap = null
+                            },
+                            modifier = pressModifier,
+                            interactionSource = interactionSource,
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF757575)),
+                            shape = RoundedCornerShape(20.dp)
+                        ) {
+                            Text("Annuler", color = Color.White, fontSize = FontSize.BUTTON.sp)
+                        }
+                    }
 
-                    Button(
+                    Spacer(modifier = Modifier.width(24.dp))
+
+                    PressableButton(
+                        shadowColor = assets.gameCreationButton,
+                        cornerRadius = 20.dp,
                         enabled = feeInput != "",
-                        onClick = {
-                            val fee = feeInput.toIntOrNull() ?: 0
-                            showFeeDialog = false
-                            gameLobbyViewModel.createLobby(
-                                map = pendingMap!!,
-                                fee = fee,
-                                isRapid = isRapid,
-                                onSuccess = { navController.navigate(Screen.CharacterCreation.route) },
-                                onError = { message ->
-                                    gameLobbyViewModel.showMessage(message)
-                                    pendingMap = null
-                                }
-                            )
-                            pendingMap = null
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6650A4)),
-                        shape = RoundedCornerShape(4.dp)
-                    ) { Text("Confirmer", color = Color.White, fontFamily = FontFamily.Default, fontSize = FontSize.BUTTON.sp) }
+                    ) { interactionSource, pressModifier ->
+                        Button(
+                            enabled = feeInput != "",
+                            onClick = {
+                                val fee = feeInput.toIntOrNull() ?: 0
+                                showFeeDialog = false
+                                gameLobbyViewModel.createLobby(
+                                    map = pendingMap!!,
+                                    fee = fee,
+                                    isRapid = isRapid,
+                                    onSuccess = { navController.navigate(Screen.CharacterCreation.route) },
+                                    onError = { message ->
+                                        gameLobbyViewModel.showMessage(message)
+                                        pendingMap = null
+                                    }
+                                )
+                                pendingMap = null
+                            },
+                            modifier = pressModifier,
+                            interactionSource = interactionSource,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = assets.gameCreationButton,
+                                disabledContainerColor = assets.gameCreationButton.copy(alpha = 0.4f)
+                            ),
+                            shape = RoundedCornerShape(20.dp)
+                        ) {
+                            Text("Confirmer", color = assets.textAccount, fontSize = FontSize.BUTTON.sp)
+                        }
+                    }
                 }
             },
             dismissButton = {}

@@ -2,6 +2,7 @@ package com.mobile_client.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -18,25 +19,29 @@ fun ThemeSelector(themeViewModel: ThemeViewModel) {
         AppTheme.AUBERGINES to "🍆 Aubergines",
     )
 
-    Row (
+    Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ){
+    ) {
         themes.forEach { (theme, label) ->
             val isSelected = themeViewModel.currentTheme.value == theme
+            val buttonColor = if (isSelected) themeViewModel.assets.backButtonColor else Color.Gray
 
-            Button(
-                onClick = { themeViewModel.setTheme(theme) },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (themeViewModel.currentTheme.value == theme)
-                        themeViewModel.assets.backButtonColor
-                    else Color.Gray,
-                    contentColor = if (isSelected)
-                        Color.Black
-                    else
-                        Color.White
-                )
-            ) {
-                Text(label)
+            PressableButton(
+                shadowColor = buttonColor,
+                cornerRadius = 6.dp,
+            ) { interactionSource, pressModifier ->
+                Button(
+                    onClick = { themeViewModel.setTheme(theme) },
+                    modifier = pressModifier,
+                    interactionSource = interactionSource,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = buttonColor,
+                        contentColor = if (isSelected) Color.Black else Color.White
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(label)
+                }
             }
         }
     }

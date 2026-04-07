@@ -37,7 +37,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -62,13 +61,11 @@ import com.mobile_client.screens.R
 import com.mobile_client.utils.FriendsTab
 import com.mobile_client.utils.launchQrScanner
 import com.mobile_client.viewModels.FriendsViewModel
-import kotlinx.coroutines.launch
 import androidx.compose.foundation.Image
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.mobile_client.utils.ImageUtils
+import com.mobile_client.utils.showDismissible
 import com.mobile_client.viewModels.ThemeViewModel
 
 @Composable
@@ -104,7 +101,7 @@ fun FriendsPanel(
 
     LaunchedEffect(snackbarMessage) {
         snackbarMessage?.let { message ->
-            snackbarHostState.showSnackbar(message, duration = SnackbarDuration.Short)
+            snackbarHostState.showDismissible(scope, message)
             friendsViewModel.clearSnackbarMessage()
         }
     }
@@ -186,9 +183,10 @@ fun FriendsPanel(
                         OutlinedTextField(
                             value = searchFilter,
                             onValueChange = {
-                                if (it.length <= 20) {
-                                    searchFilter = it
-                                    friendsViewModel.loadAllUsers(it.trim())
+                                val filtered = it.filterNot { c -> c.isWhitespace() }
+                                if (filtered.length <= 15) {
+                                    searchFilter = filtered
+                                    friendsViewModel.loadAllUsers(filtered)
                                 }
                             },
                             modifier = Modifier
@@ -482,7 +480,7 @@ fun FriendsPanel(
                                                 friendsViewModel.sendFriendRequest(scannedUsername.trim())
                                             },
                                             onError = { message ->
-                                                scope.launch { snackbarHostState.showSnackbar(message, duration = SnackbarDuration.Short) }
+                                                snackbarHostState.showDismissible(scope, message)
                                             }
                                         )
                                     }

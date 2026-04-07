@@ -50,6 +50,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.mobile_client.components.PressableButton
 import com.mobile_client.services.AccountService
 import com.mobile_client.services.CosmeticService
 import com.mobile_client.utils.BASE_STAT_VALUE
@@ -61,6 +62,7 @@ import com.mobile_client.utils.PlayerAvatars
 import com.mobile_client.utils.PlayerTypes
 import com.mobile_client.utils.Screen
 import com.mobile_client.utils.Stats
+import com.mobile_client.utils.showDismissible
 import com.mobile_client.viewModels.GameLobbyViewModel
 import com.mobile_client.viewModels.ThemeViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -124,7 +126,7 @@ fun CharacterCreationScreen(
 
     LaunchedEffect(Unit) {
         gameLobbyViewModel.errorMessage.collect { message ->
-            scope.launch { snackbarHostState.showSnackbar(message, duration = SnackbarDuration.Short) }
+            snackbarHostState.showDismissible(scope, message)
         }
     }
 
@@ -395,46 +397,56 @@ fun CharacterCreationScreen(
                                         }
                                     }
                                 }
-                                Button(modifier = Modifier.align(Alignment.BottomEnd),
-                                    onClick = {
-                                        val stats = Stats(
-                                            life = hp,
-                                            speed = speed,
-                                            attack = BASE_STAT_VALUE,
-                                            defense = BASE_STAT_VALUE
-                                        )
-                                        val player = Player(
-                                            username = AccountService.instance.username,
-                                            avatar = selectedAvatar,
-                                            playerType = if (gameLobbyViewModel.isHost.value) PlayerTypes.Host else PlayerTypes.Human,
-                                            attack = attackDice ?: Dices.D6,
-                                            defense = if (attackDice == Dices.D6) Dices.D4 else Dices.D6,
-                                            isBonusLife = isBonusLife == true,
-                                            stats = stats,
-                                            hasAction = 0,
-                                            isObserver = false,
-                                            equippedItems = listOf()
-                                        )
+                                val isEnabled = selectedAvatar != PlayerAvatars.None
+                                PressableButton(
+                                    modifier = Modifier.align(Alignment.BottomEnd),
+                                    shadowColor = assets.characterCreateButton,
+                                    enabled = isEnabled,
+                                    shadowTopInset = 6.dp,
+                                ) { interactionSource, pressModifier ->
+                                    Button(
+                                        modifier = pressModifier,
+                                        onClick = {
+                                            val stats = Stats(
+                                                life = hp,
+                                                speed = speed,
+                                                attack = BASE_STAT_VALUE,
+                                                defense = BASE_STAT_VALUE
+                                            )
+                                            val player = Player(
+                                                username = AccountService.instance.username,
+                                                avatar = selectedAvatar,
+                                                playerType = if (gameLobbyViewModel.isHost.value) PlayerTypes.Host else PlayerTypes.Human,
+                                                attack = attackDice ?: Dices.D6,
+                                                defense = if (attackDice == Dices.D6) Dices.D4 else Dices.D6,
+                                                isBonusLife = isBonusLife == true,
+                                                stats = stats,
+                                                hasAction = 0,
+                                                isObserver = false,
+                                                equippedItems = listOf()
+                                            )
 
-                                        gameLobbyViewModel.addPlayer(player) {
-                                            Handler(Looper.getMainLooper()).post {
-                                                navController.navigate(Screen.WaitingPage.route) {
-                                                    launchSingleTop = true
+                                            gameLobbyViewModel.addPlayer(player) {
+                                                Handler(Looper.getMainLooper()).post {
+                                                    navController.navigate(Screen.WaitingPage.route) {
+                                                        launchSingleTop = true
+                                                    }
                                                 }
                                             }
-                                        }
-                                    },
-                                    enabled = selectedAvatar != PlayerAvatars.None
-                                        && isBonusLife != null
-                                        && attackDice != null,
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = assets.textAccount,
-                                        disabledContainerColor = Color.White.copy(alpha = 0.5f)
-                                    ),
-                                    shape = RoundedCornerShape(8.dp),
-                                    border = BorderStroke(1.dp, assets.characterCreateButton)
-                                ) {
-                                    Text("CRÉER", color = assets.characterCreateButton, fontWeight = FontWeight.Bold, fontSize = FontSize.MENU_BUTTON.sp,)
+                                        },
+                                        interactionSource = interactionSource,
+                                        enabled = selectedAvatar != PlayerAvatars.None
+                                            && isBonusLife != null
+                                            && attackDice != null,
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = assets.textAccount,
+                                            disabledContainerColor = Color.White.copy(alpha = 0.5f)
+                                        ),
+                                        shape = RoundedCornerShape(8.dp),
+                                        border = BorderStroke(1.dp, assets.characterCreateButton)
+                                    ) {
+                                        Text("CRÉER", color = assets.characterCreateButton, fontWeight = FontWeight.Bold, fontSize = FontSize.MENU_BUTTON.sp)
+                                    }
                                 }
                             }
                         }

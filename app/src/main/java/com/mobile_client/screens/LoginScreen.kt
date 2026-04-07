@@ -22,7 +22,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,6 +43,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.mobile_client.components.PressableButton
 import com.mobile_client.environment.ENVIRONMENT
 import com.mobile_client.services.AccountService
 import com.mobile_client.services.HttpService
@@ -52,6 +52,7 @@ import com.mobile_client.utils.LoginResponse
 import com.mobile_client.utils.Screen
 import com.mobile_client.utils.Validation.MAX_PASSWORD_LENGTH
 import com.mobile_client.utils.Validation.MAX_USERNAME_LENGTH
+import com.mobile_client.utils.showDismissible
 import io.ktor.client.call.body
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpStatusCode
@@ -80,7 +81,7 @@ fun LoginScreen(navController: NavController, snackbarHostState: SnackbarHostSta
                     HttpStatusCode.OK -> {
                         val loginData: LoginResponse = response.body()
                         AccountService.instance.setAccount(loginData.account, loginData.token)
-                        scope.launch { snackbarHostState.showSnackbar("Connexion réussie", duration = SnackbarDuration.Short) }
+                        snackbarHostState.showDismissible(scope, "Connexion réussie")
                         navController.navigate(Screen.Home.route)
                     }
                     HttpStatusCode.Unauthorized -> {
@@ -145,7 +146,8 @@ fun LoginScreen(navController: NavController, snackbarHostState: SnackbarHostSta
                         value = username,
                         textStyle = TextStyle(fontSize = FontSize.BODY.sp),
                         onValueChange = {
-                            if (it.length <= MAX_USERNAME_LENGTH) username = it
+                            val filtered = it.filterNot { c -> c.isWhitespace() }
+                            if (filtered.length <= MAX_USERNAME_LENGTH) username = filtered
                         },
                         singleLine = true,
                         modifier = Modifier
@@ -196,33 +198,48 @@ fun LoginScreen(navController: NavController, snackbarHostState: SnackbarHostSta
 
                 Row(
                     modifier = Modifier.width(350.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
-                    Button(
-                        onClick = { navController.navigate(Screen.SignUp.route) },
-                        modifier = Modifier.height(50.dp).width(165.dp),
-                        shape = RoundedCornerShape(5.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.LightGray,
-                            contentColor = Color.Black
-                        )
-                    ) {
-                        Text("Créer un compte", fontSize = FontSize.SUBTITLE.sp)
+                    PressableButton(
+                        shadowColor = Color.LightGray,
+                        cornerRadius = 5.dp,
+                        shadowTopInset = 2.dp
+                    ) { interactionSource, pressModifier ->
+                        Button(
+                            onClick = { navController.navigate(Screen.SignUp.route) },
+                            modifier = pressModifier.height(50.dp).width(165.dp),
+                            interactionSource = interactionSource,
+                            shape = RoundedCornerShape(5.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.LightGray,
+                                contentColor = Color.Black
+                            )
+                        ) {
+                            Text("Créer un compte", fontSize = FontSize.SUBTITLE.sp)
+                        }
                     }
 
-                    Button(
-                        onClick = { loginValidate() },
+                    PressableButton(
+                        shadowColor = Color(0xFF357abd),
+                        cornerRadius = 5.dp,
                         enabled = username.isNotBlank() && password.isNotBlank(),
-                        modifier = Modifier.height(50.dp).width(165.dp),
-                        shape = RoundedCornerShape(5.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF357abd),
-                            contentColor = Color.White,
-                            disabledContainerColor = Color.Gray,
-                            disabledContentColor = Color.DarkGray
-                        )
-                    ) {
-                        Text("Connexion", fontSize = FontSize.SUBTITLE.sp)
+                        shadowTopInset = 2.dp
+                    ) { interactionSource, pressModifier ->
+                        Button(
+                            onClick = { loginValidate() },
+                            enabled = username.isNotBlank() && password.isNotBlank(),
+                            modifier = pressModifier.height(50.dp).width(165.dp),
+                            interactionSource = interactionSource,
+                            shape = RoundedCornerShape(5.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF357abd),
+                                contentColor = Color.White,
+                                disabledContainerColor = Color.Gray,
+                                disabledContentColor = Color.DarkGray
+                            )
+                        ) {
+                            Text("Connexion", fontSize = FontSize.SUBTITLE.sp)
+                        }
                     }
                 }
             }

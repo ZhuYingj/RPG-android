@@ -44,7 +44,6 @@ import com.mobile_client.utils.ImageResources
 import com.mobile_client.utils.Screen
 import com.mobile_client.viewModels.InventoryViewModel
 import com.mobile_client.viewModels.ThemeViewModel
-import kotlinx.coroutines.launch
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.width
@@ -52,9 +51,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.text.font.FontFamily
 import coil.compose.rememberAsyncImagePainter
+import com.mobile_client.components.PressableButton
 import com.mobile_client.services.AccountService
 import com.mobile_client.utils.FontSize
 import com.mobile_client.utils.ImageUtils
+import com.mobile_client.utils.showDismissible
 
 @Composable
 fun InventoryScreen(
@@ -76,7 +77,7 @@ fun InventoryScreen(
 
     LaunchedEffect(snackbarMessage) {
         snackbarMessage?.let {
-            scope.launch { snackbarHostState.showSnackbar(it) }
+            snackbarHostState.showDismissible(scope, it)
             inventoryViewModel.clearMessage()
         }
     }
@@ -202,34 +203,86 @@ fun InventoryScreen(
                                             textAlign = TextAlign.Center
                                         )
                                     } else {
-                                        Button(
-                                            onClick = {
-                                                if (cosmetic?.type != 0 && cosmetic?.type != 3)
-                                                    inventoryViewModel.equipItem(item)
-                                                else if (cosmetic.type == 3) {
-                                                    navController.navigate(Screen.Account.route) {
-                                                        popUpTo(0) { inclusive = true }
+                                        Row(
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            PressableButton(
+                                                shadowColor = assets.buyButtonBackground,
+                                                cornerRadius = 6.dp,
+                                                enabled = !isEquipped,
+                                                shadowTopInset = 2.dp
+                                            ) { interactionSource, pressModifier ->
+                                                Button(
+                                                    onClick = {
+                                                        if (cosmetic?.type != 0 && cosmetic?.type != 3) {
+                                                            inventoryViewModel.equipItem(item)
+                                                        }
+                                                        else if (cosmetic.type == 3) {
+                                                            navController.navigate(Screen.Account.route) {
+                                                                popUpTo(0) { inclusive = true }
+                                                            }
+                                                        }
+                                                    },
+                                                    modifier = pressModifier,
+                                                    interactionSource = interactionSource,
+                                                    enabled = !isEquipped,
+                                                    colors = ButtonDefaults.buttonColors(
+                                                        containerColor = assets.buyButtonBackground,
+                                                        disabledContainerColor = assets.buyButtonBackground.copy(
+                                                            alpha = 0.4f
+                                                        )
+                                                    ),
+                                                    shape = RoundedCornerShape(6.dp),
+                                                    contentPadding = PaddingValues(
+                                                        horizontal = 12.dp,
+                                                        vertical = 6.dp
+                                                    )
+                                                ) {
+                                                    Text(
+                                                        text = if (cosmetic?.type == 3) {
+                                                            "Compte"
+                                                        } else {
+                                                            if (isEquipped) "Équipé" else "Équiper"
+                                                        },
+                                                        color = Color.White,
+                                                        fontSize = FontSize.SMALL.sp,
+                                                        fontFamily = FontFamily.Default
+                                                    )
+                                                }
+                                            }
+                                            if(cosmetic?.type != 3) {
+                                                PressableButton(
+                                                    shadowColor = assets.unequip,
+                                                    cornerRadius = 6.dp,
+                                                    enabled = isEquipped,
+                                                    shadowTopInset = 2.dp
+                                                ) { interactionSource, pressModifier ->
+                                                    Button(
+                                                        onClick = {
+                                                            inventoryViewModel.unequipItem(item)
+                                                        },
+                                                        modifier = pressModifier,
+                                                        interactionSource = interactionSource,
+                                                        enabled = isEquipped,
+                                                        colors = ButtonDefaults.buttonColors(
+                                                            containerColor = assets.unequip,
+                                                            disabledContainerColor = assets.alreadyUnequipped
+                                                        ),
+                                                        shape = RoundedCornerShape(6.dp),
+                                                        contentPadding = PaddingValues(
+                                                            horizontal = 12.dp,
+                                                            vertical = 6.dp
+                                                        )
+                                                    ) {
+                                                        Text(
+                                                            text = "Déséquiper",
+                                                            color = Color.White,
+                                                            fontSize = FontSize.SMALL.sp,
+                                                        )
                                                     }
                                                 }
-                                            },
-                                            enabled = !isEquipped,
-                                            colors = ButtonDefaults.buttonColors(
-                                                containerColor = Color(0xFF4CAF50),
-                                                disabledContainerColor = Color(0xFF759D77)
-                                            ),
-                                            shape = RoundedCornerShape(6.dp),
-                                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
-                                        ) {
-                                            Text(
-                                                text = if (cosmetic?.type == 3) {
-                                                    "Compte"
-                                                } else {
-                                                    if (isEquipped) "Équipé" else "Équipper"
-                                                },
-                                                color = Color.White,
-                                                fontSize = FontSize.SMALL.sp,
-                                                fontFamily = FontFamily.Default
-                                            )
+                                            }
                                         }
                                     }
                                 }

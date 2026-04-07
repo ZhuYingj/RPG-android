@@ -4,6 +4,7 @@ import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,6 +32,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -60,6 +62,7 @@ import com.mobile_client.viewModels.BaseGameListViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import androidx.compose.runtime.produceState
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.lerp
 import androidx.core.graphics.scale
 import com.mobile_client.viewModels.ThemeViewModel
@@ -236,18 +239,29 @@ fun LobbyMapItem(
                 }
             }
 
-            IconButton(
-                onClick = onPlay,
-                modifier = Modifier
-                    .size(60.dp)
-                    .background(color = lerp(assets.joinButton, Color.White, 0.2f), shape = RoundedCornerShape(5.dp))
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.PlayArrow,
-                    contentDescription = "Rejoindre",
-                    modifier = Modifier.size(36.dp),
-                    tint = Color.White
-                )
+            PressableButton(
+                shadowColor = lerp(assets.joinButton, Color.White, 0.2f),
+                cornerRadius = 5.dp,
+            ) { interactionSource, pressModifier ->
+                Box(
+                    modifier = pressModifier
+                        .size(60.dp)
+                        .clip(RoundedCornerShape(5.dp))
+                        .background(color = lerp(assets.joinButton, Color.White, 0.2f))
+                        .clickable(
+                            interactionSource = interactionSource,
+                            indication = ripple(),
+                            onClick = onPlay
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.PlayArrow,
+                        contentDescription = "Rejoindre",
+                        modifier = Modifier.size(36.dp),
+                        tint = Color.White
+                    )
+                }
             }
         }
     }
@@ -337,23 +351,28 @@ fun MapItem(
                 }
             }
 
-            Button(
-                onClick = onPlay,
-                modifier = Modifier
-                    .height(48.dp)
-                    .widthIn(min = 160.dp),
-                shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = assets.gameCreationButton,
-                    contentColor = assets.gameCreationButtonText
-                ),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
-            ) {
-                Text(
-                    text = "Créer une partie",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                )
+            PressableButton(
+                shadowColor = assets.gameCreationButton,
+            ) { interactionSource, pressModifier ->
+                Button(
+                    onClick = onPlay,
+                    modifier = pressModifier
+                        .height(48.dp)
+                        .widthIn(min = 160.dp),
+                    interactionSource = interactionSource,
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = assets.gameCreationButton,
+                        contentColor = assets.gameCreationButtonText
+                    ),
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
+                ) {
+                    Text(
+                        text = "Créer une partie",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
     }
