@@ -74,12 +74,11 @@ fun ShopScreen(
     val snackbarMessage by shopViewModel.message.collectAsState()
     val money by shopViewModel.money.collectAsState()
     val scope = rememberCoroutineScope()
-
     val account = AccountService.instance.accountInfo
     val avatarBitmap = remember(account?.avatar) {
         ImageUtils.base64ToBitmap(account?.avatar)
     }
-
+    val inventory by shopViewModel.inventory.collectAsState()
     LaunchedEffect(Unit) {
         shopViewModel.loadData()
     }
@@ -226,26 +225,41 @@ fun ShopScreen(
 
                                 Spacer(modifier = Modifier.height(8.dp))
 
-                                PressableButton(
-                                    shadowColor = assets.buyButtonBackground,
-                                    cornerRadius = 6.dp,
-                                    shadowTopInset = 3.5.dp
-                                ) { interactionSource, pressModifier ->
+                                if (inventory.any { it.cosmeticId == item._id }) {
                                     Button(
-                                        onClick = {
-                                            if (money < item.price) {
-                                                shopViewModel.buyItem(item)
-                                            } else {
-                                                itemToBuy = item
-                                            }
-                                        },
-                                        modifier = pressModifier,
-                                        interactionSource = interactionSource,
-                                        colors = ButtonDefaults.buttonColors(containerColor = assets.buyButtonBackground),
+                                        onClick = {},
+                                        enabled = false,
+                                        colors = ButtonDefaults.buttonColors(
+                                            disabledContainerColor = assets.buyButtonBackground.copy(alpha = 0.4f),
+                                            disabledContentColor = Color.White.copy(alpha = 0.7f)
+                                        ),
                                         shape = RoundedCornerShape(6.dp),
                                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
                                     ) {
-                                        Text("Acheter", color = Color.White, fontSize = FontSize.SMALL.sp, fontFamily = FontFamily.Default)
+                                        Text("Déjà dans l'inventaire", fontSize = FontSize.SMALL.sp, fontFamily = FontFamily.Default)
+                                    }
+                                } else {
+                                    PressableButton(
+                                        shadowColor = assets.buyButtonBackground,
+                                        cornerRadius = 6.dp,
+                                        shadowTopInset = 3.5.dp
+                                    ) { interactionSource, pressModifier ->
+                                        Button(
+                                            onClick = {
+                                                if (money < item.price) {
+                                                    shopViewModel.buyItem(item)
+                                                } else {
+                                                    itemToBuy = item
+                                                }
+                                            },
+                                            modifier = pressModifier,
+                                            interactionSource = interactionSource,
+                                            colors = ButtonDefaults.buttonColors(containerColor = assets.buyButtonBackground),
+                                            shape = RoundedCornerShape(6.dp),
+                                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                                        ) {
+                                            Text("Acheter", color = Color.White, fontSize = FontSize.SMALL.sp, fontFamily = FontFamily.Default)
+                                        }
                                     }
                                 }
                             }

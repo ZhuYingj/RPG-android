@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.mobile_client.services.AccountService
 import com.mobile_client.services.CosmeticService
 import com.mobile_client.utils.Cosmetic
+import com.mobile_client.utils.InventoryCosmetic
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -24,6 +26,9 @@ class ShopViewModel : ViewModel() {
     private val _money = MutableStateFlow(0)
     val money: StateFlow<Int> = _money
 
+    private val _inventory = MutableStateFlow<List<InventoryCosmetic>>(emptyList())
+    val inventory: StateFlow<List<InventoryCosmetic>> = _inventory
+
     fun clearMessage() { _message.value = null }
 
     fun loadData() {
@@ -31,6 +36,7 @@ class ShopViewModel : ViewModel() {
             _isLoading.value = true
             _money.value = AccountService.instance.money.intValue
             _shopItems.value = cosmeticService.loadShop()
+            _inventory.value = cosmeticService.loadInventory().inventory
             _isLoading.value = false
         }
     }
@@ -39,9 +45,10 @@ class ShopViewModel : ViewModel() {
         viewModelScope.launch {
             val success = cosmeticService.buyItem(item._id)
             if (success) {
-                AccountService.instance.fetchAccount()
                 _money.value = AccountService.instance.money.intValue
+                _inventory.value += InventoryCosmetic(cosmeticId = item._id, quantity = 1)
                 _message.value = "Achat Réussi"
+                launch(Dispatchers.IO) { AccountService.instance.fetchAccount() }
             } else {
                 _message.value = "Vous n'avez pas assez d'argent"
             }
