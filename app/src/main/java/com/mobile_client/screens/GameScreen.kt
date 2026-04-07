@@ -70,6 +70,7 @@ import com.mobile_client.viewModels.GameLobbyViewModel
 import com.mobile_client.viewModels.ThemeViewModel
 import androidx.compose.material3.AlertDialog
 import com.mobile_client.utils.showDismissible
+import kotlinx.coroutines.delay
 
 private val DarkText = Color(0xFF1A1A1A)
 
@@ -163,6 +164,7 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
     LaunchedEffect(gameWinner) {
         if (gameWinner.isNotEmpty()) {
             snackbarHostState.showDismissible(scope, "Partie terminée et gagnant : $gameWinner")
+            delay(3000)
             //TODO: Navigate to end game (EndGameScreen, where there is stats) after delay
             navController.navigate(Screen.EndGame.route) {
                 popUpTo(0) { inclusive = true }
