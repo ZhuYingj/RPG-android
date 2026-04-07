@@ -1,7 +1,7 @@
 package com.mobile_client.utils
 
 object Validation {
-    const val MAX_USERNAME_LENGTH = 20
+    const val MAX_USERNAME_LENGTH = 15
     const val MAX_EMAIL_LENGTH = 40
     const val MAX_PASSWORD_LENGTH = 20
 

@@ -15,12 +15,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -40,12 +43,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
-import androidx.compose.material3.TabRowDefaults
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -78,7 +76,6 @@ import com.mobile_client.utils.Validation
 import com.mobile_client.viewModels.AccountViewModel
 import com.mobile_client.viewModels.ThemeViewModel
 import com.mobile_client.viewModels.TutorialViewModel
-import kotlinx.coroutines.launch
 import java.io.File
 import androidx.compose.ui.unit.sp
 import java.text.SimpleDateFormat
@@ -87,7 +84,10 @@ import kotlin.math.roundToInt
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
+import com.mobile_client.components.PressableButton
 import com.mobile_client.utils.FontSize
+import com.mobile_client.utils.showDismissible
 
 @Composable
 fun AccountScreen(
@@ -122,7 +122,6 @@ fun AccountScreen(
     var tempPhotoUri by remember { mutableStateOf<Uri?>(null) }
 
     var selectedTabIndex by remember { mutableIntStateOf(0) }
-    val tabTitles = listOf("Détails du compte", "Historique du compte", "Historique des parties jouées")
 
     val dateFormat = remember {
         SimpleDateFormat("dd MMM yyyy, HH:mm:ss", Locale.getDefault())
@@ -130,21 +129,34 @@ fun AccountScreen(
 
     val ownedAvatarCosmetics by accountViewModel.ownedAvatarCosmetics.collectAsState()
 
-    val hasAvatarChange = avatarBase64 != null
+
     val currentAvatarBitmap = remember(account?.avatar) {
         ImageUtils.base64ToBitmap(account?.avatar)
     }
-
+    val currentBase64 = remember(account?.avatar) { account?.avatar }
+    val hasAvatarChange = avatarBase64 != null && avatarBase64 != currentBase64
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
         if (success && tempPhotoUri != null) {
-            avatarUri = tempPhotoUri
-            selectedDefaultResId = null
             val bitmap = ImageUtils.uriToBitmap(context, tempPhotoUri!!)
             bitmap?.let {
-                val resized = ImageUtils.resizeBitmap(it, 1024)
-                avatarBase64 = ImageUtils.bitmapToBase64(resized, 70)
+                val resized = ImageUtils.resizeBitmap(it, 512)
+                var quality = 70
+                var base64 = ImageUtils.bitmapToBase64(resized, quality)
+
+                while (base64.length > 500_000 && quality > 10) {
+                    quality -= 10
+                    base64 = ImageUtils.bitmapToBase64(resized, quality)
+                }
+
+                if (base64.length <= 500_000) {
+                    avatarUri = tempPhotoUri
+                    selectedDefaultResId = null
+                    avatarBase64 = base64
+                } else {
+                    snackbarHostState.showDismissible(scope, "La photo est trop volumineuse, veuillez réessayer")
+                }
             }
         }
     }
@@ -158,13 +170,13 @@ fun AccountScreen(
             tempPhotoUri = uri
             cameraLauncher.launch(uri)
         } else {
-            scope.launch { snackbarHostState.showSnackbar("Permission caméra refusée") }
+            snackbarHostState.showDismissible(scope, "Permission caméra refusée")
         }
     }
 
     LaunchedEffect(snackbarMessage) {
         snackbarMessage?.let {
-            scope.launch { snackbarHostState.showSnackbar(it) }
+            snackbarHostState.showDismissible(scope, it)
             accountViewModel.clearMessage()
         }
     }
@@ -178,126 +190,468 @@ fun AccountScreen(
 
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
-            painter = painterResource(assets.backgroundMainPage),
+            painter = painterResource(assets.backgroundAccount),
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
         )
 
-        Column(
+        Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(vertical = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(vertical = 16.dp, horizontal = 48.dp),
+            horizontalArrangement = Arrangement.spacedBy(
+                16.dp,
+                alignment = Alignment.CenterHorizontally
+            ),
+            verticalAlignment = Alignment.CenterVertically
         ) {
+            // === LEFT COLUMN ===
             Column(
                 modifier = Modifier
-                    .fillMaxWidth(0.6f)
-                    .padding(horizontal = 24.dp)
+                    .width(450.dp)
+                    .fillMaxHeight()
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                TabRow(
-                    selectedTabIndex = selectedTabIndex,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)),
-                    containerColor = assets.tabIndicatorColor,
-                    contentColor = Color.White,
-                    indicator = { tabPositions ->
-                        TabRowDefaults.SecondaryIndicator(
-                            modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
-                            height = 3.dp,
-                            color = assets.textAccount.copy(alpha = 0.85f)
-                        )
-                    }
-                ) {
-                    tabTitles.forEachIndexed { index, title ->
-                        Tab(
-                            selected = selectedTabIndex == index,
-                            onClick = { selectedTabIndex = index },
-                            text = {
-                                Text(
-                                    text = title,
-                                    fontWeight = if (selectedTabIndex == index) FontWeight.Bold else FontWeight.Normal,
-                                    color = if (selectedTabIndex == index) assets.textAccount else assets.textAccount.copy(alpha = 0.3f),
-                                    fontSize = if (selectedTabIndex == index) FontSize.BODY.sp else FontSize.BUTTON.sp
-                                )
-                            }
-                        )
-                    }
-                }
-
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp))
-                        .background(assets.boxAccount)
-                        .verticalScroll(rememberScrollState())
-                        .padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(assets.boxAccount.copy(alpha = 0.7f))
+                        .padding(8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    when (selectedTabIndex) {
-                        0 -> AccountDetailsTab(
-                            account = account,
-                            name = name,
-                            email = email,
-                            nameError = nameError,
-                            emailError = emailError,
-                            hasAvatarChange = hasAvatarChange,
-                            avatarUri = avatarUri,
-                            selectedDefaultResId = selectedDefaultResId,
-                            currentAvatarBitmap = currentAvatarBitmap,
-                            showQrCode = showQrCode,
-                            qrBitmap = qrBitmap,
-                            stats = stats,
-                            onNameChange = { newName ->
-                                if (newName.length <= Validation.MAX_USERNAME_LENGTH) name = newName
-                                nameError = Validation.validateUsername(name)
-                            },
-                            onEmailChange = { newEmail ->
-                                if (newEmail.length <= Validation.MAX_EMAIL_LENGTH) email = newEmail
-                                emailError = Validation.validateEmail(email)
-                            },
-                            onTakePhoto = { permissionLauncher.launch(Manifest.permission.CAMERA) },
-                            onChooseAvatar = { showAvatarPicker = true },
-                            onToggleQr = { accountViewModel.toggleQrCode() },
-                            onResetAvatar = {
-                                avatarBase64 = null
-                                avatarUri = null
-                                selectedDefaultResId = null
-                            },
-                            onSaveAvatar = {
-                                avatarBase64?.let {
-                                    accountViewModel.updateAccountAvatar(it)
+                    // Avatar
+                    Box(
+                        modifier = Modifier
+                            .padding(top = 8.dp)
+                            .size(100.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .border(BorderStroke(3.dp, Color(0xFFE91E63)), CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        when {
+                            selectedDefaultResId != null -> {
+                                Image(
+                                    painter = rememberAsyncImagePainter(selectedDefaultResId),
+                                    contentDescription = "Avatar",
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
+                            avatarUri != null -> {
+                                Image(
+                                    painter = rememberAsyncImagePainter(avatarUri),
+                                    contentDescription = "Avatar",
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
+                            currentAvatarBitmap != null -> {
+                                Image(
+                                    painter = rememberAsyncImagePainter(currentAvatarBitmap),
+                                    contentDescription = "Avatar",
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
+                            else -> {
+                                Text(
+                                    text = account?.username?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
+                                    style = MaterialTheme.typography.headlineLarge
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Avatar action buttons
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        PressableButton(
+                            shadowColor = Color(0xFF2196F3),
+                            cornerRadius = 8.dp,
+                        ) { interactionSource, pressModifier ->
+                            Button(
+                                onClick = { permissionLauncher.launch(Manifest.permission.CAMERA) },
+                                modifier = pressModifier,
+                                interactionSource = interactionSource,
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFF2196F3),
+                                    contentColor = Color.White
+                                ),
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                Icon(Icons.Default.CameraAlt, null, tint = assets.textAccount, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Photo", color = assets.textAccount, fontSize = FontSize.BUTTON.sp)
+                            }
+                        }
+
+                        PressableButton(
+                            shadowColor = assets.equipAlreadyBackground,
+                            cornerRadius = 8.dp,
+                        ) { interactionSource, pressModifier ->
+                            OutlinedButton(
+                                onClick = { showAvatarPicker = true },
+                                modifier = pressModifier,
+                                interactionSource = interactionSource,
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    containerColor = assets.equipAlreadyBackground,
+                                    contentColor = assets.textAccount
+                                ),
+                                border = BorderStroke(1.dp, assets.buttonOutlineAccount),
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                Text("Choisir un avatar", color = assets.textAccount, fontSize = FontSize.BUTTON.sp)
+                            }
+                        }
+
+                        PressableButton(
+                            shadowColor = assets.equipAlreadyBackground,
+                            cornerRadius = 8.dp,
+                        ) { interactionSource, pressModifier ->
+                            OutlinedButton(
+                                onClick = { accountViewModel.toggleQrCode() },
+                                modifier = pressModifier,
+                                interactionSource = interactionSource,
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    containerColor = assets.equipAlreadyBackground,
+                                    contentColor = assets.textAccount
+                                ),
+                                border = BorderStroke(1.dp, assets.buttonOutlineAccount),
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                Icon(Icons.Default.QrCode, null, tint = assets.textAccount, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(if (showQrCode) "Masquer QR" else "Montrer QR", color = assets.textAccount, fontSize = FontSize.BUTTON.sp)
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        PressableButton(
+                            shadowColor = assets.equipAlreadyBackground,
+                            cornerRadius = 8.dp,
+                            enabled = hasAvatarChange,
+                        ) { interactionSource, pressModifier ->
+                            OutlinedButton(
+                                onClick = {
                                     avatarBase64 = null
-                                }
-                            },
-                            onResetFields = {
-                                name = account?.username ?: ""
-                                email = account?.email ?: ""
-                                nameError = null
-                                emailError = null
-                            },
-                            onSaveFields = { accountViewModel.updateAccount(name = name, email = email) },
-                            onDeleteAccount = { showDeleteDialog = true },
-                            onContinueTutorial = { tutorialViewModel.continueFromSaved() },
-                            onRestartTutorial = { tutorialViewModel.restart() },
-                            themeViewModel = themeViewModel
+                                    avatarUri = null
+                                    selectedDefaultResId = null
+                                },
+                                modifier = pressModifier,
+                                interactionSource = interactionSource,
+                                enabled = hasAvatarChange,
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    containerColor = assets.equipAlreadyBackground,
+                                    contentColor = assets.textAccount,
+                                    disabledContainerColor = assets.equipAlreadyBackground.copy(alpha = 0.5f),
+                                    disabledContentColor = assets.textAccount.copy(alpha = 0.5f)
+                                ),
+                                border = BorderStroke(1.dp, assets.buttonOutlineAccount),
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                Text("Réinitialiser avatar", color = assets.textAccount, fontSize = FontSize.BUTTON.sp)
+                            }
+                        }
+
+                        PressableButton(
+                            shadowColor = if (hasAvatarChange) Color(0xFF2196F3) else assets.buttonBackgroundAccount,
+                            cornerRadius = 8.dp,
+                            enabled = hasAvatarChange,
+                        ) { interactionSource, pressModifier ->
+                            Button(
+                                onClick = {
+                                    avatarBase64?.let {
+                                        accountViewModel.updateAccountAvatar(it)
+                                        avatarBase64 = null
+                                    }
+                                },
+                                modifier = pressModifier,
+                                interactionSource = interactionSource,
+                                enabled = hasAvatarChange,
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFF2196F3),
+                                    contentColor = Color.White,
+                                    disabledContainerColor = Color(0xFF2196F3).copy(alpha = 0.5f),
+                                    disabledContentColor = assets.textAccount.copy(alpha = 0.5f)
+                                ),
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                Text("Enregistrer avatar", color = assets.textAccount, fontSize = FontSize.BUTTON.sp)
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Navigation section
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(assets.boxAccount.copy(alpha = 0.6f))
+                            .padding(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            "Navigation",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = FontSize.SUBTITLE.sp,
+                            color = assets.textAccount,
+                            modifier = Modifier.padding(bottom = 8.dp)
                         )
-                        1 -> AccountHistoryTab(
-                            account = account,
-                            dateFormat = dateFormat,
-                            themeViewModel
+
+                        val navItems = listOf("Détails du compte", "Historique des actions", "Parties jouées")
+                        val navColors = listOf(Color(0xFF2196F3), Color(0xFF4CAF50), Color(0xFFFF9800))
+
+                        navItems.forEachIndexed { index, title ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(
+                                        if (selectedTabIndex == index) assets.textAccount.copy(alpha = 0.15f)
+                                        else Color.Transparent
+                                    )
+                                    .clickable { selectedTabIndex = index }
+                                    .padding(vertical = 8.dp, horizontal = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(10.dp)
+                                        .clip(CircleShape)
+                                        .background(navColors[index])
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Text(
+                                    title,
+                                    color = assets.textAccount,
+                                    fontSize = FontSize.BODY.sp,
+                                    fontWeight = if (selectedTabIndex == index) FontWeight.Bold else FontWeight.Normal
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Statistics section
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(assets.boxAccount.copy(alpha = 0.6f))
+                            .padding(8.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            "Statistiques",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = FontSize.SUBTITLE.sp,
+                            color = assets.textAccount,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 12.dp),
+                            textAlign = TextAlign.Start
                         )
-                        2 -> MatchHistoryTab(
-                            account = account,
-                            dateFormat = dateFormat,
-                            themeViewModel
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            StatBlock("${stats.classicGamesPlayed}", "Parties classiques", assets.textAccount, Modifier.weight(1f))
+                            StatBlock("${stats.CTFGamesPlayed}", "Parties CTF", assets.textAccount, Modifier.weight(1f))
+                        }
+
+                        Spacer(modifier = Modifier.height(15.dp))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            StatBlock("${stats.gamesWon}", "Victoires", assets.textAccount, Modifier.weight(1f))
+                            StatBlock("${stats.challengesCompleted}", "Défis réussis", assets.textAccount, Modifier.weight(1f))
+                        }
+
+                        Spacer(modifier = Modifier.height(15.dp))
+
+                        StatBlock(
+                            "${stats.averageGameTime.roundToInt()} S",
+                            "Durée moyenne par partie",
+                            assets.textAccount,
+                            Modifier.fillMaxWidth()
                         )
                     }
                 }
             }
+
+            // === RIGHT COLUMN ===
+            Column(
+                modifier = Modifier
+                    .width(450.dp)
+                    .fillMaxHeight()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(assets.boxAccount.copy(alpha = 0.7f))
+                    .verticalScroll(rememberScrollState())
+                    .padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                when (selectedTabIndex) {
+                    0 -> {
+                        // Theme
+                        Text(
+                            "Thème visuel",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = FontSize.SUBTITLE.sp,
+                            color = assets.textAccount,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center
+                        )
+                        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                            ThemeSelector(themeViewModel = themeViewModel)
+                        }
+
+                        HorizontalDivider(color = assets.textAccount.copy(alpha = 0.3f))
+
+                        // Name & Email
+                        val textFieldColors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = assets.textAccount,
+                            unfocusedTextColor = assets.textAccount,
+                            focusedBorderColor = assets.textAccount,
+                            unfocusedBorderColor = assets.textAccount.copy(alpha = 0.5f),
+                            cursorColor = assets.textAccount,
+                            focusedLabelColor = assets.textAccount,
+                            unfocusedLabelColor = assets.textAccount.copy(alpha = 0.7f),
+                        )
+
+                        Text("Nom d'utilisateur", fontSize = FontSize.BODY.sp, color = assets.textAccount)
+                        OutlinedTextField(
+                            value = name,
+                            onValueChange = {
+                                val filtered = it.filterNot { c -> c.isWhitespace() }
+                                if (filtered.length <= Validation.MAX_USERNAME_LENGTH) name = filtered
+                                nameError = Validation.validateUsername(name)
+                            },
+                            leadingIcon = { Icon(Icons.Default.Person, null, tint = assets.textAccount) },
+                            isError = nameError != null,
+                            supportingText = { nameError?.let { Text(it, color = Color.Red) } },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                            colors = textFieldColors,
+                            textStyle = TextStyle(fontSize = FontSize.BODY.sp),
+                        )
+
+                        Text("Adresse courriel", fontSize = FontSize.BODY.sp, color = assets.textAccount)
+                        OutlinedTextField(
+                            value = email,
+                            onValueChange = {
+                                val filtered = it.filterNot { c -> c.isWhitespace() }
+                                if (filtered.length <= Validation.MAX_EMAIL_LENGTH) email = filtered
+                                emailError = Validation.validateEmail(email)
+                            },
+                            leadingIcon = { Icon(Icons.Default.Email, null, tint = assets.textAccount) },
+                            isError = emailError != null,
+                            supportingText = { emailError?.let { Text(it, color = Color.Red) } },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                            colors = textFieldColors,
+                            textStyle = TextStyle(fontSize = FontSize.BODY.sp),
+                        )
+
+                        // Save/Reset buttons
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            val hasFieldChanges = name != (account?.username ?: "") || email != (account?.email ?: "")
+                            PressableButton(
+                                shadowColor = assets.equipAlreadyBackground,
+                                cornerRadius = 8.dp,
+                                enabled = hasFieldChanges,
+                                modifier = Modifier.weight(1f),
+                            ) { interactionSource, pressModifier ->
+                                OutlinedButton(
+                                    onClick = {
+                                        name = account?.username ?: ""
+                                        email = account?.email ?: ""
+                                        nameError = null
+                                        emailError = null
+                                    },
+                                    modifier = pressModifier.fillMaxWidth(),
+                                    interactionSource = interactionSource,
+                                    enabled = hasFieldChanges,
+                                    colors = ButtonDefaults.outlinedButtonColors(
+                                        containerColor = assets.equipAlreadyBackground,
+                                        contentColor = assets.textAccount,
+                                        disabledContainerColor = assets.equipAlreadyBackground.copy(alpha = 0.5f),
+                                        disabledContentColor = assets.textAccount.copy(alpha = 0.5f)
+                                    ),
+                                    border = BorderStroke(1.dp, assets.buttonOutlineAccount),
+                                    shape = RoundedCornerShape(8.dp)
+                                ) {
+                                    Text("Réinitialiser", color = assets.textAccount, fontSize = FontSize.BODY.sp)
+                                }
+                            }
+
+                            PressableButton(
+                                shadowColor = Color(0xFF2196F3),
+                                cornerRadius = 8.dp,
+                                modifier = Modifier.weight(1f),
+                                enabled = hasFieldChanges && nameError == null && emailError == null,
+                            ) { interactionSource, pressModifier ->
+                                Button(
+                                    onClick = { accountViewModel.updateAccount(name = name, email = email) },
+                                    enabled = hasFieldChanges && nameError == null && emailError == null,
+                                    modifier = pressModifier.fillMaxWidth(),
+                                    interactionSource = interactionSource,
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Color(0xFF2196F3),
+                                        contentColor = Color.White,
+                                        disabledContainerColor = Color(0xFF2196F3).copy(alpha = 0.5f),
+                                        disabledContentColor = assets.textAccount.copy(alpha = 0.5f)
+                                    ),
+                                    shape = RoundedCornerShape(8.dp)
+                                ) {
+                                    Text("Enregistrer", color = Color.White, fontSize = FontSize.BODY.sp)
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        // Delete button
+                        PressableButton(
+                            shadowColor = Color.Red,
+                            cornerRadius = 8.dp,
+                        ) { interactionSource, pressModifier ->
+                            Button(
+                                onClick = { showDeleteDialog = true },
+                                modifier = pressModifier.fillMaxWidth(),
+                                interactionSource = interactionSource,
+                                colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                Text("Supprimer le compte", color = Color.White, fontSize = FontSize.BODY.sp)
+                            }
+                        }
+                    }
+
+                    1 -> AccountHistoryTab(account = account, dateFormat = dateFormat, themeViewModel)
+
+                    2 -> MatchHistoryTab(account = account, dateFormat = dateFormat, themeViewModel)
+                }
+            }
         }
 
+        // QR Code overlay
         if (showQrCode && qrBitmap != null) {
             Image(
                 bitmap = qrBitmap!!.asImageBitmap(),
@@ -313,27 +667,76 @@ fun AccountScreen(
         }
     }
 
+    // Delete dialog
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Confirmer la suppression", fontSize = FontSize.SUBTITLE.sp) },
-            text = { Text("Êtes-vous sûr de vouloir supprimer votre compte? Cette action est irréversible.", fontSize = FontSize.SUBTITLE.sp) },
+            shape = RoundedCornerShape(20.dp),
+            containerColor = Color.White,
+            title = {
+                Text(
+                    "Supprimer le compte?",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 22.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            text = {
+                Text(
+                    "Êtes-vous certain de supprimer votre compte? Cette action est irréversible.",
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
             confirmButton = {
-                TextButton(onClick = {
-                    showDeleteDialog = false
-                    accountViewModel.deleteAccount {
-                        navController.navigate(Screen.Login.route) {
-                            popUpTo(0) { inclusive = true }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally)
+                ) {
+                    PressableButton(
+                        shadowColor = Color(0xFF757575),
+                        cornerRadius = 20.dp,
+                    ) { interactionSource, pressModifier ->
+                        Button(
+                            onClick = { showDeleteDialog = false },
+                            modifier = pressModifier,
+                            interactionSource = interactionSource,
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF757575)),
+                            shape = RoundedCornerShape(20.dp)
+                        ) {
+                            Text("Non, garder mon compte", color = Color.White, fontSize = 15.sp)
                         }
                     }
-                }) { Text("Supprimer", color = Color.Red, fontSize = FontSize.BODY.sp) }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) { Text("Annuler", fontSize = FontSize.BODY.sp) }
+
+                    PressableButton(
+                        shadowColor = Color(0xFFE53935),
+                        cornerRadius = 20.dp,
+                    ) { interactionSource, pressModifier ->
+                        Button(
+                            onClick = {
+                                showDeleteDialog = false
+                                accountViewModel.deleteAccount {
+                                    navController.navigate(Screen.Login.route) {
+                                        popUpTo(0) { inclusive = true }
+                                    }
+                                }
+                            },
+                            modifier = pressModifier,
+                            interactionSource = interactionSource,
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE53935)),
+                            shape = RoundedCornerShape(20.dp)
+                        ) {
+                            Text("Oui, supprimer mon compte", color = Color.White, fontSize = 15.sp)
+                        }
+                    }
+                }
             }
         )
     }
 
+    // Avatar picker dialog
     if (showAvatarPicker) {
         AlertDialog(
             onDismissRequest = { showAvatarPicker = false },
@@ -394,258 +797,28 @@ fun AccountScreen(
     }
 }
 
-// ==================== TAB 1: Détails du compte ====================
-
 @Composable
-private fun AccountDetailsTab(
-    account: com.mobile_client.utils.Account?,
-    name: String,
-    email: String,
-    nameError: String?,
-    emailError: String?,
-    hasAvatarChange: Boolean,
-    avatarUri: Uri?,
-    selectedDefaultResId: Int?,
-    currentAvatarBitmap: android.graphics.Bitmap?,
-    showQrCode: Boolean,
-    qrBitmap: android.graphics.Bitmap?,
-    stats: AccountStats,
-    onNameChange: (String) -> Unit,
-    onEmailChange: (String) -> Unit,
-    onTakePhoto: () -> Unit,
-    onChooseAvatar: () -> Unit,
-    onToggleQr: () -> Unit,
-    onResetAvatar: () -> Unit,
-    onSaveAvatar: () -> Unit,
-    onResetFields: () -> Unit,
-    onSaveFields: () -> Unit,
-    onDeleteAccount: () -> Unit,
-    onContinueTutorial: () -> Unit,
-    onRestartTutorial: () -> Unit,
-    themeViewModel: ThemeViewModel
-) {
-    val assets = themeViewModel.assets
-    // Avatar display
-    Box(
-        modifier = Modifier
-            .size(110.dp)
-            .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .border(BorderStroke(2.dp, MaterialTheme.colorScheme.primary), CircleShape),
-        contentAlignment = Alignment.Center
+fun StatBlock(value: String, label: String, textColor: Color, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(8.dp))
+            .border(1.dp, textColor.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
+            .padding(horizontal = 20.dp, vertical = 12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        when {
-            selectedDefaultResId != null -> {
-                Image(
-                    painter = rememberAsyncImagePainter(selectedDefaultResId),
-                    contentDescription = "Avatar",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-            }
-            avatarUri != null -> {
-                Image(
-                    painter = rememberAsyncImagePainter(avatarUri),
-                    contentDescription = "Avatar",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-            }
-            currentAvatarBitmap != null -> {
-                Image(
-                    painter = rememberAsyncImagePainter(currentAvatarBitmap),
-                    contentDescription = "Avatar",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-            }
-            else -> {
-                Text(
-                    text = account?.username?.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
-                    style = MaterialTheme.typography.headlineLarge,
-                    fontSize = FontSize.BODY.sp
-                )
-            }
-        }
-    }
-
-    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        Button(onClick = onTakePhoto,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = assets.buttonBackgroundAccount,
-                contentColor = assets.textAccount
-            )) {
-            Icon(Icons.Default.CameraAlt, null, tint = Color.White)
-            Spacer(modifier = Modifier.width(6.dp))
-            Text("Photo", color = assets.textAccount, fontSize = FontSize.BUTTON.sp)
-        }
-        OutlinedButton(onClick = onChooseAvatar,
-            colors = ButtonDefaults.outlinedButtonColors(
-                containerColor = assets.buttonBackgroundAccount,
-                contentColor = assets.textAccount
-            ),
-            border = BorderStroke(1.dp, assets.buttonOutlineAccount)) {
-            Text("Choisir un avatar", color = assets.textAccount, fontSize = FontSize.BUTTON.sp)
-        }
-        OutlinedButton(onClick = onToggleQr, modifier = Modifier.width(170.dp),
-            colors = ButtonDefaults.outlinedButtonColors(
-                containerColor = assets.buttonBackgroundAccount,
-                contentColor = assets.textAccount
-            ),
-            border = BorderStroke(1.dp, assets.buttonOutlineAccount)) {
-            Icon(Icons.Default.QrCode, null, tint = Color.White)
-            Spacer(modifier = Modifier.width(6.dp))
-            Text(if (showQrCode) "Masquer QR" else "Montrer QR", color = assets.textAccount, fontSize = FontSize.BUTTON.sp)
-        }
-    }
-
-    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        OutlinedButton(
-            onClick = onResetAvatar,
-            enabled = hasAvatarChange,
-            colors = ButtonDefaults.outlinedButtonColors(
-                containerColor = assets.buttonBackgroundAccount,
-                contentColor = assets.textAccount
-            ),
-            border = BorderStroke(1.dp, assets.buttonOutlineAccount)
-        ) { Text("Réinitialiser avatar", color = assets.textAccount, fontSize = FontSize.BUTTON.sp) }
-
-        Button(
-            onClick = onSaveAvatar,
-            enabled = hasAvatarChange,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = if (hasAvatarChange) {
-                    assets.buttonBackgroundAccount.copy(alpha = 0.9f) // whiter
-                } else {
-                    assets.buttonBackgroundAccount
-                },
-                contentColor = assets.textAccount
-            )
-        ) { Text("Enregistrer avatar", color = assets.textAccount, fontSize = FontSize.BUTTON.sp) }
-    }
-
-    // Tutorial
-    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-    Text("Tutoriel", style = MaterialTheme.typography.titleMedium, color = assets.textAccount, fontSize = FontSize.BODY.sp)
-    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        OutlinedButton(
-            onClick = onContinueTutorial,
-            colors = ButtonDefaults.outlinedButtonColors(
-                containerColor = assets.buttonBackgroundAccount,
-                contentColor = assets.textAccount
-            ),
-            border = BorderStroke(1.dp, assets.buttonOutlineAccount)
-            ) {
-            Text("Continuer le tutoriel", color = assets.textAccount, fontSize = FontSize.BUTTON.sp)
-        }
-        OutlinedButton(
-            onClick = onRestartTutorial,
-            colors = ButtonDefaults.outlinedButtonColors(
-                containerColor = assets.buttonBackgroundAccount,
-                contentColor = assets.textAccount
-            ),
-            border = BorderStroke(1.dp, assets.buttonOutlineAccount)
-        ) {
-            Text("Recommencer le tutoriel", color = assets.textAccount, fontSize = FontSize.BUTTON.sp)
-        }
-    }
-
-    // Stats
-    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-    Text("Statistiques", style = MaterialTheme.typography.titleMedium, color = assets.textAccount, fontSize = FontSize.BODY.sp)
-    Column(modifier = Modifier.fillMaxWidth()) {
-        StatRow("Parties classiques jouées", "${stats.classicGamesPlayed}", assets.textAccount)
-        StatRow("Parties CTF jouées", "${stats.CTFGamesPlayed}", assets.textAccount)
-        StatRow("Parties gagnées", "${stats.gamesWon}", assets.textAccount)
-        StatRow("Temps moyen de partie", "${stats.averageGameTime.roundToInt()} s", assets.textAccount)
-        StatRow("Défis accomplis", "${stats.challengesCompleted}", assets.textAccount)
-    }
-
-    // Theme
-    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-    Text("Thème visuel", style = MaterialTheme.typography.titleMedium, color = assets.textAccount, fontSize = FontSize.BODY.sp)
-    ThemeSelector(themeViewModel = themeViewModel)
-
-    // Name & Email fields
-    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-    val textFieldColors = OutlinedTextFieldDefaults.colors(
-        focusedTextColor = assets.textAccount,
-        unfocusedTextColor = assets.textAccount,
-        focusedBorderColor = assets.textAccount,
-        unfocusedBorderColor = assets.textAccount.copy(alpha = 0.5f),
-        cursorColor = assets.textAccount,
-        focusedLabelColor = assets.textAccount,
-        unfocusedLabelColor = assets.textAccount.copy(alpha = 0.7f),
-    )
-
-    OutlinedTextField(
-        value = name,
-        onValueChange = onNameChange,
-        label = { Text("Nom") },
-        leadingIcon = { Icon(Icons.Default.Person, null, tint = assets.textAccount) },
-        isError = nameError != null,
-        supportingText = { nameError?.let { Text(it, color = Color.Red) } },
-        modifier = Modifier.fillMaxWidth(),
-        singleLine = true,
-        colors = textFieldColors,
-        textStyle = TextStyle(fontSize = FontSize.BODY.sp),
-    )
-
-    OutlinedTextField(
-        value = email,
-        onValueChange = onEmailChange,
-        label = { Text("Email") },
-        leadingIcon = { Icon(Icons.Default.Email, null, tint = assets.textAccount) },
-        isError = emailError != null,
-        supportingText = { emailError?.let { Text(it, color = Color.Red) } },
-        modifier = Modifier.fillMaxWidth(),
-        singleLine = true,
-        colors = textFieldColors,
-        textStyle = TextStyle(fontSize = FontSize.BODY.sp),
-    )
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        OutlinedButton(
-            onClick = onResetFields,
-            modifier = Modifier.weight(1f),
-            colors = ButtonDefaults.outlinedButtonColors(
-                containerColor = assets.buttonBackgroundAccount,
-                contentColor = assets.textAccount
-            ),
-            border = BorderStroke(1.dp, assets.buttonOutlineAccount)
-        ) { Text("Réinitialiser", color = assets.textAccount, fontSize = FontSize.BODY.sp) }
-
-        Button(
-            onClick = onSaveFields,
-            enabled = nameError == null && emailError == null,
-            modifier = Modifier.weight(1f)
-        ) { Text("Enregistrer", color = assets.textAccount, fontSize = FontSize.BODY.sp) }
-    }
-
-    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-    Button(
-        onClick = onDeleteAccount,
-        colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Text("Supprimer le compte", color = assets.textAccount, fontSize = FontSize.BODY.sp)
+        Text(value, fontWeight = FontWeight.Bold, fontSize = 28.sp, color = textColor)
+        Text(label, fontSize = FontSize.BUTTON.sp, color = textColor, textAlign = TextAlign.Center)
     }
 }
-
-// ==================== TAB 2: Historique du compte ====================
-
 @Composable
-private fun AccountHistoryTab(
+fun AccountHistoryTab(
     account: com.mobile_client.utils.Account?,
     dateFormat: SimpleDateFormat,
     themeViewModel: ThemeViewModel
 ) {
     val assets = themeViewModel.assets
     val actionHistory = account?.actionHistory ?: emptyList()
+
     if (actionHistory.isEmpty()) {
         Text(
             "Aucune action enregistrée",
@@ -654,43 +827,71 @@ private fun AccountHistoryTab(
             fontSize = FontSize.SUBTITLE.sp
         )
     } else {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            for (log in actionHistory.sortedByDescending { it.timestamp }) {
+        val sorted = remember(actionHistory) {
+            actionHistory.sortedByDescending { it.timestamp }
+        }
+
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth().heightIn(max = 800.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(sorted.size) { index ->
+                val log = sorted[index]
+                val isLogin = log.action.label.lowercase().contains("connexion") &&
+                    !log.action.label.lowercase().contains("déconnexion")
+
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(assets.boxAccount.copy(alpha = 0.25f))
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        log.action.label,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = assets.textAccount,
-                        fontSize = FontSize.BUTTON.sp
-                    )
-                    Text(
-                        dateFormat.format(log.timestamp),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = assets.textAccount.copy(alpha = 0.7f),
-                        fontSize = FontSize.BUTTON.sp
-                    )
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(CircleShape)
+                            .background(Color.Transparent),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            if (isLogin) "→]" else "[→",
+                            color = if (isLogin) Color(134, 183, 251, 225) else Color(0xFFFF8C2E),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    Column {
+                        Text(
+                            log.action.label,
+                            fontWeight = FontWeight.Bold,
+                            color = assets.textAccount,
+                            fontSize = FontSize.BUTTON.sp
+                        )
+                        Text(
+                            dateFormat.format(log.timestamp),
+                            color = assets.textAccount.copy(alpha = 0.7f),
+                            fontSize = FontSize.SMALL.sp
+                        )
+                    }
                 }
             }
         }
     }
 }
-
-// ==================== TAB 3: Historique des parties jouées ====================
-
 @Composable
-private fun MatchHistoryTab(
+fun MatchHistoryTab(
     account: com.mobile_client.utils.Account?,
     dateFormat: SimpleDateFormat,
     themeViewModel: ThemeViewModel
 ) {
     val assets = themeViewModel.assets
     val matchHistory = account?.matchHistory ?: emptyList()
+
     if (matchHistory.isEmpty()) {
         Text(
             "Aucune partie enregistrée",
@@ -699,60 +900,81 @@ private fun MatchHistoryTab(
             fontSize = FontSize.SUBTITLE.sp
         )
     } else {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            for (match in matchHistory.sortedByDescending { it.startTime }) {
+        val sorted = remember(matchHistory) {
+            matchHistory.sortedByDescending { it.startTime }
+        }
+
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth().heightIn(max = 800.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(sorted.size) { index ->
+                val match = sorted[index]
+                val statusColor = when {
+                    match.hasLeft -> Color(0xFFFF8C2E)
+                    match.gameWon -> Color(0xFF4CAF50)
+                    else -> Color(0xFFEF5350)
+                }
+                val statusText = when {
+                    match.hasLeft -> "Abandonné"
+                    match.gameWon -> "Victoire"
+                    else -> "Défaite"
+                }
+
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 6.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(assets.boxAccount.copy(alpha = 0.5f))
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Column {
-                        Text(
-                            match.gameType.label,
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = assets.textAccount,
-                            fontSize = FontSize.BUTTON.sp
-                        )
-                        Text(
-                            dateFormat.format(match.startTime),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color.White.copy(alpha = 0.7f),
-                            fontSize = FontSize.BUTTON.sp
-                        )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(CircleShape)
+                                .background(statusColor.copy(alpha = 0.2f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                if (match.hasLeft) "[→" else if (match.gameWon) "✓" else "✖",
+                                color = statusColor,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.width(12.dp))
+
+                        Column {
+                            Text(
+                                match.gameType.label,
+                                fontWeight = FontWeight.Bold,
+                                color = assets.textAccount,
+                                fontSize = FontSize.BUTTON.sp
+                            )
+                            Text(
+                                dateFormat.format(match.startTime),
+                                color = assets.textAccount.copy(alpha = 0.7f),
+                                fontSize = FontSize.SMALL.sp
+                            )
+                        }
                     }
+
                     Text(
-                        text = when {
-                            match.hasLeft -> "Vous avez abandonné la partie"
-                            match.gameWon -> "Victoire"
-                            else -> "Défaite"
-                        },
-                        style = MaterialTheme.typography.bodyMedium,
+                        statusText,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(statusColor.copy(alpha = 0.2f))
+                            .padding(horizontal = 12.dp, vertical = 4.dp),
+                        color = statusColor,
                         fontWeight = FontWeight.Bold,
-                        color = when {
-                            match.hasLeft -> Color(0xFFEF5350)
-                            match.gameWon -> Color(0xFF4CAF50)
-                            else -> Color(0xFFEF5350)
-                        },
-                        fontSize = FontSize.BUTTON.sp
+                        fontSize = FontSize.SMALL.sp
                     )
                 }
             }
         }
-    }
-}
-
-@Composable
-fun StatRow(label: String, value: String, textColor: Color = Color.Black) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(label, style = MaterialTheme.typography.bodyMedium, color = textColor, fontSize = FontSize.BUTTON.sp)
-        Text(value, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, color = textColor, fontSize = FontSize.BUTTON.sp)
     }
 }

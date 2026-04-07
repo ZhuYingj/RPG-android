@@ -29,7 +29,6 @@ class ShopViewModel : ViewModel() {
     fun loadData() {
         viewModelScope.launch {
             _isLoading.value = true
-            AccountService.instance.fetchAccount()
             _money.value = AccountService.instance.money.intValue
             _shopItems.value = cosmeticService.loadShop()
             _isLoading.value = false

@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -31,8 +32,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,14 +50,16 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.mobile_client.components.PressableButton
 import com.mobile_client.services.AccountService
+import com.mobile_client.utils.Cosmetic
 import com.mobile_client.utils.FontSize
 import com.mobile_client.utils.ImageResources
 import com.mobile_client.utils.ImageUtils
 import com.mobile_client.utils.Screen
+import com.mobile_client.utils.showDismissible
 import com.mobile_client.viewModels.ShopViewModel
 import com.mobile_client.viewModels.ThemeViewModel
-import kotlinx.coroutines.launch
 
 @Composable
 fun ShopScreen(
@@ -71,7 +76,9 @@ fun ShopScreen(
     val scope = rememberCoroutineScope()
 
     val account = AccountService.instance.accountInfo
-    val avatarBitmap = ImageUtils.base64ToBitmap(account?.avatar)
+    val avatarBitmap = remember(account?.avatar) {
+        ImageUtils.base64ToBitmap(account?.avatar)
+    }
 
     LaunchedEffect(Unit) {
         shopViewModel.loadData()
@@ -79,7 +86,7 @@ fun ShopScreen(
 
     LaunchedEffect(snackbarMessage) {
         snackbarMessage?.let {
-            scope.launch { snackbarHostState.showSnackbar(it) }
+            snackbarHostState.showDismissible(scope, it)
             shopViewModel.clearMessage()
         }
     }
@@ -138,6 +145,20 @@ fun ShopScreen(
                 }
 
                 else -> {
+
+                    var itemToBuy by remember { mutableStateOf<Cosmetic?>(null) }
+
+                    if (itemToBuy != null) {
+                        BuyConfirmationDialog(
+                            itemName = itemToBuy!!.name,
+                            itemPrice = itemToBuy!!.price,
+                            currentBalance = money,
+                            themeViewModel = themeViewModel,
+                            onConfirm = { shopViewModel.buyItem(itemToBuy!!) },
+                            onDismiss = { itemToBuy = null }
+                        )
+                    }
+
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(5),
                         modifier = Modifier
@@ -205,13 +226,27 @@ fun ShopScreen(
 
                                 Spacer(modifier = Modifier.height(8.dp))
 
-                                Button(
-                                    onClick = { shopViewModel.buyItem(item) },
-                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
-                                    shape = RoundedCornerShape(6.dp),
-                                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
-                                ) {
-                                    Text("Acheter", color = Color.White, fontSize = FontSize.SMALL.sp, fontFamily = FontFamily.Default)
+                                PressableButton(
+                                    shadowColor = assets.buyButtonBackground,
+                                    cornerRadius = 6.dp,
+                                    shadowTopInset = 3.5.dp
+                                ) { interactionSource, pressModifier ->
+                                    Button(
+                                        onClick = {
+                                            if (money < item.price) {
+                                                shopViewModel.buyItem(item)
+                                            } else {
+                                                itemToBuy = item
+                                            }
+                                        },
+                                        modifier = pressModifier,
+                                        interactionSource = interactionSource,
+                                        colors = ButtonDefaults.buttonColors(containerColor = assets.buyButtonBackground),
+                                        shape = RoundedCornerShape(6.dp),
+                                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                                    ) {
+                                        Text("Acheter", color = Color.White, fontSize = FontSize.SMALL.sp, fontFamily = FontFamily.Default)
+                                    }
                                 }
                             }
                         }
@@ -281,4 +316,110 @@ fun ShopScreen(
             }
         }
     }
+}
+
+@Composable
+fun BuyConfirmationDialog(
+    itemName: String,
+    itemPrice: Int,
+    currentBalance: Int,
+    themeViewModel: ThemeViewModel,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    val assets = themeViewModel.assets
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(20.dp),
+        containerColor = Color.White,
+        title = {
+            Text(
+                text = "Confirmer l'achat?",
+                fontWeight = FontWeight.Bold,
+                fontSize = 24.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Text(
+                    text = "Voulez-vous acheter \"$itemName\" pour ${itemPrice}$ ?",
+                    fontSize = 20.sp,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Solde actuel: ${currentBalance}$",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Gray,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Row {
+                    Text(
+                        text = "Nouveau solde:",
+                        fontSize = 14.sp,
+                        color = Color.Black,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = " ${currentBalance-itemPrice}$",
+                        fontSize = 14.sp,
+                        color = Color.Red,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center
+                    )
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+        },
+        confirmButton = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                PressableButton(
+                    shadowColor = Color(0xFF757575),
+                    cornerRadius = 22.dp,
+                ) { interactionSource, pressModifier ->
+                    Button(
+                        onClick = onDismiss,
+                        modifier = pressModifier,
+                        interactionSource = interactionSource,
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF757575)),
+                        shape = RoundedCornerShape(20.dp)
+                    ) {
+                        Text("Non, annuler", color = Color.White, fontSize = 15.sp)
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                PressableButton(
+                    shadowColor = assets.gameCreationButton,
+                    cornerRadius = 22.dp,
+                ) { interactionSource, pressModifier ->
+                    Button(
+                        onClick = {
+                            onConfirm()
+                            onDismiss()
+                        },
+                        modifier = pressModifier,
+                        interactionSource = interactionSource,
+                        colors = ButtonDefaults.buttonColors(containerColor = assets.gameCreationButton),
+                        shape = RoundedCornerShape(20.dp)
+                    ) {
+                        Text("Oui, acheter", color = assets.textAccount, fontSize = 15.sp)
+                    }
+                }
+            }
+        }
+    )
 }

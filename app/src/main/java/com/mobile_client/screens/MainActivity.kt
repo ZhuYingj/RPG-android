@@ -13,7 +13,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -22,6 +24,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -50,7 +53,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            MobileclientTheme {
+            MobileclientTheme{
                 LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
                 val themeViewModel: ThemeViewModel = viewModel()
                 val navController = rememberNavController()
@@ -71,7 +74,19 @@ class MainActivity : ComponentActivity() {
                     Screen.Home.route,
                     Screen.Game.route
                 )
-                Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = { SnackbarHost(snackbarHostState, modifier = Modifier.navigationBarsPadding()) }, contentWindowInsets = WindowInsets(0)) { innerPadding ->
+                Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = {
+                    SnackbarHost(
+                        snackbarHostState,
+                        modifier = Modifier
+                            .navigationBarsPadding()
+                            .widthIn(max = 410.dp)
+                    ) { data ->
+                        Snackbar(
+                            snackbarData = data,
+                            actionContentColor = Color.White,
+                        )
+                    }
+                }, contentWindowInsets = WindowInsets(0)) { innerPadding ->
                     Box(modifier = Modifier.fillMaxSize().padding(innerPadding).navigationBarsPadding().statusBarsPadding()) {
                         NavHost(
                             navController = navController,
@@ -149,10 +164,12 @@ class MainActivity : ComponentActivity() {
                             composable(Screen.Inventory.route) {
                                 InventoryScreen(
                                     navController = navController,
+                                    snackbarHostState = snackbarHostState,
                                     themeViewModel = themeViewModel
                                 )
                             }
                             composable(Screen.Shop.route) {
+                                println("Shop composable ENTRY: ${System.currentTimeMillis()}")
                                 ShopScreen(
                                     navController = navController,
                                     snackbarHostState = snackbarHostState,
@@ -226,12 +243,6 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
                         }
-                        SnackbarHost(
-                            hostState = snackbarHostState,
-                            modifier = Modifier
-                                .align(Alignment.BottomCenter)
-                                .zIndex(99f)
-                        )
 
                         if (tutorialViewModel.isVisible.value) {
                             TutorialOverlay(tutorialViewModel = tutorialViewModel, themeViewModel)

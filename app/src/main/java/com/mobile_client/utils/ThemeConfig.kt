@@ -65,6 +65,9 @@ data class ThemeAssets(
     val playerItem: Color,
     val playerItemActive: Color,
     val playerStats: Color,
+    val backgroundAccount: Int,
+    val unequip: Color,
+    val alreadyUnequipped: Color
 )
 
 val themeAssetsMap = mapOf(
@@ -86,7 +89,7 @@ val themeAssetsMap = mapOf(
         backButtonColorHover = Color(0xFFD48AB8),
         mainPageTextColor = Color.Black,
         tabIndicatorColor = Color(0xFFFF8C2E),
-        headerRightBackground = Color(128, 177, 255, 55),
+        headerRightBackground = Color(128, 177, 255, 110),
         headerRightBorder = Color(0, 0, 0, 40),
         buyButtonBackground = Color(76, 175, 80, ),
         equipAlreadyBackground = Color(177, 157, 119),
@@ -125,6 +128,9 @@ val themeAssetsMap = mapOf(
         playerItem = Color(243,243,243),
         playerItemActive = Color(232,245,233),
         playerStats = Color.Gray,
+        backgroundAccount = R.drawable.account_background,
+        unequip = Color.Red,
+        alreadyUnequipped = Color(255,147,147)
     ),
     AppTheme.AUBERGINES to ThemeAssets(
         title = "Les Aubergines",
@@ -166,7 +172,7 @@ val themeAssetsMap = mapOf(
         statsBackground = Color(0, 167, 151),
         leaderBoardBackground = Color(255, 255, 255, 160),
         leaderBoardActive = Color(49, 0, 183),
-        leaderBoardInactive = Color.Gray,
+        leaderBoardInactive = Color.LightGray,
         leaderBoardRow = Color(255, 255, 255, 80),
         leaderBoardHeader = Color(204, 204, 204, 80),
         friendsButton = Color(119, 66, 175),
@@ -183,5 +189,8 @@ val themeAssetsMap = mapOf(
         playerItem = Color(179,201,255),
         playerItemActive = Color(209,255,245),
         playerStats = Color.Black,
+        backgroundAccount = R.drawable.second_account_background,
+        unequip = Color(0,149,255),
+        alreadyUnequipped = Color(127,154,177)
     ),
 )
