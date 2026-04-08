@@ -80,6 +80,8 @@ class FriendsViewModel : ViewModel() {
             loadBlockedUsers()
             loadFriends()
             loadAllUsers()
+            loadSentFriendRequests()
+            loadSentRequestUsernames()
         }
     }
 
@@ -260,6 +262,8 @@ class FriendsViewModel : ViewModel() {
                 loadFriends()
                 loadBlockedUsers()
                 loadAllUsers()
+                loadSentFriendRequests()
+                loadSentRequestUsernames()
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {

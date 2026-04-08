@@ -237,8 +237,8 @@ fun FriendsPanel(
                                                 enabled = !alreadySent && !isBlocked && !isPending
                                             ) {
                                                 Icon(
-                                                    if (alreadySent) Icons.Default.Check else Icons.Default.PersonAddAlt,
-                                                    contentDescription = if (alreadySent) "Déjà envoyé" else "Ajouter",
+                                                    if (alreadySent && !isBlocked && !isPending) Icons.Default.Check else Icons.Default.PersonAddAlt,
+                                                    contentDescription = if (alreadySent && !isBlocked && !isPending) "Déjà envoyé" else "Ajouter",
                                                     tint = if (alreadySent || isBlocked || isPending) Color.Gray else Color(0xFF4CAF50)
                                                 )
                                             }
@@ -248,7 +248,7 @@ fun FriendsPanel(
                                             enabled = !isBlocked && !isPending
                                         ) {
                                             Icon(
-                                                if (isBlocked || isPending) Icons.Default.Check else Icons.Default.Block,
+                                                Icons.Default.Block,
                                                 contentDescription = "Bloquer",
                                                 tint = if (isBlocked || isPending) Color.Gray else Color(0xFFFF9800)
                                             )
