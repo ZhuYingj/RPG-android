@@ -45,10 +45,10 @@ class ShopViewModel : ViewModel() {
         viewModelScope.launch {
             val success = cosmeticService.buyItem(item._id)
             if (success) {
+                launch(Dispatchers.IO) { AccountService.instance.fetchAccount() }.join()
                 _money.value = AccountService.instance.money.intValue
                 _inventory.value += InventoryCosmetic(cosmeticId = item._id, quantity = 1)
                 _message.value = "Achat Réussi"
-                launch(Dispatchers.IO) { AccountService.instance.fetchAccount() }
             } else {
                 _message.value = "Vous n'avez pas assez d'argent"
             }

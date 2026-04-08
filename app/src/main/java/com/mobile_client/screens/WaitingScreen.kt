@@ -62,12 +62,14 @@ import com.mobile_client.viewModels.GameLobbyViewModel
 import com.mobile_client.viewModels.ThemeViewModel
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.text.style.TextAlign
 import coil.compose.rememberAsyncImagePainter
 import com.mobile_client.components.PressableButton
 import com.mobile_client.utils.FontSize
 import com.mobile_client.utils.ImageUtils
 import com.mobile_client.utils.showDismissible
+import kotlinx.coroutines.CoroutineScope
 
 private val BotBlue = Color(0xFF20B6E3)
 private val LockOrange = Color(0xFFD88B06)
@@ -226,7 +228,9 @@ fun WaitingPageScreen(
                                         isHost,
                                         gameLobbyViewModel,
                                         textColor = Color.Black,
-                                        bgColor = assets.userBackgroundColor
+                                        bgColor = assets.userBackgroundColor,
+                                        snackbarHostState,
+                                        scope
                                     )
                                 }
                             }
@@ -413,7 +417,7 @@ fun WaitingPageScreen(
 }
 
 @Composable
-fun PlayerCard(player: Player, isHost: Boolean, gameLobbyViewModel: GameLobbyViewModel, textColor: Color = Color(0xFF1A1A1A), bgColor: Color = Color.White) {
+fun PlayerCard(player: Player, isHost: Boolean, gameLobbyViewModel: GameLobbyViewModel, textColor: Color = Color(0xFF1A1A1A), bgColor: Color = Color.White, snackbarHostState: SnackbarHostState, scope: CoroutineScope) {
     var botMenuExpanded by remember { mutableStateOf(false) }
     val profileBitmap = remember(player.profilePicture) {
         ImageUtils.base64ToBitmap(player.profilePicture)
@@ -535,7 +539,10 @@ fun PlayerCard(player: Player, isHost: Boolean, gameLobbyViewModel: GameLobbyVie
 
                 // Trash icon button instead of "Expulser" text
                 IconButton(
-                    onClick = { gameLobbyViewModel.kickPlayer(player) },
+                    onClick = {
+                        gameLobbyViewModel.kickPlayer(player)
+                        snackbarHostState.showDismissible(scope, "Joueur expulsé avec succès")
+                    },
                     modifier = Modifier
                         .size(36.dp)
                         .background(Color.Red, RoundedCornerShape(6.dp))
