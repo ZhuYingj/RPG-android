@@ -108,6 +108,7 @@ class GameControllerService private constructor() {
     }
 
     fun leaveEndGame() {
+        clear()
         GameLobbyService.instance.closeLobbyListeners()
         socketManager.closeGameListeners()
         socketManager.socket?.emit(GameEvents.END_GAME_LEAVE)
