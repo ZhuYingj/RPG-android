@@ -31,7 +31,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -61,7 +60,6 @@ import com.mobile_client.utils.isBot
 import com.mobile_client.utils.toGameTiles
 import com.mobile_client.viewModels.GameLobbyViewModel
 import com.mobile_client.viewModels.ThemeViewModel
-import kotlinx.coroutines.launch
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.ui.text.style.TextAlign
@@ -136,7 +134,7 @@ fun WaitingPageScreen(
             controller.player.value = gameLobbyViewModel.currentPlayer.value
             controller.originalPlayers.value = gameLobbyViewModel.players.toList()
             controller.lastPlayer.value = false
-            snackbarHostState.showDismissible(scope, 'La partie commence')
+            snackbarHostState.showDismissible(scope, "La partie commence")
 
             navController.navigate(Screen.Game.route) {
                 launchSingleTop = true
