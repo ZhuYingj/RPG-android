@@ -105,6 +105,8 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
 
     val assets = themeViewModel.assets
     var showAbandonDialog by remember { mutableStateOf(false) }
+
+    var endGameTimer by remember { mutableIntStateOf(-1) }
     // Recalculate accessible tiles when player or turn changes
     LaunchedEffect(player, currentPlayer, isDebug, isBetweenTurn, gameTiles) {
         visibleBushTiles = controller.getVisibleBushTiles()
@@ -160,12 +162,14 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
         }
     }
 
-    // Navigate to end game when winner is set
     LaunchedEffect(gameWinner) {
         if (gameWinner.isNotEmpty()) {
             snackbarHostState.showDismissible(scope, "Partie terminée et gagnant : $gameWinner")
-            delay(3000)
-            //TODO: Navigate to end game (EndGameScreen, where there is stats) after delay
+            endGameTimer = 3
+            while (endGameTimer > 0) {
+                delay(1000)
+                endGameTimer--
+            }
             navController.navigate(Screen.EndGame.route) {
                 popUpTo(0) { inclusive = true }
             }
@@ -578,6 +582,27 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
     if (isItemChoice) {
         ItemChoiceOverlay(controller)
         //TODO si timer run out reject default item?
+    }
+    if (endGameTimer >= 0) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.7f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Card(
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White)
+            ) {
+                Text(
+                    text = "Redirection dans ${endGameTimer}s",
+                    modifier = Modifier.padding(32.dp),
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
     }
 }
 @Composable

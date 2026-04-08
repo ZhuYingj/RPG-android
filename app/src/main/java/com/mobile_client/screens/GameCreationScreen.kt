@@ -2,6 +2,8 @@ package com.mobile_client.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,13 +13,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.SnackbarDuration
@@ -33,6 +38,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
@@ -45,11 +51,14 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
 import com.mobile_client.components.GameList
 import com.mobile_client.components.PressableButton
 import com.mobile_client.screens.ui.theme.AppFontFamily
+import com.mobile_client.services.AccountService
 import com.mobile_client.utils.FontSize
 import com.mobile_client.utils.GameMap
+import com.mobile_client.utils.ImageUtils
 import com.mobile_client.utils.Screen
 import com.mobile_client.utils.showDismissible
 import com.mobile_client.viewModels.GameListViewModel
@@ -70,6 +79,10 @@ fun GamesCreationScreen(
     var isRapid by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val assets = themeViewModel.assets
+    val account = AccountService.instance.accountInfo
+    val avatarBitmap = remember(account?.avatar) {
+        ImageUtils.base64ToBitmap(account?.avatar)
+    }
 
     LaunchedEffect(Unit) {
         gameListViewModel.mapSelected.collect { map ->
@@ -204,13 +217,11 @@ fun GamesCreationScreen(
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
         )
-
         Column(
             modifier = Modifier
                 .fillMaxWidth(0.67f)
                 .fillMaxSize()
                 .align(Alignment.Center)
-                .background(assets.gameListBackground, shape = RoundedCornerShape(8.dp))
                 .padding(16.dp)
         ) {
             Text(
@@ -226,18 +237,94 @@ fun GamesCreationScreen(
                         blurRadius = 4f
                     )
                 ),
-                modifier = Modifier.padding(top = 20.dp, bottom = 12.dp).align(Alignment.CenterHorizontally)
+                modifier = Modifier
+                    .padding(top = 20.dp, bottom = 24.dp)
+                    .align(Alignment.CenterHorizontally)
             )
 
-            Text(
-                text = "Liste des jeux",
-                fontSize = FontSize.TITLE.sp,
-                fontWeight = FontWeight.Bold,
-                color = assets.mainPageTextColor,
-                modifier = Modifier.padding(start = 15.dp, bottom = 8.dp)
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(assets.gameListBackground, shape = RoundedCornerShape(8.dp))
+                    .padding(16.dp)
+            ) {
+                Text(
+                    text = "Liste des jeux",
+                    fontSize = FontSize.TITLE.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = assets.mainPageTextColor,
+                    modifier = Modifier.padding(start = 15.dp, bottom = 8.dp)
+                )
 
-            GameList(gameListViewModel, themeViewModel = themeViewModel)
+                GameList(gameListViewModel, themeViewModel = themeViewModel)
+            }
+        }
+        // Top-right header
+        Row(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(top = 12.dp, end = 16.dp)
+                .background(assets.headerRightBackground, RoundedCornerShape(20.dp))
+                .border(1.dp, assets.headerRightBorder, RoundedCornerShape(20.dp))
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.shop_icon),
+                contentDescription = "Shop",
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(CircleShape)
+                    .clickable { navController.navigate(Screen.Shop.route) { launchSingleTop = true } }
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Image(
+                painter = painterResource(id = R.drawable.inventory_icon),
+                contentDescription = "Inventory",
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(CircleShape)
+                    .clickable { navController.navigate(Screen.Inventory.route) { launchSingleTop = true } }
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Row(
+                modifier = Modifier
+                    .clickable { navController.navigate(Screen.Account.route) { launchSingleTop = true } },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "${account?.money ?: 0}$",
+                    color = assets.mainPageTextColor,
+                    fontSize = FontSize.BODY.sp,
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = account?.username ?: "",
+                    color = assets.mainPageTextColor,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = FontSize.BODY.sp,
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .border(1.dp, Color.White, CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (avatarBitmap != null) {
+                        Image(
+                            painter = rememberAsyncImagePainter(avatarBitmap),
+                            contentDescription = "Avatar",
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clip(CircleShape),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                }
+            }
         }
     }
 }
