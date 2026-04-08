@@ -136,6 +136,7 @@ fun WaitingPageScreen(
             controller.player.value = gameLobbyViewModel.currentPlayer.value
             controller.originalPlayers.value = gameLobbyViewModel.players.toList()
             controller.lastPlayer.value = false
+            snackbarHostState.showDismissible(scope, 'La partie commence')
 
             navController.navigate(Screen.Game.route) {
                 launchSingleTop = true
