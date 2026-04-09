@@ -38,16 +38,16 @@ import com.mobile_client.utils.Player
 import com.mobile_client.utils.PlayerStat
 import com.mobile_client.utils.Screen
 import com.mobile_client.utils.isBot
+import com.mobile_client.viewModels.GameLobbyViewModel
 import com.mobile_client.viewModels.ThemeViewModel
 import java.util.Locale
 
-private val HeaderGreen = Color(0xFFBBF471)
 private val EvenRowGray = Color(0xFFF9F9F9)
 private val Team1Red = Color.Red
 private val Team2Blue = Color.Blue
 
 @Composable
-fun EndGameScreen(navController: NavController, themeViewModel: ThemeViewModel) {
+fun EndGameScreen(navController: NavController, themeViewModel: ThemeViewModel, gameLobbyViewModel: GameLobbyViewModel) {
     val assets = themeViewModel.assets
     val controller = GameControllerService.instance
     val gameMap = controller.gameMap.value
@@ -166,6 +166,7 @@ fun EndGameScreen(navController: NavController, themeViewModel: ThemeViewModel) 
     DisposableEffect(Unit) {
         onDispose {
             controller.leaveEndGame()
+            gameLobbyViewModel.clear()
             controller.gameWinner.value = ""
         }
     }

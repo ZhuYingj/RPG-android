@@ -2,7 +2,6 @@ package com.mobile_client.services
 
 import androidx.compose.runtime.mutableStateOf
 import com.mobile_client.utils.Player
-import com.mobile_client.utils.TileConstants
 
 class GameFightService private constructor() {
     companion object {
@@ -17,6 +16,7 @@ class GameFightService private constructor() {
     var isFight = mutableStateOf(false)
     var waterCanUsed = mutableStateOf(false)
     var actionString = mutableStateOf("")
+    var fightResultMessage = mutableStateOf("")
 
     fun initFight(playerVal: Player, opposingPlayerVal: Player, activePlayerVal: Player) {
         player.value = playerVal
@@ -57,7 +57,7 @@ class GameFightService private constructor() {
         }
 
         actionString.value = if (damage > 0) {
-            "${attacker?.username} a infligé $damage points de dommage à ${defender.username ?: ""}"
+            "${attacker?.username} a infligé $damage points de dommage à ${defender.username}"
         } else {
             "${attacker?.username} a raté son attaque"
         }
@@ -65,5 +65,6 @@ class GameFightService private constructor() {
 
     fun endFight(hasWin: Boolean) {
         isFight.value = false
+        fightResultMessage.value = if (hasWin) "Vous avez gagné le combat" else "Vous avez perdu le combat"
     }
 }

@@ -393,7 +393,7 @@ fun InventoryScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "${AccountService.instance.money.intValue} $",
+                    text = "${AccountService.instance.money.intValue}$",
                     color = assets.mainPageTextColor,
                     fontSize = FontSize.BODY.sp,
                 )

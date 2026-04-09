@@ -107,12 +107,20 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
     var showAbandonDialog by remember { mutableStateOf(false) }
 
     var endGameTimer by remember { mutableIntStateOf(-1) }
+    var wasFighting by remember { mutableStateOf(false) }
     // Recalculate accessible tiles when player or turn changes
     LaunchedEffect(player, currentPlayer, isDebug, isBetweenTurn, gameTiles) {
         visibleBushTiles = controller.getVisibleBushTiles()
         accessibleTiles = controller.getAccessibleTiles()
         path = emptyList()
         selectedTile = null
+    }
+
+    LaunchedEffect(isInCombat) {
+        if (wasFighting && !isInCombat) {
+            snackbarHostState.showDismissible(scope, controller.fightService.fightResultMessage.value)
+        }
+        wasFighting = isInCombat
     }
 
     // Navigate home if no map

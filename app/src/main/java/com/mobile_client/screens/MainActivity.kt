@@ -158,6 +158,7 @@ class MainActivity : ComponentActivity() {
                             composable(Screen.EndGame.route) {
                                 EndGameScreen(
                                     navController = navController,
+                                    gameLobbyViewModel = gameLobbyViewModel,
                                     themeViewModel = themeViewModel
                                 )
                             }
