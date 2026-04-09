@@ -214,10 +214,11 @@ fun LeaderBoardScreen(
                     LeaderboardFilterType.entries.forEach { type ->
                         PressableButton(
                             shadowColor = Color.DarkGray,
+                            cornerRadius = 40.dp,
                         ) { interactionSource, pressModifier ->
                             OutlinedButton(
                                 onClick = { leaderboardViewModel.filterType.value = type },
-                                shape = RoundedCornerShape(8.dp),
+                                shape = RoundedCornerShape(32.dp),
                                 modifier = pressModifier.height(40.dp),
                                 interactionSource = interactionSource,
                                 border = BorderStroke(1.dp, Color.Black),
