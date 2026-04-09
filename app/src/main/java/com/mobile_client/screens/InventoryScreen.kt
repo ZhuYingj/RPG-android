@@ -8,11 +8,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -26,8 +28,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -46,7 +50,6 @@ import com.mobile_client.viewModels.InventoryViewModel
 import com.mobile_client.viewModels.ThemeViewModel
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.text.font.FontFamily
@@ -56,6 +59,8 @@ import com.mobile_client.services.AccountService
 import com.mobile_client.utils.FontSize
 import com.mobile_client.utils.ImageUtils
 import com.mobile_client.utils.showDismissible
+
+data class FilterOption(val label: String, val type: Int?)
 
 @Composable
 fun InventoryScreen(
@@ -70,6 +75,29 @@ fun InventoryScreen(
     val isLoading by inventoryViewModel.isLoading.collectAsState()
     val snackbarMessage by inventoryViewModel.message.collectAsState()
     val scope = rememberCoroutineScope()
+
+    var activeFilter by remember { mutableStateOf<Int?>(null) }
+
+    val filters = remember {
+        listOf(
+            FilterOption("Tout", null),
+            FilterOption("Personnage", 0),
+            FilterOption("Chapeau", 1),
+            FilterOption("Armes", 2),
+            FilterOption("Avatar", 3),
+        )
+    }
+
+    val filteredInventory = remember(inventory, activeFilter) {
+        if (activeFilter == null) {
+            inventory
+        } else {
+            inventory.filter { item ->
+                val cosmetic = inventoryViewModel.getCosmetic(item.cosmeticId)
+                cosmetic?.type == activeFilter
+            }
+        }
+    }
 
     LaunchedEffect(Unit) {
         inventoryViewModel.loadData()
@@ -137,137 +165,145 @@ fun InventoryScreen(
                 }
 
                 else -> {
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(5),
+                    Row(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(horizontal = 24.dp, vertical = 8.dp),
-                        contentPadding = PaddingValues(bottom = 24.dp),
-                        horizontalArrangement = Arrangement.spacedBy(20.dp),
-                        verticalArrangement = Arrangement.spacedBy(20.dp)
+                            .padding(horizontal = 8.dp)
                     ) {
-                        items(inventory) { item ->
-                            val cosmetic = inventoryViewModel.getCosmetic(item.cosmeticId)
-                            val isEquipped = equipped.any { it._id == item.cosmeticId }
-
-                            Column(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(10.dp))
-                                    .background(assets.itemInventoryBackground)
-                                    .padding(10.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Text(
-                                    text = cosmetic?.name ?: "???",
-                                    fontSize = FontSize.BODY.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = assets.mainPageTextColor,
-                                    textAlign = TextAlign.Center,
-                                    modifier = Modifier.padding(vertical = 8.dp)
-                                )
-
-                                val resId = cosmetic?.filePath?.let { ImageResources.cosmeticToImage[it] }
-
-                                if (resId != null) {
-                                    Image(
-                                        painter = painterResource(id = resId),
-                                        contentDescription = cosmetic.name,
-                                        modifier = Modifier
-                                            .padding(bottom = 10.dp)
-                                            .size(100.dp)
-                                            .clip(CircleShape),
-                                        contentScale = ContentScale.Crop
+                        Column(
+                            modifier = Modifier
+                                .width(180.dp)
+                                .padding(top = 8.dp, start = 8.dp)
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(assets.headerRightBackground)
+                                .padding(vertical = 16.dp)
+                        ) {
+                            filters.forEach { filter ->
+                                val isActive = activeFilter == filter.type
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .then(
+                                            if (isActive) Modifier.background(assets.buyButtonBackground.copy(alpha = 0.4f))
+                                            else Modifier
+                                        )
+                                        .clickable { activeFilter = filter.type }
+                                        .padding(horizontal = 20.dp, vertical = 10.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "◆",
+                                        fontSize = 10.sp,
+                                        color = assets.buyButtonBackground,
+                                        modifier = Modifier.padding(end = 12.dp)
+                                    )
+                                    Text(
+                                        text = filter.label,
+                                        fontSize = FontSize.BODY.sp,
+                                        fontWeight = if (isActive) FontWeight.Bold else FontWeight.Normal,
+                                        color = assets.mainPageTextColor.copy(alpha = if (isActive) 1f else 0.7f)
                                     )
                                 }
+                            }
+                        }
 
-                                Text(
-                                    text = cosmetic?.description ?: "",
-                                    fontSize = FontSize.BUTTON.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = assets.mainPageTextColor,
-                                    textAlign = TextAlign.Center,
-                                    modifier = Modifier.height(60.dp)
-                                )
+                        // Grid
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(4),
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight()
+                                .padding(top = 8.dp),
+                            contentPadding = PaddingValues(bottom = 24.dp, start = 24.dp, end = 168.dp),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            items(filteredInventory) { item ->
+                                val cosmetic = inventoryViewModel.getCosmetic(item.cosmeticId)
+                                val isEquipped = equipped.any { it._id == item.cosmeticId }
 
-                                Spacer(modifier = Modifier.height(8.dp))
-
-                                Box(
-                                    modifier = Modifier.height(45.dp),
-                                    contentAlignment = Alignment.Center
+                                Column(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(10.dp))
+                                        .background(assets.itemInventoryBackground)
+                                        .padding(10.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
-                                    if (cosmetic?.type == 0) {
-                                        Text(
-                                            text = "Disponible pendant la partie",
-                                            fontSize = FontSize.SMALL.sp,
-                                            color = assets.mainPageTextColor,
-                                            textAlign = TextAlign.Center
+                                    Text(
+                                        text = cosmetic?.name ?: "???",
+                                        fontSize = FontSize.BODY.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = assets.mainPageTextColor,
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.padding(vertical = 8.dp)
+                                    )
+
+                                    val resId = cosmetic?.filePath?.let { ImageResources.cosmeticToImage[it] }
+
+                                    if (resId != null) {
+                                        Image(
+                                            painter = painterResource(id = resId),
+                                            contentDescription = cosmetic.name,
+                                            modifier = Modifier
+                                                .padding(bottom = 10.dp)
+                                                .size(90.dp)
+                                                .clip(CircleShape),
+                                            contentScale = ContentScale.Crop
                                         )
-                                    } else {
-                                        Row(
-                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            PressableButton(
-                                                shadowColor = assets.buyButtonBackground,
-                                                cornerRadius = 6.dp,
-                                                enabled = !isEquipped,
-                                                shadowTopInset = 2.dp
-                                            ) { interactionSource, pressModifier ->
-                                                Button(
-                                                    onClick = {
-                                                        if (cosmetic?.type != 0 && cosmetic?.type != 3) {
-                                                            inventoryViewModel.equipItem(item)
-                                                        }
-                                                        else if (cosmetic.type == 3) {
-                                                            navController.navigate(Screen.Account.route) {
-                                                                popUpTo(0) { inclusive = true }
-                                                            }
-                                                        }
-                                                    },
-                                                    modifier = pressModifier,
-                                                    interactionSource = interactionSource,
-                                                    enabled = !isEquipped,
-                                                    colors = ButtonDefaults.buttonColors(
-                                                        containerColor = assets.buyButtonBackground,
-                                                        disabledContainerColor = assets.buyButtonBackground.copy(
-                                                            alpha = 0.4f
-                                                        )
-                                                    ),
-                                                    shape = RoundedCornerShape(6.dp),
-                                                    contentPadding = PaddingValues(
-                                                        horizontal = 12.dp,
-                                                        vertical = 6.dp
-                                                    )
-                                                ) {
-                                                    Text(
-                                                        text = if (cosmetic?.type == 3) {
-                                                            "Compte"
-                                                        } else {
-                                                            if (isEquipped) "Équipé" else "Équiper"
-                                                        },
-                                                        color = Color.White,
-                                                        fontSize = FontSize.SMALL.sp,
-                                                        fontFamily = FontFamily.Default
-                                                    )
-                                                }
-                                            }
-                                            if(cosmetic?.type != 3) {
+                                    }
+
+                                    Text(
+                                        text = cosmetic?.description ?: "",
+                                        fontSize = FontSize.BUTTON.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = assets.mainPageTextColor,
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.height(60.dp)
+                                    )
+
+                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                    Box(
+                                        modifier = Modifier.height(45.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        if (cosmetic?.type == 0) {
+                                            Text(
+                                                text = "Disponible pendant la partie",
+                                                fontSize = FontSize.SMALL.sp,
+                                                color = assets.mainPageTextColor,
+                                                textAlign = TextAlign.Center
+                                            )
+                                        } else {
+                                            Row(
+                                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
                                                 PressableButton(
-                                                    shadowColor = assets.unequip,
+                                                    shadowColor = assets.buyButtonBackground,
                                                     cornerRadius = 6.dp,
-                                                    enabled = isEquipped,
+                                                    enabled = !isEquipped,
                                                     shadowTopInset = 2.dp
                                                 ) { interactionSource, pressModifier ->
                                                     Button(
                                                         onClick = {
-                                                            inventoryViewModel.unequipItem(item)
+                                                            if (cosmetic?.type != 0 && cosmetic?.type != 3) {
+                                                                inventoryViewModel.equipItem(item)
+                                                            } else if (cosmetic.type == 3) {
+                                                                navController.navigate(Screen.Account.route) {
+                                                                    popUpTo(0) { inclusive = true }
+                                                                }
+                                                            }
                                                         },
                                                         modifier = pressModifier,
                                                         interactionSource = interactionSource,
-                                                        enabled = isEquipped,
+                                                        enabled = !isEquipped,
                                                         colors = ButtonDefaults.buttonColors(
-                                                            containerColor = assets.unequip,
-                                                            disabledContainerColor = assets.alreadyUnequipped
+                                                            containerColor = assets.buyButtonBackground,
+                                                            disabledContainerColor = assets.buyButtonBackground.copy(
+                                                                alpha = 0.4f
+                                                            )
                                                         ),
                                                         shape = RoundedCornerShape(6.dp),
                                                         contentPadding = PaddingValues(
@@ -276,10 +312,47 @@ fun InventoryScreen(
                                                         )
                                                     ) {
                                                         Text(
-                                                            text = "Déséquiper",
+                                                            text = if (cosmetic?.type == 3) {
+                                                                "Compte"
+                                                            } else {
+                                                                if (isEquipped) "Équipé" else "Équiper"
+                                                            },
                                                             color = Color.White,
                                                             fontSize = FontSize.SMALL.sp,
+                                                            fontFamily = FontFamily.Default
                                                         )
+                                                    }
+                                                }
+                                                if (cosmetic?.type != 3) {
+                                                    PressableButton(
+                                                        shadowColor = assets.unequip,
+                                                        cornerRadius = 6.dp,
+                                                        enabled = isEquipped,
+                                                        shadowTopInset = 2.dp
+                                                    ) { interactionSource, pressModifier ->
+                                                        Button(
+                                                            onClick = {
+                                                                inventoryViewModel.unequipItem(item)
+                                                            },
+                                                            modifier = pressModifier,
+                                                            interactionSource = interactionSource,
+                                                            enabled = isEquipped,
+                                                            colors = ButtonDefaults.buttonColors(
+                                                                containerColor = assets.unequip,
+                                                                disabledContainerColor = assets.alreadyUnequipped
+                                                            ),
+                                                            shape = RoundedCornerShape(6.dp),
+                                                            contentPadding = PaddingValues(
+                                                                horizontal = 12.dp,
+                                                                vertical = 6.dp
+                                                            )
+                                                        ) {
+                                                            Text(
+                                                                text = "Déséquiper",
+                                                                color = Color.White,
+                                                                fontSize = FontSize.SMALL.sp,
+                                                            )
+                                                        }
                                                     }
                                                 }
                                             }
@@ -314,7 +387,9 @@ fun InventoryScreen(
 
             Row(
                 modifier = Modifier
-                    .clickable { navController.navigate(Screen.Account.route) { launchSingleTop = true } },
+                    .clickable {
+                        navController.navigate(Screen.Account.route) { launchSingleTop = true }
+                    },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
@@ -338,7 +413,8 @@ fun InventoryScreen(
                         .border(1.dp, Color.White, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    val avatarBitmap = ImageUtils.base64ToBitmap(AccountService.instance.accountInfo?.avatar)
+                    val avatarBitmap =
+                        ImageUtils.base64ToBitmap(AccountService.instance.accountInfo?.avatar)
                     Image(
                         painter = rememberAsyncImagePainter(avatarBitmap),
                         contentDescription = "Avatar",

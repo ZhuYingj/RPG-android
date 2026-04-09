@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -79,6 +80,24 @@ fun ShopScreen(
         ImageUtils.base64ToBitmap(account?.avatar)
     }
     val inventory by shopViewModel.inventory.collectAsState()
+
+    var activeFilter by remember { mutableStateOf<Int?>(null) }
+
+    val filters = remember {
+        listOf(
+            FilterOption("Tout", null),
+            FilterOption("Personnage", 0),
+            FilterOption("Chapeau", 1),
+            FilterOption("Armes", 2),
+            FilterOption("Avatar", 3),
+        )
+    }
+
+    val filteredShopItems = remember(shopItems, activeFilter) {
+        if (activeFilter == null) shopItems
+        else shopItems.filter { it.type == activeFilter }
+    }
+
     LaunchedEffect(Unit) {
         shopViewModel.loadData()
     }
@@ -158,107 +177,153 @@ fun ShopScreen(
                         )
                     }
 
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(5),
+                    Row(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(horizontal = 24.dp, vertical = 8.dp),
-                        contentPadding = PaddingValues(bottom = 24.dp),
-                        horizontalArrangement = Arrangement.spacedBy(20.dp),
-                        verticalArrangement = Arrangement.spacedBy(20.dp)
+                            .padding(horizontal = 8.dp)
                     ) {
-                        items(shopItems) { item ->
-                            Column(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(10.dp))
-                                    .background(assets.itemShopBackground)
-                                    .padding(10.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Text(
-                                    text = item.name,
-                                    fontSize = FontSize.BODY.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = assets.mainPageTextColor,
-                                    textAlign = TextAlign.Center,
-                                    modifier = Modifier.padding(vertical = 8.dp)
-                                )
-
-                                val resId = ImageResources.cosmeticToImage[item.filePath]
-
-                                if (resId != null) {
-                                    Image(
-                                        painter = painterResource(id = resId),
-                                        contentDescription = item.name,
-                                        modifier = Modifier
-                                            .padding(bottom = 10.dp)
-                                            .size(100.dp)
-                                            .clip(CircleShape),
-                                        contentScale = ContentScale.Crop
+                        Column(
+                            modifier = Modifier
+                                .width(180.dp)
+                                .padding(top = 8.dp, start = 8.dp)
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(assets.headerRightBackground)
+                                .padding(vertical = 16.dp)
+                        ) {
+                            filters.forEach { filter ->
+                                val isActive = activeFilter == filter.type
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .then(
+                                            if (isActive) Modifier.background(assets.buyButtonBackground.copy(alpha = 0.4f))
+                                            else Modifier
+                                        )
+                                        .clickable { activeFilter = filter.type }
+                                        .padding(horizontal = 20.dp, vertical = 10.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "◆",
+                                        fontSize = 10.sp,
+                                        color = assets.buyButtonBackground,
+                                        modifier = Modifier.padding(end = 12.dp)
                                     )
-                                } else {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(100.dp)
-                                            .padding(bottom = 10.dp)
-                                            .background(Color.Gray.copy(alpha = 0.3f), RoundedCornerShape(8.dp)),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text("?", fontSize = 28.sp, color = Color.Gray)
-                                    }
+                                    Text(
+                                        text = filter.label,
+                                        fontSize = FontSize.BODY.sp,
+                                        fontWeight = if (isActive) FontWeight.Bold else FontWeight.Normal,
+                                        color = assets.mainPageTextColor.copy(alpha = if (isActive) 1f else 0.7f)
+                                    )
                                 }
+                            }
+                        }
 
-                                Text(
-                                    text = item.description,
-                                    fontSize = FontSize.SMALL.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = assets.mainPageTextColor,
-                                    textAlign = TextAlign.Center,
-                                    modifier = Modifier.height(60.dp)
-                                )
+                        // Grid
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(4),
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight()
+                                .padding(top = 8.dp),
+                            contentPadding = PaddingValues(bottom = 24.dp, start = 24.dp, end = 168.dp),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            items(filteredShopItems) { item ->
+                                Column(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(10.dp))
+                                        .background(assets.itemShopBackground)
+                                        .padding(10.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(
+                                        text = item.name,
+                                        fontSize = FontSize.BODY.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = assets.mainPageTextColor,
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.padding(vertical = 8.dp)
+                                    )
 
-                                Text(
-                                    text = "${item.price} $",
-                                    fontSize = FontSize.SMALL.sp,
-                                    color = assets.price,
-                                )
+                                    val resId = ImageResources.cosmeticToImage[item.filePath]
 
-                                Spacer(modifier = Modifier.height(8.dp))
-
-                                if (inventory.any { it.cosmeticId == item._id }) {
-                                    Button(
-                                        onClick = {},
-                                        enabled = false,
-                                        colors = ButtonDefaults.buttonColors(
-                                            disabledContainerColor = assets.buyButtonBackground.copy(alpha = 0.4f),
-                                            disabledContentColor = Color.White.copy(alpha = 0.7f)
-                                        ),
-                                        shape = RoundedCornerShape(6.dp),
-                                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
-                                    ) {
-                                        Text("Déjà dans l'inventaire", fontSize = FontSize.SMALL.sp, fontFamily = FontFamily.Default)
+                                    if (resId != null) {
+                                        Image(
+                                            painter = painterResource(id = resId),
+                                            contentDescription = item.name,
+                                            modifier = Modifier
+                                                .padding(bottom = 10.dp)
+                                                .size(90.dp)
+                                                .clip(CircleShape),
+                                            contentScale = ContentScale.Crop
+                                        )
+                                    } else {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(100.dp)
+                                                .padding(bottom = 10.dp)
+                                                .background(Color.Gray.copy(alpha = 0.3f), RoundedCornerShape(8.dp)),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text("?", fontSize = 28.sp, color = Color.Gray)
+                                        }
                                     }
-                                } else {
-                                    PressableButton(
-                                        shadowColor = assets.buyButtonBackground,
-                                        cornerRadius = 6.dp,
-                                        shadowTopInset = 3.5.dp
-                                    ) { interactionSource, pressModifier ->
+
+                                    Text(
+                                        text = item.description,
+                                        fontSize = FontSize.SMALL.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = assets.mainPageTextColor,
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.height(60.dp)
+                                    )
+
+                                    Text(
+                                        text = "${item.price} $",
+                                        fontSize = FontSize.BODY.sp,
+                                        color = assets.price,
+                                    )
+
+                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                    if (inventory.any { it.cosmeticId == item._id }) {
                                         Button(
-                                            onClick = {
-                                                if (money < item.price) {
-                                                    shopViewModel.buyItem(item)
-                                                } else {
-                                                    itemToBuy = item
-                                                }
-                                            },
-                                            modifier = pressModifier,
-                                            interactionSource = interactionSource,
-                                            colors = ButtonDefaults.buttonColors(containerColor = assets.buyButtonBackground),
+                                            onClick = {},
+                                            enabled = false,
+                                            colors = ButtonDefaults.buttonColors(
+                                                disabledContainerColor = assets.buyButtonBackground.copy(alpha = 0.4f),
+                                                disabledContentColor = Color.White.copy(alpha = 0.7f)
+                                            ),
                                             shape = RoundedCornerShape(6.dp),
                                             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
                                         ) {
-                                            Text("Acheter", color = Color.White, fontSize = FontSize.SMALL.sp, fontFamily = FontFamily.Default)
+                                            Text("Déjà dans l'inventaire", fontSize = FontSize.SMALL.sp, fontFamily = FontFamily.Default)
+                                        }
+                                    } else {
+                                        PressableButton(
+                                            shadowColor = assets.buyButtonBackground,
+                                            cornerRadius = 6.dp,
+                                            shadowTopInset = 3.5.dp
+                                        ) { interactionSource, pressModifier ->
+                                            Button(
+                                                onClick = {
+                                                    if (money < item.price) {
+                                                        shopViewModel.buyItem(item)
+                                                    } else {
+                                                        itemToBuy = item
+                                                    }
+                                                },
+                                                modifier = pressModifier,
+                                                interactionSource = interactionSource,
+                                                colors = ButtonDefaults.buttonColors(containerColor = assets.buyButtonBackground),
+                                                shape = RoundedCornerShape(6.dp),
+                                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                                            ) {
+                                                Text("Acheter", color = Color.White, fontSize = FontSize.SMALL.sp, fontFamily = FontFamily.Default)
+                                            }
                                         }
                                     }
                                 }
@@ -384,7 +449,7 @@ fun BuyConfirmationDialog(
                         textAlign = TextAlign.Center
                     )
                     Text(
-                        text = " ${currentBalance-itemPrice}$",
+                        text = " ${currentBalance - itemPrice}$",
                         fontSize = 14.sp,
                         color = Color.Red,
                         fontWeight = FontWeight.Bold,
