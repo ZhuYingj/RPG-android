@@ -361,7 +361,7 @@ fun ShopScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "${money}$",
+                    text = "$money $",
                     color = assets.mainPageTextColor,
                     fontSize = FontSize.BODY.sp,
                 )
