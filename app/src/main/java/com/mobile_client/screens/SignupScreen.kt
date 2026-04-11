@@ -1,6 +1,7 @@
 package com.mobile_client.screens
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -10,9 +11,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Visibility
@@ -55,6 +58,7 @@ import com.mobile_client.viewModels.TutorialViewModel
 import io.ktor.client.call.body
 import java.io.File
 
+@SuppressLint("LocalContextResourcesRead")
 @Composable
 fun SignUpScreen(navController: NavController, tutorialViewModel: TutorialViewModel) {
 
@@ -210,11 +214,12 @@ fun SignUpScreen(navController: NavController, tutorialViewModel: TutorialViewMo
         )
 
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize()
+                .imePadding()
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             Column(
                 modifier = Modifier
                     .width(900.dp)

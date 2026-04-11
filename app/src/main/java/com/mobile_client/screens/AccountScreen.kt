@@ -1,6 +1,7 @@
 package com.mobile_client.screens
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -89,6 +91,7 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import kotlin.math.roundToInt
 
+@SuppressLint("LocalContextResourcesRead")
 @Composable
 fun AccountScreen(
     navController: NavController,
@@ -500,6 +503,7 @@ fun AccountScreen(
                     .fillMaxHeight()
                     .clip(RoundedCornerShape(12.dp))
                     .background(assets.boxAccount.copy(alpha = 0.7f))
+                    .imePadding()
                     .verticalScroll(rememberScrollState())
                     .padding(24.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)

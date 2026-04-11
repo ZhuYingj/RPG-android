@@ -63,11 +63,10 @@ import androidx.compose.ui.layout.ContentScale
 import coil.compose.rememberAsyncImagePainter
 import com.mobile_client.utils.ImageUtils
 import com.mobile_client.viewModels.FriendsViewModel
-import com.mobile_client.viewModels.ThemeViewModel
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun ChatBox(modifier: Modifier = Modifier, chatViewModel: ChatViewModel, lobbyChatViewModel: ChatViewModel? = null, lobbyCode: String, friendsViewModel: FriendsViewModel, themeViewModel: ThemeViewModel) {
+fun ChatBox(modifier: Modifier = Modifier, chatViewModel: ChatViewModel, lobbyChatViewModel: ChatViewModel? = null, lobbyCode: String, friendsViewModel: FriendsViewModel) {
     val connectionStatus by chatViewModel.connectionStatus.collectAsState()
     var newMessage by remember { mutableStateOf("") }
     var mostRecentMessage by remember { mutableStateOf<String?>(null) }
@@ -114,7 +113,7 @@ fun ChatBox(modifier: Modifier = Modifier, chatViewModel: ChatViewModel, lobbyCh
     Box(
         modifier
             .zIndex(1f)
-            .imePadding(),
+            .then(if (!isCollapsed) Modifier.imePadding() else Modifier),
         contentAlignment = Alignment.BottomEnd
     ) {
         Column {
@@ -300,7 +299,6 @@ fun ChatBox(modifier: Modifier = Modifier, chatViewModel: ChatViewModel, lobbyCh
 @Composable
 fun MessageBox(chatMessage: ChatMessage) {
     val isFromCurrentUser = chatMessage.userId == AccountService.instance.userId
-    println("chat id =========== 1 = " + chatMessage.userId + " 2 = " + AccountService.instance.userId)
     val avatarBitmap = remember(chatMessage.avatar) {
         ImageUtils.base64ToBitmap(chatMessage.avatar)
     }

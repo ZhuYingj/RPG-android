@@ -66,16 +66,13 @@ import androidx.compose.ui.draw.clip
 import coil.compose.rememberAsyncImagePainter
 import com.mobile_client.utils.ImageUtils
 import com.mobile_client.utils.showDismissible
-import com.mobile_client.viewModels.ThemeViewModel
 
 @Composable
 fun FriendsPanel(
     modifier: Modifier = Modifier,
     friendsViewModel: FriendsViewModel,
     snackbarHostState: SnackbarHostState,
-    themeViewModel: ThemeViewModel
 ) {
-    val assets = themeViewModel.assets
     var isOpen by remember { mutableStateOf(false) }
     var activeTab by remember { mutableStateOf(FriendsTab.FRIENDS) }
     var isAddingFriend by remember { mutableStateOf(false) }

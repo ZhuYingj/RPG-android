@@ -210,9 +210,7 @@ class MainActivity : ComponentActivity() {
 
                             DisposableEffect(Unit) {
                                 globalChatViewModel.enableListeners()
-                                onDispose {
-                                    //globalChatViewModel.disableListeners() // nettoyage du socket
-                                }
+                                onDispose {}
                             }
                             LaunchedEffect(lobbyCode) {
                                 if (lobbyCode == "") {
@@ -234,13 +232,11 @@ class MainActivity : ComponentActivity() {
                                     lobbyChatViewModel = if (showLobbyTab) lobbyChatViewModel else null,
                                     lobbyCode = lobbyCode,
                                     friendsViewModel = friendsViewModel,
-                                    themeViewModel
                                 )
                                 FriendsPanel(
                                     modifier = Modifier.align(Alignment.BottomStart).padding(16.dp),
                                     friendsViewModel = friendsViewModel,
-                                    snackbarHostState = snackbarHostState,
-                                    themeViewModel
+                                    snackbarHostState = snackbarHostState
                                 )
                             }
                         }
