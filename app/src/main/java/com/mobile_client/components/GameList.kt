@@ -284,7 +284,11 @@ fun LobbyInfo(lobby: SocketCommunicationConst.SendableLobbies, themeViewModel: T
         }
         Text(text = "Nombre de joueurs max : ${lobby.maxPlayers}", fontSize = 18.sp, color = assets.textMap)
         Text(text = "Taille : ${lobby.map.size}", fontSize = 18.sp, color = assets.textMap)
-        Text(text = "Mode : ${if (lobby.map.isCaptureTheFlag) "CTF" else "Classique"}", fontSize = 18.sp, color = assets.textMap)
+        Text(
+            text = "Mode : ${if (lobby.map.isCaptureTheFlag) "CTF" else "Classique"}${if (lobby.map.isRapidElimination) " + élimination rapide" else ""}",
+            fontSize = 18.sp,
+            color = assets.textMap
+        )
         Text(text = "Hôte : ${lobby.host}", fontSize = 18.sp, color = assets.textMap)
         Row(horizontalArrangement = Arrangement.spacedBy(24.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(text = "Frais d'entrée : ${lobby.fee} $", fontSize = 18.sp, color = assets.textMap)

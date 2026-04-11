@@ -4,13 +4,8 @@ import com.google.gson.reflect.TypeToken
 import com.mobile_client.environment.ENVIRONMENT
 import com.mobile_client.utils.AppGson
 import com.mobile_client.utils.GameMap
-import com.mobile_client.utils.GameProperty
 import com.mobile_client.utils.SocketCommunicationConst
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import kotlin.text.format
-import kotlin.time.ExperimentalTime
-import kotlin.time.Instant
+
 
 class GameListService private constructor() {
     companion object {
