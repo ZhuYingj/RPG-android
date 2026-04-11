@@ -13,6 +13,7 @@ data class GameMap(
     val owner: String,
     val lastModified: String,
     val actionNumber: Int,
+    val isRapidElimination: Boolean
 )
 
 enum class GameProperty {

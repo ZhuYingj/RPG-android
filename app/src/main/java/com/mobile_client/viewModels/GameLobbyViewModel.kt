@@ -28,6 +28,7 @@ class GameLobbyViewModel : ViewModel() {
     var gameMap = mutableStateOf<GameMap?>(null)
     var isFriendOnly = mutableStateOf(false)
     var isDropIn = mutableStateOf(false)
+    var isRapidElim = mutableStateOf(false)
     var entryFee = mutableIntStateOf(0)
     private val _errorMessage = MutableSharedFlow<String>()
     val errorMessage = _errorMessage.asSharedFlow()

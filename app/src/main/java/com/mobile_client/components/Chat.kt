@@ -82,7 +82,6 @@ fun ChatBox(modifier: Modifier = Modifier, chatViewModel: ChatViewModel, lobbyCh
     val chatMessages by activeViewModel.messages.collectAsState()
     val isKeyboardVisible = WindowInsets.isImeVisible
 
-    val assets = themeViewModel.assets
     LaunchedEffect(chatViewModel, lobbyChatViewModel) {
         socketManager.socket?.off(MessageEvents.CHAT_MESSAGE)
         socketManager.socket?.off(MessageEvents.GLOBAL_CHAT_MESSAGE)
@@ -300,7 +299,8 @@ fun ChatBox(modifier: Modifier = Modifier, chatViewModel: ChatViewModel, lobbyCh
 
 @Composable
 fun MessageBox(chatMessage: ChatMessage) {
-    val isFromCurrentUser = chatMessage.username == AccountService.instance.username
+    val isFromCurrentUser = chatMessage.userId == AccountService.instance.userId
+    println("chat id =========== 1 = " + chatMessage.userId + " 2 = " + AccountService.instance.userId)
     val avatarBitmap = remember(chatMessage.avatar) {
         ImageUtils.base64ToBitmap(chatMessage.avatar)
     }
