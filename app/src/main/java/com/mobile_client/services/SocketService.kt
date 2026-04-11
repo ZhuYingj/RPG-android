@@ -64,13 +64,6 @@ class SocketService private constructor() {
         }
     }
 
-    // ===================== LEADERBOARD LISTENERS =====================
-    fun initializeLeaderboardListeners() {
-        socket?.on(LeaderboardEvents.UPDATE_LEADERBOARD) {
-
-        }
-    }
-
     // ===================== CHAT LISTENERS =====================
 
     fun initializeChatListeners(onChatMessage: (ChatMessage, String) -> Unit) {
@@ -81,6 +74,7 @@ class SocketService private constructor() {
                     username = data.getString("username"),
                     message = data.getString("message"),
                     avatar = data.getString("avatar"),
+                    userId = data.getString("userId"),
                     timestamp = convertUTCToLocalTime(data.getString("time")),
                 )
                 onChatMessage(message, MessageEvents.GLOBAL_CHAT_MESSAGE)
@@ -94,6 +88,7 @@ class SocketService private constructor() {
                     username = data.getString("username"),
                     message = data.getString("message"),
                     avatar = data.getString("avatar"),
+                    userId = data.getString("userId"),
                     timestamp = convertUTCToLocalTime(data.getString("time")),
                 )
                 onChatMessage(message, MessageEvents.CHAT_MESSAGE)
@@ -118,6 +113,7 @@ class SocketService private constructor() {
                     username = "Système",
                     message = fullMessage,
                     avatar = "",
+                    userId = "",
                     timestamp = ""
                 )
                 val scope = data.optString("scope", "global")
@@ -211,7 +207,6 @@ class SocketService private constructor() {
                 lobbyViewModel.showQrCode.value = args[0] as Boolean
         }
 
-        //TODO toggle isFriendOnly and DropIn
         socket.on(LobbyEvents.FRIEND_ONLY) { args ->
             if(args.isNotEmpty())
                 lobbyViewModel.isFriendOnly.value = args[0] as Boolean
@@ -305,7 +300,6 @@ class SocketService private constructor() {
         }
 
         socket.on(GameEvents.ACTION) { args ->
-            //TODO: has actionremaining, and message, pourrait faire un snackbar pour le message
             if (args.isNotEmpty()) {
                 val res = gson.fromJson(args[0].toString(), ActionReturnObject::class.java)
                 if (res.isValid && res.actionRemaining != null) {
