@@ -30,12 +30,6 @@ object ImageResources {
         TileConstants.Items.Flag to R.drawable.flag
     )
 
-    val sizeToPlayerNumber = mapOf(
-        TileConstants.MapSize.Small to 2,
-        TileConstants.MapSize.Medium to 4,
-        TileConstants.MapSize.Large to 6
-    )
-
     val avatarResources = listOf(
         R.drawable.default1, R.drawable.default2, R.drawable.default3, R.drawable.default4,
         R.drawable.default5, R.drawable.default6, R.drawable.default7, R.drawable.default8,
@@ -78,11 +72,5 @@ object ImageResources {
         "user-profile-avatar/default10.png" to R.drawable.default10,
         "user-profile-avatar/default11.png" to R.drawable.default11,
         "user-profile-avatar/default12.png" to R.drawable.default12,
-    )
-
-    val tutorialStepToImage = mapOf(
-        0 to R.drawable.leaderboard_background, //TODO add tutorial steps
-        1 to R.drawable.step1,
-        2 to R.drawable.step2,
     )
 }

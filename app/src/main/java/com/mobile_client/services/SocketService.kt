@@ -459,8 +459,10 @@ class SocketService private constructor() {
                 fightService.activePlayer.value = data.playerTurn
                 if (data.playerTurn.username == fightService.player.value?.username) {
                     fightService.player.value = data.playerTurn
+                    fightService.opposingPlayer.value = data.attacker
                 } else {
                     fightService.opposingPlayer.value = data.playerTurn
+                    fightService.activePlayer.value = data.attacker
                 }
                 fightService.displayAttackResult(data.damage, data.attackDice, data.defenseDice, data.playerTurn)
             }

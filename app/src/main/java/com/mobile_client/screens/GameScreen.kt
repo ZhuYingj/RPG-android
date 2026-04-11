@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Computer
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -66,10 +67,9 @@ import com.mobile_client.utils.Position
 import com.mobile_client.utils.Screen
 import com.mobile_client.utils.TileConstants
 import com.mobile_client.utils.isBot
+import com.mobile_client.utils.showDismissible
 import com.mobile_client.viewModels.GameLobbyViewModel
 import com.mobile_client.viewModels.ThemeViewModel
-import androidx.compose.material3.AlertDialog
-import com.mobile_client.utils.showDismissible
 import kotlinx.coroutines.delay
 
 private val DarkText = Color(0xFF1A1A1A)
@@ -384,7 +384,7 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
                     path = path,
                     isDebug = isDebug,
                     onTileClick = { pos ->
-                        if (isDebug && controller.isTeleport()) {
+                        if (isDebug && controller.isTeleport() && !isAction) {
                             // Debug mode: teleport directly
                             println("TELEPORTING TO $pos")
                             controller.teleport(pos)
@@ -440,7 +440,7 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
                     Text("Liste des joueurs", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = assets.mainPageTextColor)
                     Spacer(modifier = Modifier.height(8.dp))
                     LazyColumn(
-                        modifier = Modifier.height(228.dp),
+                        modifier = Modifier.height(235.dp),
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         items(players) { p ->

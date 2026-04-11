@@ -100,7 +100,7 @@ fun TileCell(
                 contentDescription = "Tile",
                 modifier = Modifier
                     .fillMaxSize()
-                    .then(if (tile.type == TileConstants.Types.Bush && !isVisibleBush && !isDebug) Modifier.zIndex(3f) else Modifier),
+                    .then(if (tile.type == TileConstants.Types.Bush && !isVisibleBush && !isDebug) Modifier.zIndex(3.5f) else Modifier),
                 contentScale = ContentScale.Crop
             )
         }
