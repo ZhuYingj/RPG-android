@@ -77,7 +77,6 @@ fun getCachedBitmap(context: android.content.Context, resId: Int, size: Int): an
     return bitmapCache.getOrPut(resId) {
         val bmp = BitmapFactory.decodeResource(context.resources, resId)
         bmp.scale(size, size, false)
-        //android.graphics.Bitmap.createScaledBitmap(bmp, size, size, false)
     }
 }
 @Composable
@@ -99,7 +98,6 @@ fun GameList(
         viewModel.loadMaps()
     }
 
-    val isEmpty = (maps.isEmpty() && !viewModel.isLobbyMode) || (currentGames.isEmpty() && viewModel.isLobbyMode)
     val columnModifier = modifier.fillMaxWidth().wrapContentHeight().padding(20.dp)
 
 

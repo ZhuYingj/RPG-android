@@ -4,6 +4,7 @@ data class ChatMessage(
     val message: String,
     val avatar: String,
     val timestamp: String,
+    val userId: String
 )
 
 object MessageEvents {

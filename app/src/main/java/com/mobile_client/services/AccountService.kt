@@ -28,6 +28,9 @@ class AccountService private constructor() {
     val username: String
         get() = accountInfo?.username ?: ""
 
+    val userId: String
+        get() = accountInfo?.userId ?: ""
+
     fun setAccount(account: Account, token: String) {
         this.accountInfo = account
         this.money.intValue = account.money
@@ -40,7 +43,7 @@ class AccountService private constructor() {
             val account = AppGson.fromJson(response, Account::class.java)
             println("fetchAccount: money=${account.money}, username=${account.username}")
             accountInfo = account
-            money.value = account.money
+            money.intValue = account.money
             true
         } catch (e: Exception) {
             println("fetchAccount error: ${e.message}")
