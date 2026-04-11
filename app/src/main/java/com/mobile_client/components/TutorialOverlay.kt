@@ -127,28 +127,20 @@ fun TutorialOverlay(tutorialViewModel: TutorialViewModel, themeViewModel: ThemeV
                 // Left — Image
                 Box(
                     modifier = Modifier
-                        .weight(1.7f)
+                        .weight(2.5f)
                         .fillMaxHeight()
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFFF5F5F5)),
+                        .background(assets.mainPageTextColor),
                     contentAlignment = Alignment.Center
                 ) {
-                    if (image != null) {
-                        Image(
-                            painter = painterResource(id = image),
-                            contentDescription = step.title,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(8.dp),
-                            contentScale = ContentScale.Fit
-                        )
-                    } else {
-                        Text(
-                            "Image non disponible",
-                            color = Color.Gray,
-                            fontSize = 14.sp
-                        )
-                    }
+                    Image(
+                        painter = painterResource(id = image),
+                        contentDescription = step.title,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(8.dp),
+                        contentScale = ContentScale.Fit
+                    )
                 }
 
                 // Right — Description
