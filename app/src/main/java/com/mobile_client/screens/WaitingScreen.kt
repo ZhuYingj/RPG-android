@@ -23,8 +23,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -32,13 +30,17 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,28 +49,25 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
+import com.mobile_client.components.PressableButton
 import com.mobile_client.services.GameControllerService
+import com.mobile_client.utils.FontSize
 import com.mobile_client.utils.ImageResources
+import com.mobile_client.utils.ImageUtils
 import com.mobile_client.utils.Player
 import com.mobile_client.utils.PlayerAvatars
 import com.mobile_client.utils.PlayerTypes
 import com.mobile_client.utils.Screen
 import com.mobile_client.utils.isBot
+import com.mobile_client.utils.showDismissible
 import com.mobile_client.utils.toGameTiles
 import com.mobile_client.viewModels.GameLobbyViewModel
 import com.mobile_client.viewModels.ThemeViewModel
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.text.style.TextAlign
-import coil.compose.rememberAsyncImagePainter
-import com.mobile_client.components.PressableButton
-import com.mobile_client.utils.FontSize
-import com.mobile_client.utils.ImageUtils
-import com.mobile_client.utils.showDismissible
 import kotlinx.coroutines.CoroutineScope
 
 private val BotBlue = Color(0xFF20B6E3)
@@ -295,7 +294,7 @@ fun WaitingPageScreen(
                                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                                     ) {
                                         Text(
-                                            "Friends only",
+                                            "Amis seulement",
                                             color = assets.mainPageTextColor,
                                             fontWeight = FontWeight.Bold,
                                             fontSize = FontSize.SUBTITLE.sp,
@@ -345,7 +344,7 @@ fun WaitingPageScreen(
                                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                                     ) {
                                         Text(
-                                            "QR Code",
+                                            "Code QR",
                                             color = assets.mainPageTextColor,
                                             fontWeight = FontWeight.Bold,
                                             fontSize = FontSize.SUBTITLE.sp,
@@ -379,7 +378,7 @@ fun WaitingPageScreen(
                                         shape = RoundedCornerShape(6.dp)
                                     ) {
                                         Text(
-                                            "Commencer la partie",
+                                            "Commencer",
                                             color = StartGreen,
                                             fontWeight = FontWeight.Bold,
                                             fontSize = FontSize.SUBTITLE.sp,
@@ -401,7 +400,7 @@ fun WaitingPageScreen(
                 if (bitmap != null) {
                     Image(
                         bitmap = bitmap.asImageBitmap(),
-                        contentDescription = "QR Code",
+                        contentDescription = "Code QR",
                         modifier = Modifier
                             .align(Alignment.TopEnd)
                             .padding(16.dp)

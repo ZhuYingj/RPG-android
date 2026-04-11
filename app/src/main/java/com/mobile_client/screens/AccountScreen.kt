@@ -57,37 +57,37 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.mobile_client.components.PressableButton
 import com.mobile_client.components.ThemeSelector
 import com.mobile_client.utils.AccountStats
+import com.mobile_client.utils.FontSize
 import com.mobile_client.utils.ImageResources.avatarResources
 import com.mobile_client.utils.ImageUtils
 import com.mobile_client.utils.Screen
 import com.mobile_client.utils.Validation
+import com.mobile_client.utils.showDismissible
 import com.mobile_client.viewModels.AccountViewModel
 import com.mobile_client.viewModels.ThemeViewModel
 import com.mobile_client.viewModels.TutorialViewModel
 import java.io.File
-import androidx.compose.ui.unit.sp
 import java.text.SimpleDateFormat
 import java.util.Locale
 import kotlin.math.roundToInt
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.ColorMatrix
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextAlign
-import com.mobile_client.components.PressableButton
-import com.mobile_client.utils.FontSize
-import com.mobile_client.utils.showDismissible
 
 @Composable
 fun AccountScreen(
@@ -520,6 +520,64 @@ fun AccountScreen(
                         }
 
                         HorizontalDivider(color = assets.textAccount.copy(alpha = 0.3f))
+                        Text("Tutoriel",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = FontSize.SUBTITLE.sp,
+                            color = assets.textAccount,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center)
+
+                        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                PressableButton(
+                                    shadowColor = assets.equipAlreadyBackground,
+                                    cornerRadius = 8.dp
+                                ) { interactionSource, pressModifier ->
+                                    OutlinedButton(
+                                        onClick = {
+                                            tutorialViewModel.continueFromSaved()
+                                        },
+                                        modifier = pressModifier,
+                                        interactionSource = interactionSource,
+                                        colors = ButtonDefaults.outlinedButtonColors(
+                                            containerColor = assets.equipAlreadyBackground,
+                                            contentColor = assets.textAccount,
+                                        ),
+                                        border = BorderStroke(1.dp, assets.buttonOutlineAccount),
+                                        shape = RoundedCornerShape(8.dp)
+                                    ) {
+                                        Text("Continuer le tutoriel", color = assets.textAccount)
+                                    }
+                                }
+                                PressableButton(
+                                    shadowColor = Color(0xFF2196F3),
+                                    cornerRadius = 8.dp
+                                ) { interactionSource, pressModifier ->
+                                    OutlinedButton(
+                                        onClick = {
+                                            tutorialViewModel.restart()
+                                        },
+                                        modifier = pressModifier,
+                                        interactionSource = interactionSource,
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = Color(0xFF2196F3),
+                                            contentColor = Color.White,
+                                        ),
+                                        border = BorderStroke(1.dp, assets.buttonOutlineAccount),
+                                        shape = RoundedCornerShape(8.dp)
+                                    ) {
+                                        Text("Recommencer le tutoriel", color = assets.textAccount)
+                                    }
+                                }
+                            }
+                        }
+
+
+
+
+
+
+                        HorizontalDivider(color = assets.textAccount.copy(alpha = 0.3f))
 
                         // Name & Email
                         val textFieldColors = OutlinedTextFieldDefaults.colors(
@@ -620,7 +678,7 @@ fun AccountScreen(
                                     ),
                                     shape = RoundedCornerShape(8.dp)
                                 ) {
-                                    Text("Enregistrer", color = Color.White, fontSize = FontSize.BODY.sp)
+                                    Text("Enregistrer", color = assets.textAccount, fontSize = FontSize.BODY.sp)
                                 }
                             }
                         }
@@ -655,7 +713,7 @@ fun AccountScreen(
         if (showQrCode && qrBitmap != null) {
             Image(
                 bitmap = qrBitmap!!.asImageBitmap(),
-                contentDescription = "QR Code",
+                contentDescription = "Code QR",
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(16.dp)

@@ -67,7 +67,8 @@ data class ThemeAssets(
     val playerStats: Color,
     val backgroundAccount: Int,
     val unequip: Color,
-    val alreadyUnequipped: Color
+    val alreadyUnequipped: Color,
+    val tutorialImages: List<Int>
 )
 
 val themeAssetsMap = mapOf(
@@ -130,7 +131,24 @@ val themeAssetsMap = mapOf(
         playerStats = Color.Gray,
         backgroundAccount = R.drawable.account_background,
         unequip = Color.Red,
-        alreadyUnequipped = Color(255,147,147)
+        alreadyUnequipped = Color(255,147,147),
+        tutorialImages = listOf(
+            R.drawable.home1,
+            R.drawable.home_chat,
+            R.drawable.chat,
+            R.drawable.home_friends,
+            R.drawable.store1,
+            R.drawable.inventory1,
+            R.drawable.account,
+            R.drawable.join1,
+            R.drawable.creation1,
+            R.drawable.creation2,
+            R.drawable.lobby, //TODO update with rapid elim info
+            R.drawable.game1,
+            R.drawable.game2,
+            R.drawable.endgame,
+            R.drawable.leaderboard,
+        )
     ),
     AppTheme.AUBERGINES to ThemeAssets(
         title = "Les Aubergines",
@@ -191,6 +209,24 @@ val themeAssetsMap = mapOf(
         playerStats = Color.Black,
         backgroundAccount = R.drawable.second_account_background,
         unequip = Color(0,149,255),
-        alreadyUnequipped = Color(127,154,177)
+        alreadyUnequipped = Color(127,154,177),
+        tutorialImages = listOf(
+            R.drawable.dark_home1,
+            R.drawable.dark_home_chat,
+            R.drawable.chat,
+            R.drawable.dark_home_friends,
+            R.drawable.dark_store,
+            R.drawable.dark_inventory,
+            R.drawable.dark_account,
+            R.drawable.dark_join1,
+            R.drawable.dark_creation1,
+            R.drawable.dark_creation2,
+            R.drawable.dark_lobby, //TODO update with rapid elim info
+            R.drawable.dark_game1,
+            R.drawable.dark_game2,
+            R.drawable.dark_endgame,
+            R.drawable.dark_leaderboard,
+        )
     ),
+
 )

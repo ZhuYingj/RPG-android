@@ -38,7 +38,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import com.mobile_client.utils.ImageResources
 import com.mobile_client.utils.TutorialSteps
 import com.mobile_client.viewModels.ThemeViewModel
 import com.mobile_client.viewModels.TutorialViewModel
@@ -50,7 +49,7 @@ fun TutorialOverlay(tutorialViewModel: TutorialViewModel, themeViewModel: ThemeV
     val assets = themeViewModel.assets
     val currentStepIndex = tutorialViewModel.currentStep.intValue
     val step = TutorialSteps.steps.getOrNull(currentStepIndex) ?: return
-    val image = ImageResources.tutorialStepToImage[currentStepIndex]
+    val image = themeViewModel.assets.tutorialImages[currentStepIndex]
 
     val animatedProgress by animateFloatAsState(
         targetValue = tutorialViewModel.progressFraction,
@@ -76,7 +75,7 @@ fun TutorialOverlay(tutorialViewModel: TutorialViewModel, themeViewModel: ThemeV
                 .fillMaxWidth(0.9f)
                 .fillMaxHeight(0.9f)
                 .clip(RoundedCornerShape(16.dp))
-                .background(Color.White)
+                .background(assets.textAccount)
                 .padding(24.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
@@ -109,7 +108,7 @@ fun TutorialOverlay(tutorialViewModel: TutorialViewModel, themeViewModel: ThemeV
                     text = step.title,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1A1A1A),
+                    color = assets.mainPageTextColor,
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center
                 )
@@ -128,7 +127,7 @@ fun TutorialOverlay(tutorialViewModel: TutorialViewModel, themeViewModel: ThemeV
                 // Left — Image
                 Box(
                     modifier = Modifier
-                        .weight(1f)
+                        .weight(1.7f)
                         .fillMaxHeight()
                         .clip(RoundedCornerShape(12.dp))
                         .background(Color(0xFFF5F5F5)),
@@ -162,7 +161,7 @@ fun TutorialOverlay(tutorialViewModel: TutorialViewModel, themeViewModel: ThemeV
                     Text(
                         text = step.description,
                         fontSize = 18.sp,
-                        color = Color(0xFF333333),
+                        color = assets.mainPageTextColor,
                         lineHeight = 26.sp
                     )
                 }
@@ -176,37 +175,41 @@ fun TutorialOverlay(tutorialViewModel: TutorialViewModel, themeViewModel: ThemeV
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Back button (commented out)
-                // if (!tutorialViewModel.isFirstStep) {
-                //     OutlinedButton(
-                //         onClick = { tutorialViewModel.previousStep() },
-                //         shape = RoundedCornerShape(8.dp)
-                //     ) {
-                //         Text("Précédent")
-                //     }
-                //     Spacer(modifier = Modifier.width(8.dp))
-                // }
-
-                OutlinedButton(
-                    onClick = { tutorialViewModel.close() },
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text("Fermer", color = Color.Gray)
+                PressableButton(
+                    shadowColor = Color.Gray,
+                    cornerRadius = 8.dp
+                ) { interactionSource, pressModifier ->
+                    Button(
+                        modifier = pressModifier,
+                        interactionSource = interactionSource,
+                        onClick = { tutorialViewModel.close() },
+                        shape = RoundedCornerShape(8.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = assets.mainPageTextColor
+                        )
+                    ) {
+                        Text("Fermer", color = assets.textAccount)
+                    }
                 }
-
                 Spacer(modifier = Modifier.width(8.dp))
-
-                Button(
-                    onClick = { tutorialViewModel.nextStep() },
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = assets.tutorialTrackColor
-                    )
-                ) {
-                    Text(
-                        if (tutorialViewModel.isLastStep) "Terminer" else "Suivant",
-                        color = Color.White
-                    )
+                PressableButton(
+                    shadowColor = assets.tutorialTrackColor,
+                    cornerRadius = 8.dp
+                ) { interactionSource, pressModifier ->
+                    Button(
+                        modifier = pressModifier,
+                        interactionSource = interactionSource,
+                        onClick = { tutorialViewModel.nextStep() },
+                        shape = RoundedCornerShape(8.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = assets.tutorialTrackColor
+                        )
+                    ) {
+                        Text(
+                            if (tutorialViewModel.isLastStep) "Terminer" else "Suivant",
+                            color = Color.White
+                        )
+                    }
                 }
             }
         }
