@@ -141,9 +141,10 @@ val themeAssetsMap = mapOf(
             R.drawable.inventory1,
             R.drawable.account,
             R.drawable.join1,
+            R.drawable.character,
             R.drawable.creation1,
             R.drawable.creation2,
-            R.drawable.lobby, //TODO update with rapid elim info
+            R.drawable.lobby,
             R.drawable.game1,
             R.drawable.game2,
             R.drawable.endgame,
@@ -219,9 +220,10 @@ val themeAssetsMap = mapOf(
             R.drawable.dark_inventory,
             R.drawable.dark_account,
             R.drawable.dark_join1,
+            R.drawable.dark_character,
             R.drawable.dark_creation1,
             R.drawable.dark_creation2,
-            R.drawable.dark_lobby, //TODO update with rapid elim info
+            R.drawable.dark_lobby,
             R.drawable.dark_game1,
             R.drawable.dark_game2,
             R.drawable.dark_endgame,
