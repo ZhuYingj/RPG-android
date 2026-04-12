@@ -20,16 +20,9 @@ class GameListViewModel : BaseGameListViewModel() {
                 val fetchedMaps = GameListService.instance.getAllMaps()
                 _maps.value = fetchedMaps
 
-                println("Loaded ${fetchedMaps.size} maps")
-                fetchedMaps.forEach { map ->
-                    println("Map: ${map.name}, ID: ${map._id}")
-                }
-
             } catch (e: Exception) {
                 e.printStackTrace()
                 _error.value = "Erreur lors du chargement des jeux: ${e.message}"
-                println("Error loading maps: ${e.message}")
-                println("Stack trace: ${e.stackTraceToString()}")
             } finally {
                 _isLoading.value = false
             }

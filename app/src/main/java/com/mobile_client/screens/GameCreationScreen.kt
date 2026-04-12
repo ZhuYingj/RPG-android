@@ -25,10 +25,8 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -64,7 +62,6 @@ import com.mobile_client.utils.showDismissible
 import com.mobile_client.viewModels.GameListViewModel
 import com.mobile_client.viewModels.GameLobbyViewModel
 import com.mobile_client.viewModels.ThemeViewModel
-import kotlinx.coroutines.launch
 
 @Composable
 fun GamesCreationScreen(
@@ -83,6 +80,7 @@ fun GamesCreationScreen(
     val avatarBitmap = remember(account?.avatar) {
         ImageUtils.base64ToBitmap(account?.avatar)
     }
+    val money = AccountService.instance.money.intValue
 
     LaunchedEffect(Unit) {
         gameListViewModel.mapSelected.collect { map ->
@@ -293,7 +291,7 @@ fun GamesCreationScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "${account?.money ?: 0}$",
+                    text = "$money$",
                     color = assets.mainPageTextColor,
                     fontSize = FontSize.BODY.sp,
                 )

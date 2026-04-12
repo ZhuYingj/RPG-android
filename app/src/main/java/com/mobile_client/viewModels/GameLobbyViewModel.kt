@@ -28,7 +28,6 @@ class GameLobbyViewModel : ViewModel() {
     var gameMap = mutableStateOf<GameMap?>(null)
     var isFriendOnly = mutableStateOf(false)
     var isDropIn = mutableStateOf(false)
-    var isRapidElim = mutableStateOf(false)
     var entryFee = mutableIntStateOf(0)
     private val _errorMessage = MutableSharedFlow<String>()
     val errorMessage = _errorMessage.asSharedFlow()
@@ -108,22 +107,14 @@ class GameLobbyViewModel : ViewModel() {
             }
         )
     }
-
-    fun dropInGame(player: Player) {
-        GameLobbyService.instance.rejoiningPlayer(player)
-    }
     fun selectAvatar(previousAvatar: PlayerAvatars, avatar: PlayerAvatars) {
         GameLobbyService.instance.selectAvatar(previousAvatar, avatar)
     }
 
     fun addPlayer(player: Player, onJoined: () -> Unit) {
-        println("in add player gamelobbyviewmodel.lobby = " + lobbyCode.value)
-        println("in add player gamelobbyviewmodel.isSubmitted = " + isSubmitted.value)
         GameLobbyService.instance.addPlayer(player) { joiningPlayer ->
             currentPlayer.value = joiningPlayer
             isSubmitted.value = true
-            println("2   in add player gamelobbyviewmodel.lobby = " + lobbyCode.value)
-            println("2   in add player gamelobbyviewmodel.isSubmitted = " + isSubmitted.value)
             onJoined()
         }
     }

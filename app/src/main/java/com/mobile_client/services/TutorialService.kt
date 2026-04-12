@@ -17,7 +17,6 @@ class TutorialService private constructor() {
             val json = AppGson.fromJson(response, Map::class.java)
             (json["currentStep"] as? Double)?.toInt() ?: 0
         } catch (e: Exception) {
-            println("TutorialService getProgress error: ${e.message}")
             0
         }
     }
@@ -27,7 +26,6 @@ class TutorialService private constructor() {
             val response = http.post(baseUrl, mapOf("currentStep" to step))
             response.status.value in 200..299
         } catch (e: Exception) {
-            println("TutorialService updateProgress error: ${e.message}")
             false
         }
     }

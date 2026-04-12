@@ -20,15 +20,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -70,7 +67,6 @@ import com.mobile_client.viewModels.CurrentGamesListViewModel
 import com.mobile_client.viewModels.GameLobbyViewModel
 import com.mobile_client.viewModels.ThemeViewModel
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 @Composable
 fun JoinGameScreen(
@@ -80,7 +76,6 @@ fun JoinGameScreen(
     gameLobbyViewModel: GameLobbyViewModel,
     themeViewModel: ThemeViewModel,
 ) {
-    var showCodeDialog by remember { mutableStateOf(false) }
     var codeDigits by remember { mutableStateOf(List(4) { "" }) }
     val focusRequesters = remember { List(4) { FocusRequester() } }
     val scope: CoroutineScope = rememberCoroutineScope()
@@ -90,6 +85,7 @@ fun JoinGameScreen(
     val avatarBitmap = remember(account?.avatar) {
         ImageUtils.base64ToBitmap(account?.avatar)
     }
+    val money = AccountService.instance.money.intValue
 
     fun joinWithCode(code: String) {
         gameLobbyViewModel.joinLobbyWithBlockCheck(
@@ -341,7 +337,7 @@ fun JoinGameScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "${account?.money ?: 0}$",
+                    text = "$money$",
                     color = assets.mainPageTextColor,
                     fontSize = FontSize.BODY.sp,
                 )

@@ -73,7 +73,7 @@ fun ShopScreen(
     val shopItems by shopViewModel.shopItems.collectAsState()
     val isLoading by shopViewModel.isLoading.collectAsState()
     val snackbarMessage by shopViewModel.message.collectAsState()
-    val money by shopViewModel.money.collectAsState()
+    val money = AccountService.instance.money.intValue
     val scope = rememberCoroutineScope()
     val account = AccountService.instance.accountInfo
     val avatarBitmap = remember(account?.avatar) {

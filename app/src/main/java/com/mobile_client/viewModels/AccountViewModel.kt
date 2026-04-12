@@ -10,6 +10,8 @@ import kotlinx.coroutines.launch
 import android.graphics.Bitmap
 import com.mobile_client.services.CosmeticService
 import com.mobile_client.utils.Cosmetic
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.set
 
 class AccountViewModel : ViewModel() {
 
@@ -90,10 +92,11 @@ class AccountViewModel : ViewModel() {
         val bitMatrix = writer.encode(username, com.google.zxing.BarcodeFormat.QR_CODE, 300, 300)
         val w = bitMatrix.width
         val h = bitMatrix.height
-        val bmp = Bitmap.createBitmap(w, h, Bitmap.Config.RGB_565)
+        val bmp = createBitmap(w, h, Bitmap.Config.RGB_565)
         for (x in 0 until w) {
             for (y in 0 until h) {
-                bmp.setPixel(x, y, if (bitMatrix[x, y]) android.graphics.Color.BLACK else android.graphics.Color.WHITE)
+                bmp[x, y] =
+                    if (bitMatrix[x, y]) android.graphics.Color.BLACK else android.graphics.Color.WHITE
             }
         }
         _qrBitmap.value = bmp
@@ -118,7 +121,6 @@ class AccountViewModel : ViewModel() {
                         ownedIds.contains(cosmetic._id)
                 }
             } catch (e: Exception) {
-                println("loadOwnedAvatarCosmetics error: ${e.message}")
             }
         }
     }

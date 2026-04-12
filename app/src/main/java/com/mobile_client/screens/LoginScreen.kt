@@ -81,7 +81,6 @@ fun LoginScreen(navController: NavController, snackbarHostState: SnackbarHostSta
                 when (response.status) {
                     HttpStatusCode.OK -> {
                         val loginData: LoginResponse = response.body()
-                        println("logindata.account = " + loginData.account)
                         AccountService.instance.setAccount(loginData.account, loginData.token)
                         snackbarHostState.showDismissible(scope, "Connexion réussie")
                         navController.navigate(Screen.Home.route)

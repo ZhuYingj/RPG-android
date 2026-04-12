@@ -94,7 +94,6 @@ fun EndGameScreen(navController: NavController, themeViewModel: ThemeViewModel, 
                 if (isAscended) aVal.compareTo(bVal) else bVal.compareTo(aVal)
             }
         })
-        println("sortedStats = " + sortedStats)
     }
 
     fun showArrow(column: String): String {

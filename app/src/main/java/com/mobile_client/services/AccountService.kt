@@ -1,7 +1,6 @@
 package com.mobile_client.services
 
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import com.mobile_client.environment.ENVIRONMENT
 import com.mobile_client.utils.Account
 import com.mobile_client.utils.AppGson
@@ -41,12 +40,10 @@ class AccountService private constructor() {
         return try {
             val response = http.get("$ENVIRONMENT/api/user/")
             val account = AppGson.fromJson(response, Account::class.java)
-            println("fetchAccount: money=${account.money}, username=${account.username}")
             accountInfo = account
             money.intValue = account.money
             true
         } catch (e: Exception) {
-            println("fetchAccount error: ${e.message}")
             false
         }
     }
@@ -127,7 +124,6 @@ class AccountService private constructor() {
             val response = http.delete("$ENVIRONMENT/api/user/")
             response.status.value in 200..299
         } catch (e: Exception) {
-            println("deleteAccount error: ${e.message}")
             false
         }
     }

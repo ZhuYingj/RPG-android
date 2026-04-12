@@ -13,7 +13,6 @@ import com.mobile_client.utils.GameEvents
 import com.mobile_client.utils.GameMap
 import com.mobile_client.utils.InitFightObject
 import com.mobile_client.utils.ItemPickUpObject
-import com.mobile_client.utils.LeaderboardEvents
 import com.mobile_client.utils.LobbyEvents
 import com.mobile_client.utils.MessageEvents
 import com.mobile_client.utils.Player
@@ -159,7 +158,6 @@ class SocketService private constructor() {
         }
 
         socket.on(LobbyEvents.KICKED) {
-            println("kicked")
             lobbyViewModel.showMessage("Vous avez été enlevé de la partie")
             lobbyViewModel.clear()
             closeLobbyListeners()
@@ -178,7 +176,6 @@ class SocketService private constructor() {
                 val gamePlayers: List<Player> = gson.fromJson(data.getJSONArray("players").toString(), type)
                 val map: GameMap = gson.fromJson(data.getJSONObject("map").toString(), GameMap::class.java)
 
-                gamePlayers.forEach { println("START_GAME player: ${it.username} movement=${it.movement}") }
                 this.initializeGameListeners(GameControllerService.instance)
 
                 lobbyViewModel.players.clear()
@@ -218,7 +215,6 @@ class SocketService private constructor() {
         }
 
         socket.on(GameEvents.REJOINING_PLAYER) { args ->
-            println("REJOINING_PLAYER lobby listener fired")
             if (args.isNotEmpty()) {
                 val res = gson.fromJson(args[0].toString(), RejoiningPlayer::class.java)
 
@@ -342,13 +338,11 @@ class SocketService private constructor() {
         socket.on(GameEvents.NEXT_TURN) { args ->
             if (args.isNotEmpty()) {
                 val player: Player = gson.fromJson((args[0] as JSONObject).toString(), Player::class.java)
-                println("Next turn: ${player.username}")
                 handleNextTurn(controller, player)
             }
         }
 
         socket.on(GameEvents.START_PLAYER_TURN) {
-            println("START_PLAYER_TURN fired")
             controller.isBetweenTurn.value = false
             val p = controller.player.value
             if (p != null) {
@@ -375,6 +369,10 @@ class SocketService private constructor() {
                 val data: ItemPickUpObject = gson.fromJson((args[0] as JSONObject).toString(), ItemPickUpObject::class.java)
                 handlePickUpItem(controller, data)
             }
+        }
+
+        socket.on(GameEvents.ITEM_CHOICE) {
+            controller.isItemChoice.value = true
         }
 
         socket.on(GameEvents.ITEM_CHOICE) {
@@ -416,14 +414,12 @@ class SocketService private constructor() {
         }
 
         socket.on(GameEvents.LAST_PLAYER) {
-            println("LAST_PLAYER fired")
             closeGameListeners()
             closeLobbyListeners()
             controller.lastPlayer.value = true
         }
 
         socket.on(GameEvents.END_GAME) { args ->
-            println("END_GAME fired")
             if (args.isNotEmpty()) {
                 val data: EndGameObject = gson.fromJson((args[0] as JSONObject).toString(), EndGameObject::class.java)
                 controller.gameStats.value = data.gameStats
@@ -496,19 +492,14 @@ class SocketService private constructor() {
         val x = player.position.x
         val y = player.position.y
 
-        // Clear item from tile player moved to
+        // Clear item from tile player moved to — mutate in place instead of rebuilding the grid
         val tiles = controller.gameTiles.value
         if (tiles.isNotEmpty() && x < tiles.size && y < tiles[0].size) {
-            val tileItem = tiles[x][y].item
-            if (tileItem != null && tileItem != TileConstants.Items.None && tileItem != TileConstants.Items.Spawn) {
-                controller.gameTiles.value = tiles.mapIndexed { rowIdx, row ->
-                    if (rowIdx == x) {
-                        row.mapIndexed { colIdx, tile ->
-                            if (colIdx == y) tile.copy(item = TileConstants.Items.None)
-                            else tile
-                        }
-                    } else row
-                }
+            val tile = tiles[x][y]
+            if (tile.item != null && tile.item != TileConstants.Items.None && tile.item != TileConstants.Items.Spawn) {
+                tile.item = TileConstants.Items.None
+                // Trigger recomposition with a shallow list copy (not deep grid copy)
+                controller.gameTiles.value = tiles.toList()
             }
         }
 
@@ -525,7 +516,6 @@ class SocketService private constructor() {
 
     private fun handleNextTurn(controller: GameControllerService, player: Player) {
         controller.currentPlayer.value = player
-        println("number of actions = " + player.hasAction)
         if (player.username == controller.player.value?.username) {
             controller.player.value = player
             controller.player.value?.hasAction = player.hasAction
@@ -548,7 +538,7 @@ class SocketService private constructor() {
         controller.gameTiles.value = controller.gameTiles.value.mapIndexed { rowIdx, row ->
             if (rowIdx == x) {
                 row.mapIndexed { colIdx, tile ->
-                    if (colIdx == y) tile.copy(item = data.item) //tile.copy(item = TileConstants.Items.None)
+                    if (colIdx == y) tile.copy(item = data.item)
                     else tile
                 }
             } else row

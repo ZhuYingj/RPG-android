@@ -1,6 +1,5 @@
 package com.mobile_client.screens
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -55,7 +54,6 @@ data class HomeButton(val label: String, val action: () -> Unit)
 
 @Composable
 fun HomeScreen(navController: NavController, gameLobbyViewModel: GameLobbyViewModel, themeViewModel: ThemeViewModel) {
-    BackHandler() { }
     val navBackStackEntry = navController.currentBackStackEntryAsState().value
 
     val account = AccountService.instance.accountInfo
@@ -84,7 +82,6 @@ fun HomeScreen(navController: NavController, gameLobbyViewModel: GameLobbyViewMo
     }
 
     LaunchedEffect(navBackStackEntry) {
-        println("cleaned sockets")
         SocketService.instance.closeLobbyListeners()
         SocketService.instance.closeGameListeners()
         gameLobbyViewModel.isGameStarted.value = false
@@ -227,7 +224,7 @@ fun HomeScreen(navController: NavController, gameLobbyViewModel: GameLobbyViewMo
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "$money $",
+                    text = "$money$",
                     color = assets.mainPageTextColor,
                     fontSize = FontSize.BODY.sp,
                 )

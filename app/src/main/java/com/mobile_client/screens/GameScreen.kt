@@ -134,17 +134,6 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
 
     // Configure listeners on init
     LaunchedEffect(Unit) {
-//        println("INIT player movement: ${player?.movement}")
-//        println("INIT player position: ${player?.position}")
-//        controller.originalPlayers.value = players.toList()
-//        controller.currentPlayer.value = player
-//        controller.configureListeners()
-
-        //TODO print for debug also its never closed so its stacks every game
-        SocketService.instance.socket?.onAnyIncoming { args ->
-            val eventName = if (args.isNotEmpty()) args[0].toString() else "unknown"
-            println("INCOMING EVENT: $eventName")}
-
         controller.lastPlayer.value = false
         controller.fightService.isFight.value = false
         controller.isDebug.value = false
@@ -386,7 +375,6 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
                     onTileClick = { pos ->
                         if (isDebug && controller.isTeleport() && !isAction) {
                             // Debug mode: teleport directly
-                            println("TELEPORTING TO $pos")
                             controller.teleport(pos)
                         } else if (isAction) {
                             controller.action(pos)
@@ -403,7 +391,6 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
                                     // First click or different accessible tile: show path
                                     selectedTile = pos
                                     path = controller.getShortestPath(pos)
-                                    println("SHOWING PATH TO $pos = $path")
                                 }
                             } else {
                                 // Non-accessible tile: clear path
@@ -589,7 +576,6 @@ fun GameScreen(navController: NavController, snackbarHostState: SnackbarHostStat
     }
     if (isItemChoice) {
         ItemChoiceOverlay(controller)
-        //TODO si timer run out reject default item?
     }
     if (endGameTimer >= 0) {
         Box(

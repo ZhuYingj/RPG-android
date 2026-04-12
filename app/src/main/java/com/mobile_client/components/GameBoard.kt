@@ -144,7 +144,7 @@ fun TileCell(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(
-                        if (isPath) Color(0x73D8B56A)
+                        if (isPath) Color(0xFFE2AB6D).copy(alpha = 0.75f)
                         else Color(0x73C9A24D)
                     ).zIndex(if (playerAtTile?.username == player.username) 1f else 4f)
             )

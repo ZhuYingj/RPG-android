@@ -48,6 +48,9 @@ import com.mobile_client.viewModels.ThemeViewModel
 import com.mobile_client.viewModels.TutorialViewModel
 
 class MainActivity : ComponentActivity() {
+    @Suppress("DEPRECATION")
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {}
     @OptIn(ExperimentalLayoutApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -170,7 +173,6 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
                             composable(Screen.Shop.route) {
-                                println("Shop composable ENTRY: ${System.currentTimeMillis()}")
                                 ShopScreen(
                                     navController = navController,
                                     snackbarHostState = snackbarHostState,
