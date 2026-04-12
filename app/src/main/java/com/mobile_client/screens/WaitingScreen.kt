@@ -3,12 +3,14 @@ package com.mobile_client.screens
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -491,10 +493,11 @@ fun PlayerCard(player: Player, isHost: Boolean, gameLobbyViewModel: GameLobbyVie
                             border = BorderStroke(1.dp, Color.Gray),
                             shape = RoundedCornerShape(6.dp),
                             colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White),
-                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                            modifier = Modifier.height(36.dp)
                         ) {
                             Text(
-                                if (player.playerType == PlayerTypes.BotAggressive) "Agressif" else "Passif",
+                                if (player.playerType == PlayerTypes.BotAggressive) "Agressif" else "Défensif",
                                 color = DarkText,
                                 fontSize = FontSize.SMALL.sp
                             )
@@ -533,19 +536,20 @@ fun PlayerCard(player: Player, isHost: Boolean, gameLobbyViewModel: GameLobbyVie
                 }
 
                 // Trash icon button instead of "Expulser" text
-                IconButton(
-                    onClick = {
-                        gameLobbyViewModel.kickPlayer(player)
-                        snackbarHostState.showDismissible(scope, "Joueur expulsé avec succès")
-                    },
+                Box(
                     modifier = Modifier
                         .size(36.dp)
-                        .background(Color.Red, RoundedCornerShape(6.dp))
+                        .background(Color.Red, RoundedCornerShape(4.dp))
+                        .clickable {
+                            gameLobbyViewModel.kickPlayer(player)
+                            snackbarHostState.showDismissible(scope, "Joueur expulsé avec succès")
+                        },
+                    contentAlignment = Alignment.Center
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.trash),
                         contentDescription = "Expulser",
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.size(22.dp)
                     )
                 }
             }
