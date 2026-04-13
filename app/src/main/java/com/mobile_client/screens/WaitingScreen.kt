@@ -535,22 +535,28 @@ fun PlayerCard(player: Player, isHost: Boolean, gameLobbyViewModel: GameLobbyVie
                     }
                 }
 
-                // Trash icon button instead of "Expulser" text
-                Box(
-                    modifier = Modifier
-                        .size(36.dp)
-                        .background(Color.Red, RoundedCornerShape(4.dp))
-                        .clickable {
+                PressableButton(
+                    shadowColor = Color(102,0,0),
+                    cornerRadius = 4.dp,
+                ) { interactionSource, pressModifier ->
+                    OutlinedButton(
+                        onClick = {
                             gameLobbyViewModel.kickPlayer(player)
                             snackbarHostState.showDismissible(scope, "Joueur expulsé avec succès")
                         },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.trash),
-                        contentDescription = "Expulser",
-                        modifier = Modifier.size(22.dp)
-                    )
+                        modifier = pressModifier.size(36.dp),
+                        interactionSource = interactionSource,
+                        border = BorderStroke(2.dp, Color.Red),
+                        colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.Red),
+                        shape = RoundedCornerShape(4.dp),
+                        contentPadding = PaddingValues(0.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.trash),
+                            contentDescription = "Expulser",
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
                 }
             }
         }
