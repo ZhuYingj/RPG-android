@@ -184,6 +184,7 @@ class FriendsViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 friendsApi.respondToRequest(id, true)
+                _snackbarMessage.value = "Demande d'ami acceptée"
                 loadFriends()
                 loadFriendRequests()
                 loadReceivedRequestUsernames()
@@ -198,6 +199,7 @@ class FriendsViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 friendsApi.respondToRequest(id, false)
+                _snackbarMessage.value = "Demande d'ami refusée"
                 loadFriendRequests()
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -209,6 +211,7 @@ class FriendsViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 friendsApi.unfriend(username)
+                _snackbarMessage.value = "Ami supprimé"
                 loadFriends()
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -220,6 +223,7 @@ class FriendsViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 friendsApi.undoFriendRequest(id)
+                _snackbarMessage.value = "Demande d'ami annulée"
                 loadSentFriendRequests()
             } catch (e: Exception) {
                 e.printStackTrace()

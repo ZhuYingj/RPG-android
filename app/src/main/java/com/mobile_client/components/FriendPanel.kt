@@ -62,6 +62,7 @@ import com.mobile_client.utils.FriendsTab
 import com.mobile_client.utils.launchQrScanner
 import com.mobile_client.viewModels.FriendsViewModel
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.ui.draw.clip
 import coil.compose.rememberAsyncImagePainter
 import com.mobile_client.utils.ImageUtils
@@ -109,7 +110,7 @@ fun FriendsPanel(
         }
     }
 
-    Box(modifier = modifier.zIndex(1f)) {
+    Box(modifier = modifier.zIndex(1f).then( if (isOpen) Modifier.imePadding() else Modifier)) {
         if (!isOpen) {
             FloatingActionButton(
                 onClick = { isOpen = true },
@@ -241,7 +242,15 @@ fun FriendsPanel(
                                             }
                                         }
                                         IconButton(
-                                            onClick = { if (!isBlocked && !isPending) friendsViewModel.blockUser(user.username) },
+                                            onClick = {
+                                                if (!isBlocked && !isPending) {
+                                                    friendsViewModel.blockUser(user.username)
+                                                    snackbarHostState.showDismissible(
+                                                        scope,
+                                                        "Utilisateur ${user.username} bloqué"
+                                                    )
+                                                }
+                                            },
                                             enabled = !isBlocked && !isPending
                                         ) {
                                             Icon(
@@ -325,7 +334,7 @@ fun FriendsPanel(
                                                         contentDescription = "Remove person"
                                                     )
                                                 }
-                                                IconButton(onClick = { friendsViewModel.blockUser(friend.username) }) {
+                                                IconButton(onClick = { friendsViewModel.blockUser(friend.username); snackbarHostState.showDismissible(scope, "Utilisateur ${friend.username} bloqué") }) {
                                                     Icon(
                                                         Icons.Default.Block,
                                                         contentDescription = "Bloquer",
@@ -418,7 +427,7 @@ fun FriendsPanel(
                                         FriendItem(
                                             username = username,
                                             actions = {
-                                                IconButton(onClick = { friendsViewModel.blockUser(username) }) {
+                                                IconButton(onClick = { friendsViewModel.blockUser(username); snackbarHostState.showDismissible(scope, "Utilisateur $username débloqué") }) {
                                                     Icon(
                                                         Icons.Default.LockOpen,
                                                         contentDescription = "Débloquer",
