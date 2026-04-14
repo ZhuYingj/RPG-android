@@ -28,7 +28,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -62,22 +61,13 @@ import com.mobile_client.utils.PlayerAvatars
 import com.mobile_client.utils.PlayerTypes
 import com.mobile_client.utils.Screen
 import com.mobile_client.utils.Stats
+import com.mobile_client.utils.premiumAvatarFilePaths
 import com.mobile_client.utils.showDismissible
 import com.mobile_client.viewModels.GameLobbyViewModel
 import com.mobile_client.viewModels.ThemeViewModel
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 private val IconDark = Color(0xFF3E2723)
-private val SelectedGreen = Color(0xFF4CAF50)
-
-// Maps premium avatars (13-16) to their cosmetic filePath
-private val premiumAvatarFilePaths = mapOf(
-    PlayerAvatars.Pumpkin to "avatars/avatar13.png",
-    PlayerAvatars.Asparagus to "avatars/avatar14.png",
-    PlayerAvatars.Eggplant to "avatars/avatar15.png",
-    PlayerAvatars.Avocado to "avatars/avatar16.png",
-)
 
 @Composable
 fun CharacterCreationScreen(
@@ -120,8 +110,11 @@ fun CharacterCreationScreen(
             cosmeticIdToFilePath[item.cosmeticId]?.let { ownedPaths.add(it) }
         }
         inventory.equipped.forEach { ownedPaths.add(it.filePath) }
-
         ownedPremiumAvatarPaths = ownedPaths
+
+        selectedAvatar = gameLobbyViewModel.autoSelectAvatar(ownedPremiumAvatarPaths)
+        if (selectedAvatar == PlayerAvatars.None)
+            snackbarHostState.showDismissible(scope, "Aucun avatar disponible pour l'instant")
     }
 
     LaunchedEffect(Unit) {

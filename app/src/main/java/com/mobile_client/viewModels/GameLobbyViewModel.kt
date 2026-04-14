@@ -12,6 +12,7 @@ import com.mobile_client.utils.LobbyEvents
 import com.mobile_client.utils.Player
 import com.mobile_client.utils.PlayerAvatars
 import com.mobile_client.utils.PlayerTypes
+import com.mobile_client.utils.premiumAvatarFilePaths
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
@@ -110,6 +111,26 @@ class GameLobbyViewModel : ViewModel() {
     fun selectAvatar(previousAvatar: PlayerAvatars, avatar: PlayerAvatars) {
         GameLobbyService.instance.selectAvatar(previousAvatar, avatar)
     }
+
+
+    fun autoSelectAvatar(ownedPremiumAvatarPaths: Set<String>): PlayerAvatars {
+        val freeAvailable = availableAvatars.filter { avatar ->
+            avatar !in premiumAvatarFilePaths.keys
+        }
+
+        val ownedPremiumAvailable = availableAvatars.filter { avatar ->
+            val path = premiumAvatarFilePaths[avatar]
+            path != null && path in ownedPremiumAvatarPaths
+        }
+        val avatar =
+            freeAvailable.firstOrNull()
+                ?: ownedPremiumAvailable.firstOrNull()
+                ?: PlayerAvatars.None
+
+        GameLobbyService.instance.selectAvatar(avatar, avatar)
+        return avatar
+    }
+
 
     fun addPlayer(player: Player, onJoined: () -> Unit) {
         GameLobbyService.instance.addPlayer(player) { joiningPlayer ->

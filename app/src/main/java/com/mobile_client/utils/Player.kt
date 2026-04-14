@@ -2,6 +2,12 @@ package com.mobile_client.utils
 
 import com.google.gson.annotations.SerializedName
 
+val premiumAvatarFilePaths = mapOf(
+    PlayerAvatars.Pumpkin to "avatars/avatar13.png",
+    PlayerAvatars.Asparagus to "avatars/avatar14.png",
+    PlayerAvatars.Eggplant to "avatars/avatar15.png",
+    PlayerAvatars.Avocado to "avatars/avatar16.png",
+)
 enum class PlayerAvatars {
     @SerializedName("./assets/avatars/avatar1.png")
     Carrot,
