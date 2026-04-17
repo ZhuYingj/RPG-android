@@ -70,7 +70,7 @@ class MainActivity : ComponentActivity() {
                 val globalChatViewModel: ChatViewModel = viewModel()
                 val lobbyChatViewModel: ChatViewModel = viewModel(key = "lobbyChat")
                 val tutorialViewModel: TutorialViewModel = viewModel()
-                val showLobbyTab = currentRoute in listOf(Screen.WaitingPage.route, Screen.Game.route, Screen.EndGame.route)
+                val showLobbyTab = currentRoute in listOf(Screen.WaitingPage.route, Screen.Game.route)
                 val hideBackButton = currentRoute in listOf(
                     Screen.Login.route,
                     Screen.SignUp.route,
