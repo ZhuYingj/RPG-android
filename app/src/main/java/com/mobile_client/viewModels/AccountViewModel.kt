@@ -58,6 +58,7 @@ class AccountViewModel : ViewModel() {
                 if (usernameChanged) accountService.updateUsername(name)
                 if (emailChanged) accountService.updateEmail(email)
                 _account.value = accountService.accountInfo
+                generateQrCode()
                 _message.value = "Informations mises à jour avec succès"
             } catch (e: Exception) {
                 _message.value = "${e.message}"
