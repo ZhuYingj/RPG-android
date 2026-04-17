@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import android.graphics.Bitmap
+import android.net.Uri
 import com.mobile_client.services.CosmeticService
 import com.mobile_client.utils.Cosmetic
 import androidx.core.graphics.createBitmap
@@ -32,6 +33,12 @@ class AccountViewModel : ViewModel() {
     private val cosmeticService = CosmeticService.instance
     private val _ownedAvatarCosmetics = MutableStateFlow<List<Cosmetic>>(emptyList())
     val ownedAvatarCosmetics: StateFlow<List<Cosmetic>> = _ownedAvatarCosmetics
+    private val _tempPhotoUri = MutableStateFlow<Uri?>(null)
+    val tempPhotoUri: StateFlow<Uri?> = _tempPhotoUri
+
+    fun setTempPhotoUri(uri: Uri?) {
+        _tempPhotoUri.value = uri
+    }
 
     init {
         _account.value = accountService.accountInfo

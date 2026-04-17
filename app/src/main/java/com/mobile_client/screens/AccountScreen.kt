@@ -122,7 +122,7 @@ fun AccountScreen(
 
     var selectedDefaultResId by remember { mutableStateOf<Int?>(null) }
     var showAvatarPicker by remember { mutableStateOf(false) }
-    var tempPhotoUri by remember { mutableStateOf<Uri?>(null) }
+    val tempPhotoUri by accountViewModel.tempPhotoUri.collectAsState()
 
     var selectedTabIndex by remember { mutableIntStateOf(0) }
 
@@ -170,7 +170,7 @@ fun AccountScreen(
         if (granted) {
             val file = File(context.cacheDir, "avatar_${System.currentTimeMillis()}.jpg")
             val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
-            tempPhotoUri = uri
+            accountViewModel.setTempPhotoUri(uri)
             cameraLauncher.launch(uri)
         } else {
             snackbarHostState.showDismissible(scope, "Permission caméra refusée")
