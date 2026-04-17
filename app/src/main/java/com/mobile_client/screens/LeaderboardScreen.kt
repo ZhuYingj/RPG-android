@@ -241,7 +241,10 @@ fun LeaderBoardScreen(
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = {
-                    leaderboardViewModel.searchQuery.value = it.filterNot { c -> c.isWhitespace() }
+                    val filtered = it.filterNot { c -> c.isWhitespace() }
+                    if (filtered.length <= 15) {
+                        leaderboardViewModel.searchQuery.value = filtered
+                    }
                 },
                 label = { Text("Rechercher un joueur", color = assets.textAccount) },
                 leadingIcon = { Icon(Icons.Default.Search, null, tint = assets.textAccount) },

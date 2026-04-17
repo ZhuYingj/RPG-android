@@ -33,12 +33,6 @@ class AccountViewModel : ViewModel() {
     private val cosmeticService = CosmeticService.instance
     private val _ownedAvatarCosmetics = MutableStateFlow<List<Cosmetic>>(emptyList())
     val ownedAvatarCosmetics: StateFlow<List<Cosmetic>> = _ownedAvatarCosmetics
-    private val _tempPhotoUri = MutableStateFlow<Uri?>(null)
-    val tempPhotoUri: StateFlow<Uri?> = _tempPhotoUri
-
-    fun setTempPhotoUri(uri: Uri?) {
-        _tempPhotoUri.value = uri
-    }
 
     init {
         _account.value = accountService.accountInfo
