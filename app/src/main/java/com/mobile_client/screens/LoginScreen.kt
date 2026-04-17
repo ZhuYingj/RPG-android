@@ -96,7 +96,7 @@ fun LoginScreen(navController: NavController, snackbarHostState: SnackbarHostSta
                     }
                 }
             } catch (e: Exception) {
-                errorMessage = "Erreur réseau: ${e.message}"
+                errorMessage = "Erreur réseau"
                 e.printStackTrace()
             }
         }
